@@ -1,0 +1,39 @@
+{
+  "name": "@laufire/utils",
+  "version": "0.0.1",
+  "description": "A simple set of utility libraries to ease development.",
+  "main": "./src/index.js",
+  "scripts": {
+    "test": "jest --no-cache"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Laufire/js-utils.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Laufire/js-utils/issues"
+  },
+  "homepage": "https://github.com/Laufire/js-utils#readme",
+  "keywords": [
+    "utils",
+    "collection",
+    "random"
+  ],
+  "author": "laufire technologies",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^24.7.1"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageDirectory": "./.jest-coverage",
+    "coverageThreshold": {
+      "global": {
+        "branches": 0,
+        "functions": 0,
+        "lines": 0,
+        "statements": 0
+      }
+    }
+  }
+}
