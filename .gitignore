@@ -1,0 +1,13 @@
+# Ignores
+## General
+.*
+
+## Stack
+node_modules
+
+# Excludes
+## General
+!.git*
+
+## Dev
+!.editorconfig
