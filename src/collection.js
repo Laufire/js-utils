@@ -28,9 +28,11 @@ const flipMany = (obj) => { // Convers a one-to-many map (an object of array val
 	return ret;
 };
 
+const props = (obj, properties) => properties.map(prop => obj[prop]);
+
 module.exports = {
 
 	assign, entries, keys, values,
 	fromEntries,
-	collect, flip, flipMany,
+	collect, flip, flipMany, props,
 }
