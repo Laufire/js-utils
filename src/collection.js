@@ -1,8 +1,11 @@
 /**
- * Helper functions to deal with collections.
- */
+* Helper functions to deal with collections.
+*/
 
- /* Exports */
+/* Data */
+const pathSplitPattern = /(?<!\\)\//g;
+
+/* Exports */
 const { assign, entries, keys, values } = Object;
 
 const fromEntries = (kvPairs) => kvPairs.reduce((agg, pair) => { agg[pair[0]] = pair[1]; return agg; }, {});
@@ -30,9 +33,27 @@ const flipMany = (obj) => { // Convers a one-to-many map (an object of array val
 
 const props = (obj, properties) => properties.map(prop => obj[prop]);
 
+/**
+ * Retrives the value, notified by a path, from a nested map. Slashes are used as the separator for readability.
+ * @param {object} obj The object to look into.
+ * @param {string} path The path to look for. Slash is the separator. And backslash is the escape char.
+ * @returns {*} The value from the path or undefined.
+ */
+const result = (obj, path) => {
+	const parts = path.split(pathSplitPattern);
+	const l = parts.length;
+	let i = 0;
+
+	while(i < l && typeof obj == 'object')
+		obj = obj[parts[i++]]
+
+	if(i == l)
+		return obj;
+};
+
 module.exports = {
 
 	assign, entries, keys, values,
-	fromEntries,
-	collect, flip, flipMany, props,
+	fromEntries, collect, flip, flipMany,
+	props, result,
 }
