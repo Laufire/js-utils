@@ -2,6 +2,7 @@
 * Helper functions to deal with collections.
 *
 * TODO: Add a function to recursives parse an object through some given function.
+* TODO: Write the doc comments.
 */
 
 /* Exports */
