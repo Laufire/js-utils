@@ -4,7 +4,8 @@
   "description": "A simple set of utility libraries to ease development.",
   "main": "./src/index.js",
   "scripts": {
-    "test": "jest --no-cache"
+    "test": "jest --no-cache",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,7 @@
   "author": "laufire technologies",
   "license": "ISC",
   "devDependencies": {
+    "eslint": "^5.16.0",
     "jest": "^24.7.1"
   },
   "jest": {
