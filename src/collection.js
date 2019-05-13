@@ -1,5 +1,7 @@
 /**
 * Helper functions to deal with collections.
+*
+* TODO: Add a function to recursives parse an object through some given function.
 */
 
 /* Exports */
@@ -48,9 +50,25 @@ const result = (obj, path) => {
 		return obj;
 };
 
+const clean = (obj) => {
+	const ret = {};
+	const objKeys = keys(obj);
+	const l = objKeys.length;
+	let i = 0;
+	while(i < l) {
+		const key = objKeys[i++];
+		const val = obj[key];
+		if(val !== undefined)
+			ret[key] = val;
+	}
+
+	return ret;
+}
+
+
 module.exports = {
 
 	assign, entries, keys, values,
-	fromEntries, collect, flip, flipMany,
+	fromEntries, collect, clean, flip, flipMany,
 	props, result,
 }
