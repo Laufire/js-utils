@@ -2,9 +2,6 @@
 * Helper functions to deal with collections.
 */
 
-/* Data */
-const pathSplitPattern = /(?<!\\)\//g;
-
 /* Exports */
 const { assign, entries, keys, values } = Object;
 
@@ -40,7 +37,7 @@ const props = (obj, properties) => properties.map(prop => obj[prop]);
  * @returns {*} The value from the path or undefined.
  */
 const result = (obj, path) => {
-	const parts = path.split(pathSplitPattern);
+	const parts = path.split(/(?<!(?:[^\\])(?:\\{2})*\\)\//g).map(part => part.replace(/\\(.)/g, '$1'));
 	const l = parts.length;
 	let i = 0;
 
