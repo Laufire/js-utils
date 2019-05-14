@@ -1,6 +1,7 @@
 # Ignores
 ## General
 .*
+*.tgz
 
 ## Stack
 node_modules
@@ -8,6 +9,7 @@ node_modules
 # Excludes
 ## General
 !.git*
+!.npmignore
 
 ## Dev
 !.editorconfig
