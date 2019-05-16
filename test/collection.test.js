@@ -2,7 +2,7 @@
 const {
 	clean, collect, entries,
 	flip, flipMany, fromEntries,
-	props, result, traverse } = require('../src/collection');
+	props, result, select, traverse } = require('../src/collection');
 
 describe('Collections', () => {
 
@@ -80,6 +80,10 @@ describe('Collections', () => {
 
 	test('prop should return the array of values for the given properties from the given object', () => {
 		expect(props(simpleObj, ['a', 'b'])).toEqual([1, 2]);
+	});
+
+	test('select should return a sub-object with the given properties of the given object', () => {
+		expect(select(simpleObj, ['a'])).toEqual({a: 1});
 	});
 
 	test('result should work for normal paths esacped paths', () => {
