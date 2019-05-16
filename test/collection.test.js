@@ -2,7 +2,7 @@
 const {
 	clean, collect, entries,
 	flip, flipMany, fromEntries,
-	props, result } = require('../src/collection');
+	props, result, traverse } = require('../src/collection');
 
 describe('Collections', () => {
 
@@ -33,6 +33,25 @@ describe('Collections', () => {
 		expect(collect(simpleObj, cb)).toEqual({
 			a: 'a1',
 			b: 'b2',
+		});
+	});
+
+	test('traverse should recursively traverse through a given object and build a new object', () => {
+		const simpleObj = {
+			a: 1, b: 2,
+			c: {
+				d: 1,
+			},
+		};
+
+		const cb = (val, key) => key + val;
+
+		expect(traverse(simpleObj, cb)).toEqual({
+			a: 'a1',
+			b: 'b2',
+			c: {
+				d: 'd1',
+			},
 		});
 	});
 
