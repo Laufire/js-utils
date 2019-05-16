@@ -24,6 +24,19 @@ const traverse = (obj, cb) => collect(obj, (value, key) =>
 
 const props = (obj, properties) => properties.map(prop => obj[prop]);
 
+const select = (obj, properties) => {
+	const ret = {};
+	const propCount = properties.length;
+	let propIndex = 0;
+
+	while(propIndex < propCount) {
+		const prop = properties[propIndex++];
+		ret[prop] = obj[prop];
+	}
+
+	return ret;
+}
+
 /**
  * Retrives the value, notified by a path, from a nested map. Slashes are used as the separator for readability.
  * @param {object} obj The object to look into.
@@ -75,6 +88,6 @@ module.exports = {
 
 	assign, entries, keys, values,
 	fromEntries, collect, clean, traverse,
-	props, result,
+	props, select, result,
 	flip, flipMany,
 }
