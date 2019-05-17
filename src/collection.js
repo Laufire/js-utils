@@ -66,7 +66,7 @@ const result = (obj, path) => {
 	while(partIndex < partCount && typeof obj == 'object')
 		obj = obj[parts[partIndex++]]
 
-	if(partIndex == partCount)
+	if(partIndex === partCount)
 		return obj;
 };
 
