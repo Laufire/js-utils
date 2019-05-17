@@ -5,6 +5,10 @@
 * TODO: Write the doc comments.
 */
 
+/* Helpers */
+const isObject = (value) =>
+	value && value.constructor && value.constructor.name === 'Object' || false;
+
 /* Exports */
 const { assign, entries, keys, values } = Object;
 
@@ -17,10 +21,21 @@ const collect = (obj, cb) => { // An Array.map like function for Objects.
 };
 
 const traverse = (obj, cb) => collect(obj, (value, key) =>
-	(value && value.constructor && value.constructor.name !== 'Object')
-		? cb(value, key)
-		: collect(value, cb)
+	isObject(value) ? collect(value, cb) : cb(value, key)
 );
+
+const clone = (() => {
+	const { isArray } = Array;
+	const cloneObj = (obj) => collect(obj, clone);
+	const cloneArray = (arr) => arr.map(clone);
+
+	return (value) =>
+		isObject(value)
+			? cloneObj(value)
+			: isArray(value)
+				? cloneArray(value)
+				: value;
+})();
 
 const props = (obj, properties) => properties.map(prop => obj[prop]);
 
@@ -45,13 +60,13 @@ const select = (obj, properties) => {
  */
 const result = (obj, path) => {
 	const parts = path.split(/(?<!(?:[^\\])(?:\\{2})*\\)\//g).map(part => part.replace(/\\(.)/g, '$1'));
-	const l = parts.length;
-	let i = 0;
+	const partCount = parts.length;
+	let partIndex = 0;
 
-	while(i < l && typeof obj == 'object')
-		obj = obj[parts[i++]]
+	while(partIndex < partCount && typeof obj == 'object')
+		obj = obj[parts[partIndex++]]
 
-	if(i == l)
+	if(partIndex == partCount)
 		return obj;
 };
 
@@ -87,7 +102,7 @@ const flipMany = (obj) => { // Convers a one-to-many map (an object of array val
 module.exports = {
 
 	assign, entries, keys, values,
-	fromEntries, collect, clean, traverse,
+	fromEntries, collect, clean, clone, traverse,
 	props, select, result,
 	flip, flipMany,
 }
