@@ -25,8 +25,8 @@ describe('Collections', () => {
 			child: {
 				grandChild: 'grandChild',
 			},
-			'escaped/child': 'escaped/child',
-			'un\\/escaped\\/child': 'un\\/escaped\\/child',
+			'unescaped/child': 'unescaped/child',
+			'escaped\\/child': 'escaped\\/child',
 		},
 		undeifinedProp: undefined,
 		array: [1, 2],
@@ -105,13 +105,15 @@ describe('Collections', () => {
 		expect(select(simpleObj, ['a'])).toEqual({a: 1});
 	});
 
-	test('result should work for normal paths esacped paths', () => {
+	test.only('result should work for normal paths esacped paths', () => {
+		console.log(complexObject.parent['escaped\\/child']);
+
 		expect(result(complexObject, 'single')).toEqual(complexObject.single);
 		expect(result(complexObject, 'parent/child')).toEqual(complexObject.parent.child);
-		expect(result(complexObject, 'parent/escaped\\/child'))
-			.toEqual(complexObject.parent['escaped/child']);
-		expect(result(complexObject, 'parent/un\\\\\\/escaped\\\\\\/child'))
-			.toEqual(complexObject.parent['un\\/escaped\\/child']);
+		expect(result(complexObject, 'parent/unescaped\\/child'))
+			.toEqual(complexObject.parent['unescaped/child']);
+		expect(result(complexObject, 'parent/escaped\\\\\\/child'))
+			.toEqual(complexObject.parent['escaped\\/child']);
 		expect(result(complexObject, 'non-existent')).toEqual(undefined);
 	});
 });
