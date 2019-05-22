@@ -6,8 +6,17 @@
 */
 
 /* Helpers */
-const isObject = (value) =>
-	value && value.constructor && value.constructor.name === 'Object' || false;
+const { isObject } = require('./reflection');
+
+const mergeObjects = (base, extension = {}) => 	{
+	keys(extension).forEach((key) => {
+		const child = base[key];
+		const childExtension = extension[key];
+		isObject(child) && isObject(childExtension)
+			? mergeObjects(child, childExtension)
+			: base[key] = childExtension
+	});
+}
 
 /* Exports */
 const { assign, entries, keys, values } = Object;
@@ -18,7 +27,7 @@ const collect = (obj, cb) => { // An Array.map like function for Objects.
 	let ret = {};
 	keys(obj).forEach(key => ret[key] = cb(obj[key], key));
 	return ret;
-};
+}
 
 const traverse = (obj, cb) => collect(obj, (value, key) =>
 	isObject(value) ? collect(value, cb) : cb(value, key)
@@ -53,6 +62,19 @@ const select = (obj, properties) => {
 }
 
 /**
+ * Merges multiple objects and their properties.
+ * @param {object} base The base object onto which the extensions would be merged.
+ * @param  {...object} extensions
+ */
+const merge = (base, ...extensions) => {
+
+	extensions.forEach((extension) =>
+		mergeObjects(base, extension));
+
+	return base;
+}
+
+/**
  * Retrives the value, notified by a path, from a nested map. Slashes are used as the separator for readability.
  * @param {object} obj The object to look into.
  * @param {string} path The path to look for. Slash is the separator. And backslash is the escape char.
@@ -68,7 +90,7 @@ const result = (obj, path) => {
 
 	if(partIndex === partCount)
 		return obj;
-};
+}
 
 const clean = (obj) => {
 	const ret = {};
@@ -86,23 +108,21 @@ const clean = (obj) => {
 }
 
 const flip = (obj) => { // Swaps the keys and values of a map.
-
 	let ret = {};
 	keys(obj).forEach(key => ret[obj[key]] = key);
 	return ret;
-};
+}
 
-const flipMany = (obj) => { // Convers a one-to-many map (an object of array values) as an one-to-one inverted map, to ease reverse lookups. IE: {'a': ['b', 'c']} => {'b': 'a', 'c': 'a'}.
-
+const flipMany = (obj) => { // Converts a one-to-many map (an object of array values) as an one-to-one inverted map, to ease reverse lookups. IE: {'a': ['b', 'c']} => {'b': 'a', 'c': 'a'}.
 	let ret = {};
 	keys(obj).forEach(key => obj[key].forEach(item => ret[item] = key));
 	return ret;
-};
+}
 
 module.exports = {
-
+	isObject,
 	assign, entries, keys, values,
-	fromEntries, collect, clean, clone, traverse,
-	props, select, result,
+	fromEntries, collect, clean, clone, merge,
+	props, traverse, select, result,
 	flip, flipMany,
 }

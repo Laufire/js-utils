@@ -1,7 +1,7 @@
 /* Tested */
 const {
 	clean, clone, collect, entries,
-	flip, flipMany, fromEntries,
+	flip, flipMany, fromEntries, merge,
 	props, result, select, traverse } = require('../src/collection');
 
 describe('Collections', () => {
@@ -74,6 +74,31 @@ describe('Collections', () => {
 		expect(cloned).not.toEqual(complexObject);
 	});
 
+	test('merge should merge the second object to the first object', () => {
+		const base = clone(complexObject);
+		const extension = clone(complexObject);
+		const propToDelete = 'single';
+		const newValue = 'new value';
+
+		delete extension[propToDelete];
+		extension.newProperty = newValue;
+		extension.parent.child.grandChild = newValue;
+
+		const merged = merge(base, extension);
+
+		expect(merged).toHaveProperty(propToDelete);
+		expect(merged.newProperty).toEqual(newValue);
+		expect(merged.parent.child.grandChild).toEqual(newValue);
+	});
+
+	test('merge should merge multiple objects', () => {
+		expect(merge({a: 1}, {b: 2}, {c: 3})).toEqual({
+			a: 1,
+			b: 2,
+			c: 3,
+		});
+	});
+
 	test('flip should swap the keys and values of the given object', () => {
 		expect(flip(simpleObj)).toEqual({
 			1: 'a',
@@ -105,7 +130,7 @@ describe('Collections', () => {
 		expect(select(simpleObj, ['a'])).toEqual({a: 1});
 	});
 
-	test.only('result should work for normal paths esacped paths', () => {
+	test('result should work for normal paths esacped paths', () => {
 		console.log(complexObject.parent['escaped\\/child']);
 
 		expect(result(complexObject, 'single')).toEqual(complexObject.single);
