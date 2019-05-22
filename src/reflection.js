@@ -20,7 +20,7 @@ const inferType = (value) => {
 			: 'null';
 }
 
-module.exports = {
+export {
 	getConstructorName,
 	isObject,
 	isFunction,

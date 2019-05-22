@@ -10,8 +10,7 @@ const peek = (x) => {
 const sleep = async (ms = 1000) =>
 	new Promise((resolve) => setTimeout(resolve, ms));
 
-module.exports = {
-
+export {
 	peek,
 	sleep,
 }

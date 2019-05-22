@@ -1,10 +1,17 @@
-//TODO: Allow the import of the utils directly without importing the master entry-point.
+/**
+ * The main entry point.
+ */
 
-module.exports = {
+import * as collection from './collection';
+import * as random from './random';
+import * as reflection from './reflection';
+import * as partials from './partials';
+import * as debug from './debug';
 
-	collection: require('./collection'),
-	random: require('./random'),
-	reflection: require('./reflection'),
-	partials: require('./partials'),
-	debug: require('./debug'),
+export {
+	collection,
+	random,
+	reflection,
+	partials,
+	debug,
 }

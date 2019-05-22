@@ -2,7 +2,7 @@
 const {
 	clean, clone, collect, entries,
 	flip, flipMany, fromEntries, merge,
-	props, result, select, traverse } = require('../src/collection');
+	props, result, select, traverse } = require('../src/collection'); //NOTE: The reason for importing the modules, the old-school way is to enure that the downstream dependencies aren't affected.
 
 describe('Collections', () => {
 
@@ -64,7 +64,7 @@ describe('Collections', () => {
 	});
 
 	test('clone should recursively clone given object', () => {
-		cloned = clone(complexObject);
+		const cloned = clone(complexObject);
 
 		// Verify equality.
 		expect(cloned).toEqual(complexObject);
