@@ -46,7 +46,7 @@ const rndString = (length=8, seed='char') => {
  */
 const rndOfString = (string) => Array.from(new Set(rndString(rndBetween(1, string.length), string).split(''))).join('');
 
-module.exports = {
+export {
 	rndBetween,
 	rndString,
 	rndOfString,

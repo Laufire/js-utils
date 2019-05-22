@@ -12,7 +12,6 @@
  */
 const translate = (map) => (key) => map[key];
 
-module.exports = {
-
+export {
 	translate,
 }

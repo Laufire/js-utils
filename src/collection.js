@@ -2,11 +2,11 @@
 * Helper functions to deal with collections.
 *
 * TODO: Add a function to recursives parse an object through some given function.
-* TODO: Write the doc comments.
+* TODO: Complete the doc comments.
 */
 
 /* Helpers */
-const { isObject } = require('./reflection');
+import { isObject } from './reflection';
 
 const mergeObjects = (base, extension = {}) => 	{
 	keys(extension).forEach((key) => {
@@ -119,8 +119,7 @@ const flipMany = (obj) => { // Converts a one-to-many map (an object of array va
 	return ret;
 }
 
-module.exports = {
-	isObject,
+export {
 	assign, entries, keys, values,
 	fromEntries, collect, clean, clone, merge,
 	props, traverse, select, result,
