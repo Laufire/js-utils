@@ -2,11 +2,13 @@
   "name": "@laufire/utils",
   "version": "0.0.10",
   "description": "A simple set of utility libraries to ease development.",
-  "main": "./.build/index.js",
+  "main": "./dist/index.js",
   "scripts": {
     "test": "jest --no-cache",
     "lint": "eslint .",
-    "build": "babel --presets es2015 -d ./.build ./src"
+    "build": "babel --presets es2015 -d ./dist ./src",
+    "prepublishOnly": "npm test && npm run build",
+    "publish": "npm publish --access=public"
   },
   "repository": {
     "type": "git",

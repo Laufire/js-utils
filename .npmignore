@@ -4,4 +4,4 @@
 **
 
 # except the src dir.
-!/src/**
+!/dist/**
