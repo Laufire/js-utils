@@ -7,7 +7,8 @@
     "test": "jest --no-cache",
     "lint": "eslint .",
     "build": "babel --presets es2015 -d ./dist ./src",
-    "publish": "npm test && npm run build && cp ./package*.json ./dist/ && cd ./dist && npm publish --access=public"
+    "prepublishOnly": "npm test && npm run build && cp ./package*.json ./dist/",
+    "publish": "npm publish --access=public"
   },
   "repository": {
     "type": "git",
