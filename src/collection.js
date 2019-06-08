@@ -1,12 +1,13 @@
 /**
 * Helper functions to deal with collections.
 *
-* TODO: Add a function to recursives parse an object through some given function.
 * TODO: Complete the doc comments.
 */
 
 /* Helpers */
 import { isObject } from './reflection';
+const { isArray } = Array;
+const toArray = (value) => isArray(value) ? value : [value];
 
 const mergeObjects = (base, extension = {}) => 	{
 	keys(extension).forEach((key) => {
@@ -34,7 +35,6 @@ const traverse = (obj, cb) => collect(obj, (value, key) =>
 );
 
 const clone = (() => {
-	const { isArray } = Array;
 	const cloneObj = (obj) => collect(obj, clone);
 	const cloneArray = (arr) => arr.map(clone);
 
@@ -74,8 +74,11 @@ const merge = (base, ...extensions) => {
 	return base;
 }
 
+const squash = (...values) => // Merges arrays of objects into a single object.
+	assign({}, ...values.reduce((aggregate, value) => [...aggregate, ...toArray(value)], []));
+
 /**
- * Retrives the value, notified by a path, from a nested map. Slashes are used as the separator for readability.
+ * Retrieves the value, notified by a path, from a nested map. Slashes are used as the separator for readability.
  * @param {object} obj The object to look into.
  * @param {string} path The path to look for. Slash is the separator. And backslash is the escape char.
  * @returns {*} The value from the path or undefined.
@@ -122,6 +125,6 @@ const flipMany = (obj) => { // Converts a one-to-many map (an object of array va
 export {
 	assign, entries, keys, values,
 	fromEntries, collect, clean, clone, merge,
-	props, traverse, select, result,
+	props, traverse, select, squash, result,
 	flip, flipMany,
 }
