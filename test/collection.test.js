@@ -2,7 +2,8 @@
 const {
 	clean, clone, collect, entries,
 	flip, flipMany, fromEntries, merge,
-	props, result, select, traverse } = require('../src/collection'); //NOTE: The reason for importing the modules, the old-school way is to enure that the downstream dependencies aren't affected.
+	props, result, select, squash,
+	traverse } = require('../src/collection'); //NOTE: The reason for importing the modules, the old-school way is to ensure that the downstream dependencies aren't affected.
 
 describe('Collections', () => {
 
@@ -72,6 +73,16 @@ describe('Collections', () => {
 		// Verify immutability.
 		cloned.complexArray[0].innerArray[0] = Symbol();
 		expect(cloned).not.toEqual(complexObject);
+	});
+
+	test('squash should squash objects and object lists to a single object', () => {
+		const squashed = squash({a: 1}, [{b: 2}], {c: 3});
+
+		expect(squashed).toEqual({
+			a: 1,
+			b: 2,
+			c: 3,
+		})
 	});
 
 	test('merge should merge the second object to the first object', () => {
