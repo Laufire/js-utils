@@ -3,7 +3,7 @@ const {
 	clean, clone, collect, entries,
 	flip, flipMany, fromEntries, merge,
 	props, result, select, squash,
-	traverse } = require('../src/collection'); //NOTE: The reason for importing the modules, the old-school way is to ensure that the downstream dependencies aren't affected.
+	translate, traverse } = require('../src/collection'); //NOTE: The reason for importing the modules, the old-school way is to ensure that the downstream dependencies aren't affected.
 
 describe('Collection', () => {
 
@@ -29,7 +29,7 @@ describe('Collection', () => {
 			'unescaped/child': 'unescaped/child',
 			'escaped\\/child': 'escaped\\/child',
 		},
-		undeifinedProp: undefined,
+		undefinedProp: undefined,
 		array: [1, 2],
 		complexArray: [
 			{
@@ -129,6 +129,11 @@ describe('Collection', () => {
 		};
 
 		expect(flipMany(oneToMany)).toEqual(invertedOneToOne);
+	});
+
+	test('translate should give the translation of the source based on the translation map', () => {
+
+		expect(translate([3, 5], {1: 'a'})).toEqual({a : 5});
 	});
 
 	test('fromEntries should be able to build an object out of entries', () => {
