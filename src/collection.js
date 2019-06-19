@@ -122,9 +122,13 @@ const flipMany = (obj) => { // Converts a one-to-many map (an object of array va
 	return ret;
 }
 
+const translate = (source, translationMap) => // ([3, 5], {1: "a"}) => {a: 5}
+	entries(translationMap).reduce((ret, [key, value]) =>
+		assign(ret, {[value]: source[key]}), {});
+
 export {
 	assign, entries, keys, values,
 	fromEntries, collect, clean, clone, merge,
 	props, traverse, select, squash, result,
-	flip, flipMany,
+	flip, flipMany, translate,
 }
