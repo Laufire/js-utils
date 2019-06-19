@@ -5,7 +5,7 @@ const {
 	props, result, select, squash,
 	traverse } = require('../src/collection'); //NOTE: The reason for importing the modules, the old-school way is to ensure that the downstream dependencies aren't affected.
 
-describe('Collections', () => {
+describe('Collection', () => {
 
 	/* Mocks and Stubs */
 	const simpleObj = {
@@ -94,12 +94,14 @@ describe('Collections', () => {
 		delete extension[propToDelete];
 		extension.newProperty = newValue;
 		extension.parent.child.grandChild = newValue;
+		extension.complexArray.innerArray = [0];
 
 		const merged = merge(base, extension);
 
 		expect(merged).toHaveProperty(propToDelete);
 		expect(merged.newProperty).toEqual(newValue);
 		expect(merged.parent.child.grandChild).toEqual(newValue);
+		expect(merged.complexArray.innerArray[0]).toEqual(0);
 	});
 
 	test('merge should merge multiple objects', () => {
