@@ -5,7 +5,7 @@
 */
 
 /* Helpers */
-import { isObject } from './reflection';
+import { isIterable, isObject } from './reflection';
 const { isArray } = Array;
 const toArray = (value) => isArray(value) ? value : [value];
 
@@ -13,7 +13,7 @@ const mergeObjects = (base, extension = {}) => 	{
 	keys(extension).forEach((key) => {
 		const child = base[key];
 		const childExtension = extension[key];
-		isObject(child) && isObject(childExtension)
+		isIterable(child) && isIterable(childExtension)
 			? mergeObjects(child, childExtension)
 			: base[key] = childExtension
 	});
