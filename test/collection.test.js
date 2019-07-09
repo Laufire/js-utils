@@ -1,7 +1,7 @@
 /* Tested */
 const {
-	clean, clone, collect, entries,
-	flip, flipMany, fromEntries, merge,
+	clean, clone, compose, collect, entries,
+	filter, flip, flipMany, fromEntries, merge,
 	props, result, select, squash,
 	translate, traverse } = require('../src/collection'); //NOTE: The reason for importing the modules, the old-school way is to ensure that the downstream dependencies aren't affected.
 
@@ -16,7 +16,7 @@ describe('Collection', () => {
 	const nestedObj = {
 		a: 1, b: 2,
 		c: {
-			d: 1,
+			d: 4,
 		},
 	};
 
@@ -52,6 +52,14 @@ describe('Collection', () => {
 		});
 	});
 
+	test('filter should filter the properties of the object using the passed filter function', () => {
+		const cb = (val) => val === 1;
+
+		expect(filter(simpleObj, cb)).toEqual({
+			a: 1,
+		});
+	});
+
 	test('traverse should recursively traverse through a given object and build a new object', () => {
 		const cb = (val, key) => key + val;
 
@@ -59,7 +67,7 @@ describe('Collection', () => {
 			a: 'a1',
 			b: 'b2',
 			c: {
-				d: 'd1',
+				d: 'd4',
 			},
 		});
 	});
@@ -148,7 +156,7 @@ describe('Collection', () => {
 		expect(select(simpleObj, ['a'])).toEqual({a: 1});
 	});
 
-	test('result should work for normal paths esacped paths', () => {
+	test('result should work for normal paths escaped paths', () => {
 		console.log(complexObject.parent['escaped\\/child']);
 
 		expect(result(complexObject, 'single')).toEqual(complexObject.single);
@@ -158,5 +166,14 @@ describe('Collection', () => {
 		expect(result(complexObject, 'parent/escaped\\\\\\/child'))
 			.toEqual(complexObject.parent['escaped\\/child']);
 		expect(result(complexObject, 'non-existent')).toEqual(undefined);
+	});
+
+	test('compose should return an object from a list of objects, ' +
+		'with only keys from the first object and the values from the objects ' +
+		'with a ascending priority', () => {
+		expect(compose(simpleObj, {a: 2, b: 3}, {a: 3, c: 1})).toEqual({
+			a: 3,
+			b: 3,
+		});
 	});
 });
