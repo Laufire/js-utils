@@ -62,6 +62,12 @@ const select = (obj, props) => props.reduce((aggregate, prop) =>
 	(aggregate[prop] = obj[prop], aggregate)
 , {});
 
+const omit = (obj, propsToOmit) =>
+	keys(obj).filter((prop) => !propsToOmit.includes(prop))
+		.reduce((aggregate, prop) =>
+			(aggregate[prop] = obj[prop], aggregate)
+		, {});
+
 /**
  * Merges multiple objects and their properties.
  * @param {object} base The base object onto which the extensions would be merged.
@@ -147,6 +153,6 @@ export {
 	assign, entries, keys, values,
 	fromEntries, collect, filter,
 	clean, clone, merge,
-	props, traverse, select, squash, result,
+	omit, props, traverse, select, squash, result,
 	flip, flipMany, translate, compose,
 }
