@@ -2,7 +2,7 @@
 const {
 	clean, clone, compose, collect, entries,
 	filter, flip, flipMany, fromEntries, merge,
-	props, result, select, squash,
+	omit, props, result, select, squash,
 	translate, traverse } = require('../src/collection'); //NOTE: The reason for importing the modules, the old-school way is to ensure that the downstream dependencies aren't affected.
 
 describe('Collection', () => {
@@ -152,7 +152,11 @@ describe('Collection', () => {
 		expect(props(simpleObj, ['a', 'b'])).toEqual([1, 2]);
 	});
 
-	test('select should return a sub-object with the given properties of the given object', () => {
+	test('omit should return a sub-object of the given object, without the given properties to omit', () => {
+		expect(omit(simpleObj, ['a'])).toEqual({b: 2});
+	});
+
+	test('select should return a sub-object of the given object,  with the given properties', () => {
 		expect(select(simpleObj, ['a'])).toEqual({a: 1});
 	});
 
