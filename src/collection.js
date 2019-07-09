@@ -30,6 +30,16 @@ const collect = (obj, cb) => { // An Array.map like function for Objects.
 	return ret;
 }
 
+const filter = (obj, cb) => { // An Array.map like function for Objects.
+	let ret = {};
+	keys(obj).forEach(key => {
+		if(cb(obj[key], key))
+			ret[key] = obj[key];
+	});
+
+	return ret;
+}
+
 const traverse = (obj, cb) => collect(obj, (value, key) =>
 	isObject(value) ? collect(value, cb) : cb(value, key)
 );
@@ -46,20 +56,11 @@ const clone = (() => {
 				: value;
 })();
 
-const props = (obj, properties) => properties.map(prop => obj[prop]);
+const props = (obj, props) => props.map(prop => obj[prop]);
 
-const select = (obj, properties) => {
-	const ret = {};
-	const propCount = properties.length;
-	let propIndex = 0;
-
-	while(propIndex < propCount) {
-		const prop = properties[propIndex++];
-		ret[prop] = obj[prop];
-	}
-
-	return ret;
-}
+const select = (obj, props) => props.reduce((aggregate, prop) =>
+	(aggregate[prop] = obj[prop], aggregate)
+, {});
 
 /**
  * Merges multiple objects and their properties.
@@ -126,9 +127,26 @@ const translate = (source, translationMap) => // ([3, 5], {1: "a"}) => {a: 5}
 	entries(translationMap).reduce((ret, [key, value]) =>
 		assign(ret, {[value]: source[key]}), {});
 
+const compose = (...overlays) => {
+	const keysToPick = keys(overlays[0]);
+	const keysLength = keysToPick.length;
+	return overlays.reduce((aggregate, current) => {
+		let i = keysLength;
+		while(i) {
+			const key = keysToPick[--i];
+			const val = current[key];
+			if((val) !== undefined)
+				aggregate[key] = val;
+		}
+
+		return aggregate;
+	}, {});
+};
+
 export {
 	assign, entries, keys, values,
-	fromEntries, collect, clean, clone, merge,
+	fromEntries, collect, filter,
+	clean, clone, merge,
 	props, traverse, select, squash, result,
-	flip, flipMany, translate,
+	flip, flipMany, translate, compose,
 }
