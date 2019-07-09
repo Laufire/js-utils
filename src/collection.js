@@ -133,10 +133,10 @@ const translate = (source, translationMap) => // ([3, 5], {1: "a"}) => {a: 5}
 	entries(translationMap).reduce((ret, [key, value]) =>
 		assign(ret, {[value]: source[key]}), {});
 
-const compose = (baseObject, ...overlays) => {
-	const keysToPick = keys(baseObject);
+const compose = (...objects) => {
+	const keysToPick = keys(objects[0]);
 	const keysLength = keysToPick.length;
-	return overlays.reduce((aggregate, current) => {
+	return objects.reduce((aggregate, current) => {
 		let i = 0;
 		while(i < keysLength) {
 			const key = keysToPick[i++];

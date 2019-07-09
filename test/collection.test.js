@@ -175,9 +175,14 @@ describe('Collection', () => {
 	test('compose should return an object from a list of objects, ' +
 		'with only keys from the first object and the values from the objects ' +
 		'with a ascending priority', () => {
-		expect(compose(simpleObj, {a: 2, b: 3}, {a: 3, c: 1})).toEqual({
-			a: 3,
-			b: 3,
+		expect(compose(
+			{a: 1, b: 2, c: 3},
+			{a: 2, b: 3},
+			{b: 2, d: 1})
+		).toEqual({
+			a: 2,
+			b: 2,
+			c: 3,
 		});
 	});
 });
