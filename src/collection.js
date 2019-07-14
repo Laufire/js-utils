@@ -174,10 +174,13 @@ const compose = (...objects) => {
 	}, {});
 };
 
+const graft = (base, extension) =>
+	merge(clone(base), extension);
+
 export {
-	assign, entries, keys, values,
-	fromEntries, collect, filter,
-	clean, clone, merge,
-	omit, props, traverse, select, squash, result,
-	flip, flipMany, translate, compose,
+	keys, values, entries, fromEntries, props,
+	collect, traverse,
+	clean, filter, omit, select, result,
+	flip, flipMany, translate,
+	assign, clone, squash, merge, compose, graft,
 };

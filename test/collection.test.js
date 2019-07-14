@@ -4,8 +4,8 @@
 // # NOTE: The reason for importing the modules, the old-school way is to ensure that, the downstream dependencies aren't affected.
 const {
 	clean, clone, compose, collect, entries,
-	filter, flip, flipMany, fromEntries, merge,
-	omit, props, result, select, squash,
+	filter, flip, flipMany, fromEntries, graft,
+	merge, omit, props, result, select, squash,
 	translate, traverse,
 } = require('../src/collection');
 
@@ -150,7 +150,7 @@ describe('Collection', () => {
 	});
 
 	test('flipMany should build an one-to-one inverted mapping of '
-		+ 'a many to one object', () => {
+	+ 'a many to one object', () => {
 		const oneToMany = {
 			a: [1, 2],
 		};
@@ -163,7 +163,7 @@ describe('Collection', () => {
 	});
 
 	test('translate should give the translation of the source based '
-		+ 'on the translation map', () => {
+	+ 'on the translation map', () => {
 		expect(translate([3, 5], { 1: 'a' })).toEqual({ a: 5 });
 	});
 
@@ -172,17 +172,17 @@ describe('Collection', () => {
 	});
 
 	test('prop should return the array of values for the given properties '
-		+ 'from the given object', () => {
+	+ 'from the given object', () => {
 		expect(props(simpleObj, ['a', 'b'])).toEqual([1, 2]);
 	});
 
 	test('omit should return a sub-object of the given object, '
-		+ 'without the given properties to omit', () => {
+	+ 'without the given properties to omit', () => {
 		expect(omit(simpleObj, ['a'])).toEqual({ b: 2 });
 	});
 
 	test('select should return a sub-object of the given object, '
-		+ 'with the given properties', () => {
+	+ 'with the given properties', () => {
 		expect(select(simpleObj, ['a'])).toEqual({ a: 1 });
 	});
 
@@ -198,8 +198,8 @@ describe('Collection', () => {
 	});
 
 	test('compose should return an object from a list of objects, '
-		+ 'with only keys from the first object and the values from '
-		+ 'the objects , with a ascending priority', () => {
+	+ 'with only keys from the first object and the values from '
+	+ 'the objects , with a ascending priority', () => {
 		expect(compose(
 			{ a: 1, b: 2, c: 3 },
 			{ a: 2, b: 3 },
@@ -209,5 +209,19 @@ describe('Collection', () => {
 			b: 2,
 			c: 3,
 		});
+	});
+
+	test('graft creates a new variation of a baseObject based on '
+	+ 'the given extension, while preserving them both', () => {
+		const baseObject = { a: 1, b: 2 };
+		const extension = { b: 3 };
+
+		expect(graft(baseObject, extension)).toEqual({
+			a: 1,
+			b: 3,
+		});
+
+		expect(baseObject).toEqual({ a: 1, b: 2 });
+		expect(extension).toEqual({ b: 3 });
 	});
 });
