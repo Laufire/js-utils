@@ -3,7 +3,7 @@
 *
 * # ToDo
 * 	* Complete the doc comments.
-*
+* 	* Handle arrays in a better fashion. Assume the base based on the type of the iterable ({} / []).
 * #  Notes
 * 	* Keys with undefined values are treated as non-existent, so to allow for simplicity.
 */
@@ -186,11 +186,9 @@ const diff = (base, compared) => {
 
 		if(baseChild !== comparedChild) {
 			difference[key] = isIterable(comparedChild)
-				?	diff(isArray(baseChild) && isArray(comparedChild)
-					? baseChild
-					: isObject(baseChild)
-						? baseChild
-						: {},
+				?	diff(isArray(baseChild) !== isArray(comparedChild)
+					? isObject(comparedChild) ? {} : []
+					: baseChild,
 				comparedChild)
 				: comparedChild;
 		}

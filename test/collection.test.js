@@ -251,4 +251,19 @@ describe('Collection', () => {
 		difference.c.d = 1;
 		expect(comparedObject.c.d).toEqual(3);
 	});
+
+	test('diff and patch are complementary', () => {
+		const baseObject = { a: 1, b: 2, c: 1 };
+		const comparedObject = {
+			a: 1,
+			b: 3,
+			c: {
+				d: 3,
+			},
+		};
+
+		const difference = diff(baseObject, comparedObject);
+
+		expect(patch(baseObject, difference)).toEqual(comparedObject);
+	});
 });
