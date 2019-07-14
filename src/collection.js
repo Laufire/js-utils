@@ -104,8 +104,8 @@ const squash = (...objects) =>
  * @returns {*} The value from the path or undefined.
  */
 const result = (obj, path) => {
-	const parts = path.split(/(?<!(?:[^\\])(?:\\{2})*\\)\//ug)
-		.map((part) => part.replace(/\\(.)/ug, '$1'));
+	const parts = path.split(/(?<!(?:[^\\])(?:\\{2})*\\)\//g)
+		.map((part) => part.replace(/\\(.)/g, '$1'));
 	const partCount = parts.length;
 	let currentObject = obj;
 	let partIndex = 0;
