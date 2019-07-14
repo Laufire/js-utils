@@ -2,7 +2,7 @@ parser: "babel-eslint"
 parserOptions:
   sourceType: "module"
   allowImportExportEverywhere: false
-  ecmaVersion: 2018
+  ecmaVersion: 2015
   ecmaFeatures:
     globalReturn: false
   babelOptions:
@@ -220,7 +220,7 @@ rules:
   no-undef: error
   no-undef-init: error
   no-var: error
-  require-unicode-regexp: error
+  # require-unicode-regexp: error # Disabled due to san issue with babel. Refer: https://github.com/babel/babel/issues/8951
 
   # Comparisons
   yoda: error
