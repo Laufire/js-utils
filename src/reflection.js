@@ -3,29 +3,32 @@
  */
 
 /* Helpers */
-const { isArray } = Array;
+const { isArray } = Array; // eslint-disable-line id-match
 
 const getConstructorName = (value) =>
-	value !== null && value !== undefined && value.constructor && value.constructor.name;
+	value !== null && value !== undefined
+		&& value.constructor && value.constructor.name;
 
-const isFunction = (value) => //NOTE: Unlike inferType, this function doesn't differentiate between functions and async functions.
-	typeof value == 'function';
+// # NOTE: Unlike inferType, this function doesn't differentiate between functions and async functions.
+const isFunction = (value) =>
+	typeof value === 'function';
 
 const isObject = (value) =>
-	getConstructorName(value) == 'Object';
+	getConstructorName(value) === 'Object';
 
 const isIterable = (value) => isArray(value) || isObject(value);
 
 const inferType = (value) => {
 	const type = typeof value;
 
-	return type !== 'object' ? type
+	return type !== 'object'
+		? type
 		: value !== null
 			? value !== undefined
 				? value.constructor.name.toLowerCase()
 				: 'undefined'
 			: 'null';
-}
+};
 
 export {
 	getConstructorName,
@@ -33,4 +36,4 @@ export {
 	isIterable,
 	isFunction,
 	isObject,
-}
+};

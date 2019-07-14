@@ -4,17 +4,18 @@ const {
 	inferType,
 	isIterable,
 	isFunction,
-	isObject } = require('../src/reflection');
+	isObject,
+} = require('../src/reflection');
 
 describe('Reflection', () => {
-
 	/* Mocks and Stubs */
 	const obj = {};
 	const arr = [];
 	const fn = () => {};
 
 	/* Tests */
-	test('getConstructorName should return the constructor name of the given value', () => {
+	test('getConstructorName should return the constructor name '
+		+ 'of the given value', () => {
 		expect(getConstructorName(obj)).toEqual('Object');
 		expect(getConstructorName(arr)).toEqual('Array');
 	});
@@ -26,18 +27,21 @@ describe('Reflection', () => {
 		expect(inferType(undefined)).toEqual('undefined');
 	});
 
-	test('isIterable should return true only when the given value is an Array or an Object', () => {
+	test('isIterable should return true only when the given value '
+		+ 'is an Array or an Object', () => {
 		expect(isIterable(obj)).toEqual(true);
 		expect(isIterable(arr)).toEqual(true);
 		expect(isIterable(fn)).toEqual(false);
 	});
 
-	test('isFunction should return true only when the given value is a Function', () => {
+	test('isFunction should return true only when the given value '
+		+ 'is a Function', () => {
 		expect(isFunction(obj)).toEqual(false);
 		expect(isFunction(fn)).toEqual(true);
 	});
 
-	test('isObject should return true only when the given value is an Object', () => {
+	test('isObject should return true only when the given value '
+		+ 'is an Object', () => {
 		expect(isObject(obj)).toEqual(true);
 		expect(isObject(arr)).toEqual(false);
 	});
