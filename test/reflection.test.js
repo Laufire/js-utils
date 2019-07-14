@@ -1,6 +1,6 @@
 /* Tested */
 const {
-	getConstructorName,
+	constructorName,
 	inferType,
 	isIterable,
 	isFunction,
@@ -14,10 +14,10 @@ describe('Reflection', () => {
 	const fn = () => {};
 
 	/* Tests */
-	test('getConstructorName should return the constructor name '
+	test('constructorName should return the constructor name '
 		+ 'of the given value', () => {
-		expect(getConstructorName(obj)).toEqual('Object');
-		expect(getConstructorName(arr)).toEqual('Array');
+		expect(constructorName(obj)).toEqual('Object');
+		expect(constructorName(arr)).toEqual('Array');
 	});
 
 	test('inferType should infer the type of the given value', () => {

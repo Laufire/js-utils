@@ -5,7 +5,7 @@
 /* Helpers */
 const { isArray } = Array; // eslint-disable-line id-match
 
-const getConstructorName = (value) =>
+const constructorName = (value) =>
 	value !== null && value !== undefined
 		&& value.constructor && value.constructor.name;
 
@@ -14,7 +14,7 @@ const isFunction = (value) =>
 	typeof value === 'function';
 
 const isObject = (value) =>
-	getConstructorName(value) === 'Object';
+	constructorName(value) === 'Object';
 
 const isIterable = (value) => isArray(value) || isObject(value);
 
@@ -31,7 +31,7 @@ const inferType = (value) => {
 };
 
 export {
-	getConstructorName,
+	constructorName,
 	inferType,
 	isIterable,
 	isFunction,
