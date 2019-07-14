@@ -174,13 +174,36 @@ const compose = (...objects) => {
 	}, {});
 };
 
-const graft = (base, extension) =>
+const patch = (base, extension) =>
 	merge(clone(base), extension);
+
+const diff = (base, compared) => {
+	const difference = {};
+
+	keys(compared).forEach((key) => { // eslint-disable-line complexity
+		const baseChild = base[key];
+		const comparedChild = compared[key];
+
+		if(baseChild !== comparedChild) {
+			difference[key] = isIterable(comparedChild)
+				?	diff(isArray(baseChild) && isArray(comparedChild)
+					? baseChild
+					: isObject(baseChild)
+						? baseChild
+						: {},
+				comparedChild)
+				: comparedChild;
+		}
+	});
+
+	return difference;
+};
 
 export {
 	keys, values, entries, fromEntries, props,
 	collect, traverse,
 	clean, filter, omit, select, result,
 	flip, flipMany, translate,
-	assign, clone, squash, merge, compose, graft,
+	assign, clone, squash, merge, compose,
+	patch, diff,
 };
