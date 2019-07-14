@@ -2,9 +2,10 @@
 
 /* Tested */
 // # NOTE: The reason for importing the modules, the old-school way is to ensure that, the downstream dependencies aren't affected.
+// # TODO: Write a helper to test immutability between a source and its derived object.
 const {
-	clean, clone, compose, collect, entries,
-	filter, flip, flipMany, fromEntries, graft,
+	clean, clone, compose, collect, diff, entries,
+	filter, flip, flipMany, fromEntries, patch,
 	merge, omit, props, result, select, squash,
 	translate, traverse,
 } = require('../src/collection');
@@ -46,7 +47,7 @@ describe('Collection', () => {
 	});
 
 	test('collect should work with all the properties of the object '
-		+ 'and build a new object', () => {
+	+ 'and build a new object', () => {
 		const cb = (val, key) => key + val;
 
 		expect(collect(simpleObj, cb)).toEqual({
@@ -56,7 +57,7 @@ describe('Collection', () => {
 	});
 
 	test('filter should filter the properties of the object using the passed '
-		+ 'filter function', () => {
+	+ 'filter function', () => {
 		const cb = (val) => val === 1;
 
 		expect(filter(simpleObj, cb)).toEqual({
@@ -65,7 +66,7 @@ describe('Collection', () => {
 	});
 
 	test('traverse should recursively traverse through a given object and '
-		+ 'build a new object', () => {
+	+ 'build a new object', () => {
 		const cb = (val, key) => key + val;
 
 		expect(traverse(nestedObj, cb)).toEqual({
@@ -89,7 +90,7 @@ describe('Collection', () => {
 	});
 
 	test('squash should squash objects and object lists to '
-		+ 'a single object', () => {
+	+ 'a single object', () => {
 		const squashed = squash(
 			{ a: 1 }, [{ b: 2 }], { c: 3 }
 		);
@@ -211,17 +212,43 @@ describe('Collection', () => {
 		});
 	});
 
-	test('graft creates a new variation of a baseObject based on '
+	test('patch creates a new variation of a baseObject based on '
 	+ 'the given extension, while preserving them both', () => {
 		const baseObject = { a: 1, b: 2 };
 		const extension = { b: 3 };
 
-		expect(graft(baseObject, extension)).toEqual({
+		expect(patch(baseObject, extension)).toEqual({
 			a: 1,
 			b: 3,
 		});
 
 		expect(baseObject).toEqual({ a: 1, b: 2 });
 		expect(extension).toEqual({ b: 3 });
+	});
+
+	test('diff returns the difference between a baseObject '
+	+ 'and a comparedObject', () => {
+		const baseObject = { a: 1, b: 2, c: 1 };
+		const comparedObject = {
+			a: 1,
+			b: 3,
+			// # TODO: Test for mixed nested object types (array and object).
+			c: {
+				d: 3,
+			},
+		};
+
+		const difference = diff(baseObject, comparedObject);
+
+		expect(difference).toEqual({
+			b: 3,
+			c: {
+				d: 3,
+			},
+		});
+
+		// Verify immutability of nested diffs.
+		difference.c.d = 1;
+		expect(comparedObject.c.d).toEqual(3);
 	});
 });
