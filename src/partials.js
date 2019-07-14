@@ -14,4 +14,4 @@ const translate = (map) => (key) => map[key];
 
 export {
 	translate,
-}
+};

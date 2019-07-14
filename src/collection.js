@@ -10,66 +10,74 @@
 
 /* Helpers */
 import { isIterable, isObject } from './reflection';
-const { isArray } = Array;
-const toArray = (value) => isArray(value) ? value : [value];
+const { isArray } = Array; // eslint-disable-line id-match
+const toArray = (value) => (isArray(value) ? value : [value]);
 
 const mergeObjects = (base, extension) => 	{
-	keys(extension).forEach((key) => {
+	keys(extension).forEach((key) => { // eslint-disable-line no-use-before-define
 		const child = base[key];
 		const childExtension = extension[key];
+
 		child !== undefined && isIterable(child) && isIterable(childExtension)
 			? mergeObjects(child, childExtension)
-			: base[key] = childExtension
+			: base[key] = childExtension;
 	});
-}
+};
 
 /* Exports */
-const { assign, entries, keys, values } = Object;
+const { assign, entries, keys, values } = Object; // eslint-disable-line id-match
 
-const fromEntries = (kvPairs) => kvPairs.reduce((agg, pair) => { agg[pair[0]] = pair[1]; return agg; }, {});
+const fromEntries = (kvPairs) => kvPairs.reduce((agg, pair) => {
+	agg[pair[0]] = pair[1];
+	return agg;
+}, {});
 
-const collect = (obj, cb) => { // An Array.map like function for Objects.
-	let ret = {};
-	keys(obj).forEach(key => ret[key] = cb(obj[key], key));
+// An Array.map like function for Objects.
+const collect = (obj, cb) => {
+	const ret = {};
+
+	keys(obj).forEach((key) => (ret[key] = cb(obj[key], key)));
 	return ret;
-}
+};
 
-const filter = (obj, cb) => { // An Array.map like function for Objects.
-	let ret = {};
-	keys(obj).forEach(key => {
+// An Array.map like function for Objects.
+const filter = (obj, cb) => {
+	const ret = {};
+
+	keys(obj).forEach((key) => {
 		if(cb(obj[key], key))
 			ret[key] = obj[key];
 	});
 
 	return ret;
-}
+};
 
 const traverse = (obj, cb) => collect(obj, (value, key) =>
-	isObject(value) ? collect(value, cb) : cb(value, key)
-);
+	(isObject(value) ? collect(value, cb) : cb(value, key)));
 
 const clone = (() => {
 	const cloneObj = (obj) => collect(obj, clone);
 	const cloneArray = (arr) => arr.map(clone);
 
 	return (value) =>
-		isObject(value)
+		(isObject(value)
 			? cloneObj(value)
 			: isArray(value)
 				? cloneArray(value)
-				: value;
+				: value
+		);
 })();
 
-const props = (obj, props) => props.map(prop => obj[prop]);
+const props = (obj, objProps) => objProps.map((prop) => obj[prop]);
 
-const select = (obj, props) => props.reduce((aggregate, prop) =>
-	(aggregate[prop] = obj[prop], aggregate)
-, {});
+const select = (obj, objProps) => objProps.reduce((aggregate, prop) => // eslint-disable-line no-return-assign
+	(aggregate[prop] = obj[prop], aggregate), // eslint-disable-line no-sequences
+{});
 
 const omit = (obj, propsToOmit) =>
 	keys(obj).filter((prop) => !propsToOmit.includes(prop))
-		.reduce((aggregate, prop) =>
-			(aggregate[prop] = obj[prop], aggregate)
+		.reduce((aggregate, prop) => // eslint-disable-line no-return-assign
+			(aggregate[prop] = obj[prop], aggregate) // eslint-disable-line no-sequences
 		, {});
 
 /**
@@ -78,15 +86,16 @@ const omit = (obj, propsToOmit) =>
  * @param  {...object} extensions
  */
 const merge = (base, ...extensions) => {
-
 	extensions.forEach((extension) =>
 		mergeObjects(base, extension));
 
 	return base;
-}
+};
 
-const squash = (...values) => // Merges arrays of objects into a single object.
-	assign({}, ...values.reduce((aggregate, value) => [...aggregate, ...toArray(value)], []));
+// Merges arrays of objects into a single object.
+const squash = (...objects) =>
+	assign({}, ...objects.reduce((aggregate, value) =>
+		[...aggregate, ...toArray(value)], []));
 
 /**
  * Retrieves the value, notified by a path, from a nested map. Slashes are used as the separator for readability.
@@ -95,57 +104,69 @@ const squash = (...values) => // Merges arrays of objects into a single object.
  * @returns {*} The value from the path or undefined.
  */
 const result = (obj, path) => {
-	const parts = path.split(/(?<!(?:[^\\])(?:\\{2})*\\)\//g).map(part => part.replace(/\\(.)/g, '$1'));
+	const parts = path.split(/(?<!(?:[^\\])(?:\\{2})*\\)\//ug)
+		.map((part) => part.replace(/\\(.)/ug, '$1'));
 	const partCount = parts.length;
+	let currentObject = obj;
 	let partIndex = 0;
 
-	while(partIndex < partCount && typeof obj == 'object')
-		obj = obj[parts[partIndex++]]
+	while(partIndex < partCount && typeof currentObject === 'object')
+		currentObject = currentObject[parts[partIndex++]];
 
 	if(partIndex === partCount)
-		return obj;
-}
+		return currentObject;
+};
 
 const clean = (obj) => {
 	const ret = {};
 	const objKeys = keys(obj);
 	const l = objKeys.length;
 	let i = 0;
+
 	while(i < l) {
 		const key = objKeys[i++];
 		const val = obj[key];
+
 		if(val !== undefined)
 			ret[key] = val;
 	}
 
 	return ret;
-}
+};
 
-const flip = (obj) => { // Swaps the keys and values of a map.
-	let ret = {};
-	keys(obj).forEach(key => ret[obj[key]] = key);
+// Swaps the keys and values of a map.
+const flip = (obj) => {
+	const ret = {};
+
+	keys(obj).forEach((key) => (ret[obj[key]] = key));
 	return ret;
-}
+};
 
-const flipMany = (obj) => { // Converts a one-to-many map (an object of array values) as an one-to-one inverted map, to ease reverse lookups. IE: {'a': ['b', 'c']} => {'b': 'a', 'c': 'a'}.
-	let ret = {};
-	keys(obj).forEach(key => obj[key].forEach(item => ret[item] = key));
+// Converts a one-to-many map (an object of array values) as an one-to-one inverted map, to ease reverse lookups. IE: {'a': ['b', 'c']} => {'b': 'a', 'c': 'a'}.
+const flipMany = (obj) => {
+	const ret = {};
+
+	keys(obj).forEach((key) => obj[key].forEach((item) => (ret[item] = key)));
 	return ret;
-}
+};
 
-const translate = (source, translationMap) => // ([3, 5], {1: "a"}) => {a: 5}
+// Ex: ([3, 5], {1: "a"}) => {a: 5}
+const translate = (source, translationMap) =>
 	entries(translationMap).reduce((ret, [key, value]) =>
-		assign(ret, {[value]: source[key]}), {});
+		assign(ret, { [value]: source[key] }), {});
 
 const compose = (...objects) => {
 	const keysToPick = keys(objects[0]);
 	const keysLength = keysToPick.length;
+
 	return objects.reduce((aggregate, current) => {
 		let i = 0;
+
 		while(i < keysLength) {
 			const key = keysToPick[i++];
 			const val = current[key];
-			if((val) !== undefined)
+
+			if(val !== undefined)
 				aggregate[key] = val;
 		}
 
@@ -159,4 +180,4 @@ export {
 	clean, clone, merge,
 	omit, props, traverse, select, squash, result,
 	flip, flipMany, translate, compose,
-}
+};
