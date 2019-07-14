@@ -120,6 +120,16 @@ describe('Collection', () => {
 		});
 	});
 
+	test('merge should not mutate the extensions', () => {
+		const extensionToTest = {b: 2};
+
+		merge({a: 1}, extensionToTest, {b: 3});
+
+		expect(extensionToTest).toEqual({
+			b: 2,
+		});
+	});
+
 	test('flip should swap the keys and values of the given object', () => {
 		expect(flip(simpleObj)).toEqual({
 			1: 'a',
