@@ -88,10 +88,9 @@ rules:
   max-statements: ["error", 10]
   max-statements-per-line: ["error", { "max": 1 }]
   multiline-ternary: ["error", "always-multiline"]
-  # multiline-comment-style: ["error", "bare-block"] # Skipped.
   new-cap: ["error", { "capIsNew": false }]
   new-parens: ["error"]
-  newline-per-chained-call: ["error", { "ignoreChainWithDepth": 2 }] # Skipped.
+  newline-per-chained-call: ["error", { "ignoreChainWithDepth": 2 }]
   no-array-constructor: error
   no-bitwise: error
   no-confusing-arrow: ["error", {"allowParens": true}]
@@ -114,9 +113,6 @@ rules:
     - error
     - max: 1
       maxEOF: 0
-  # no-plusplus: error # Waiting for refinement.
-  # no-negated-condition: error # Skipped.
-  # no-nested-ternary: error # Skipped.
   no-new-object: error
   no-regex-spaces: error
   no-unsafe-negation: error
@@ -124,7 +120,6 @@ rules:
   no-tabs: "off"
   no-trailing-spaces: error
   no-underscore-dangle: "error"
-  # no-ternary: error # Skipped.
   no-unneeded-ternary: error
   no-useless-constructor: error
   no-useless-computed-key: error
@@ -172,7 +167,7 @@ rules:
     - error
     - single
   require-yield: error
-  # sort-imports: error # Skipped.
+
   symbol-description: error
   template-curly-spacing: ["error", "always"]
   yield-star-spacing: ["error", "after"]
@@ -200,11 +195,13 @@ rules:
   dot-location: ["error", "property"]
   curly: ["error", "multi-or-nest"]
   no-template-curly-in-string: error
+
   # General
   no-await-in-loop: error
   no-console: error
   no-debugger: error
   strict: ["error", "never"]
+
   # Variables
   vars-on-top: error
   init-declarations: ["error", "always"]
@@ -226,16 +223,19 @@ rules:
   no-undef-init: error
   no-var: error
   require-unicode-regexp: error
+
   # Comparisons
   yoda: error
   eqeqeq: error
   no-eq-null: error
   no-self-compare: error
+
   # Numbers
   no-floating-decimal: error
   radix: error
   no-label-var: error
   no-extra-label: error
+
   # Best Practices
   complexity: ["error", { "max": 4 }]
   no-new: error
@@ -259,5 +259,6 @@ rules:
   no-void: error
   require-await: error
   prefer-promise-reject-errors: error
+
   # Security
   # require-atomic-updates: error # Marked.
