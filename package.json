@@ -1,6 +1,6 @@
 {
   "name": "@laufire/utils",
-  "version": "0.0.26",
+  "version": "0.0.27",
   "description": "A simple set of utility libraries to ease development.",
   "main": "./dist/index.js",
   "scripts": {
