@@ -1,7 +1,11 @@
 /**
 * Helper functions to deal with collections.
 *
-* TODO: Complete the doc comments.
+* # ToDo
+* 	* Complete the doc comments.
+*
+* #  Notes
+* 	* Keys with undefined values are treated as non-existent, so to allow for simplicity.
 */
 
 /* Helpers */
@@ -9,11 +13,11 @@ import { isIterable, isObject } from './reflection';
 const { isArray } = Array;
 const toArray = (value) => isArray(value) ? value : [value];
 
-const mergeObjects = (base, extension = {}) => 	{
+const mergeObjects = (base, extension) => 	{
 	keys(extension).forEach((key) => {
 		const child = base[key];
 		const childExtension = extension[key];
-		isIterable(child) && isIterable(childExtension)
+		child !== undefined && isIterable(child) && isIterable(childExtension)
 			? mergeObjects(child, childExtension)
 			: base[key] = childExtension
 	});
