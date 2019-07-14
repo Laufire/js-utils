@@ -45,38 +45,36 @@ rules:
   function-paren-newline: ["error", { "minItems": 3 }]
   func-style: ["error", "expression"]
   id-blacklist: ["error"]
-  # id-length: # TODO
-  #   - error
-  #   - min: 1
-  #     max: 16
+  id-length:
+    - error
+    - min: 1
+      max: 16
   id-match: ["error", "^[a-z]+([A-Z][a-z]+)*$"]
   key-spacing: ["error", { "beforeColon": false, "afterColon": true }]
   keyword-spacing: ["error", {
-      "after": true,
-      "overrides": {
-        "if": { "after": false },
-        "for": { "after": false },
-        "while": { "after": false }
-      }
+    "after": true,
+    "overrides": {
+      "if": { "after": false },
+      "for": { "after": false },
+      "while": { "after": false }
     }
-  ]
+  }]
   line-comment-position: ["error", { "position": "above" }]
   lines-around-comment: ["error", {
 		"beforeLineComment": false,
 		"afterLineComment": false,
 		"applyDefaultIgnorePatterns": true,
 		"ignorePattern": "Helpers|Tasks|Exports|Tested|Mocks"
-		}]
+  }]
   lines-between-class-members: ["error", "always"]
   linebreak-style: ["error", "unix"]
   max-depth: ["error", 4]
   max-len: ["error", {
-      "code": 80,
-      "ignoreComments": true,
-      "ignoreTemplateLiterals": true,
-      "ignoreRegExpLiterals": true
-    }
-  ]
+    "code": 80,
+    "ignoreComments": true,
+    "ignoreTemplateLiterals": true,
+    "ignoreRegExpLiterals": true
+  }]
   max-lines: ["error", {
     "max": 300, "skipBlankLines": true, "skipComments": true
   }]
