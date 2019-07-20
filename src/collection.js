@@ -70,9 +70,11 @@ const clone = (() => {
 
 const props = (obj, objProps) => objProps.map((prop) => obj[prop]);
 
-const select = (obj, objProps) => objProps.reduce((aggregate, prop) => // eslint-disable-line no-return-assign
-	(aggregate[prop] = obj[prop], aggregate), // eslint-disable-line no-sequences
-{});
+const select = (obj, selector) =>
+	(isArray(selector) ? selector : keys(selector))
+		.reduce((aggregate, prop) => // eslint-disable-line no-return-assign
+			(aggregate[prop] = obj[prop], aggregate), // eslint-disable-line no-sequences
+		{});
 
 const omit = (obj, propsToOmit) =>
 	keys(obj).filter((prop) => !propsToOmit.includes(prop))

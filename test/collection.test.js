@@ -183,8 +183,13 @@ describe('Collection', () => {
 	});
 
 	test('select should return a sub-object of the given object, '
-	+ 'with the given properties', () => {
+	+ 'with the given array of properties', () => {
 		expect(select(simpleObj, ['a'])).toEqual({ a: 1 });
+	});
+
+	test('select should return a sub-object of the given object, '
+	+ 'with the properties in the given selector object', () => {
+		expect(select(simpleObj, { a: 'some-thing' })).toEqual({ a: 1 });
 	});
 
 	test('result should work for normal paths escaped paths', () => {
