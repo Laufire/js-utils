@@ -177,11 +177,6 @@ describe('Collection', () => {
 		expect(props(simpleObj, ['a', 'b'])).toEqual([1, 2]);
 	});
 
-	test('omit should return a sub-object of the given object, '
-	+ 'without the given properties to omit', () => {
-		expect(omit(simpleObj, ['a'])).toEqual({ b: 2 });
-	});
-
 	test('select should return a sub-object of the given object, '
 	+ 'with the given array of properties', () => {
 		expect(select(simpleObj, ['a'])).toEqual({ a: 1 });
@@ -190,6 +185,16 @@ describe('Collection', () => {
 	test('select should return a sub-object of the given object, '
 	+ 'with the properties in the given selector object', () => {
 		expect(select(simpleObj, { a: 'some-thing' })).toEqual({ a: 1 });
+	});
+
+	test('omit should return a sub-object of the given object, '
+	+ 'without the given array of properties', () => {
+		expect(omit(simpleObj, ['a'])).toEqual({ b: 2 });
+	});
+
+	test('omit should return a sub-object of the given object, '
+	+ 'without the properties in the given selector object', () => {
+		expect(omit(simpleObj, { a: 'some-thing' })).toEqual({ b: 2 });
 	});
 
 	test('result should work for normal paths escaped paths', () => {
