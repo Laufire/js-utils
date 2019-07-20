@@ -42,11 +42,11 @@ describe('Collection', () => {
 	};
 
 	/* Tests */
-	test('clean should remove undefined props', () => {
+	test('clean removes undefined props', () => {
 		expect(clean(complexObject)).not.toHaveProperty('undefinedProperty');
 	});
 
-	test('collect should work with all the properties of the object '
+	test('collect works with all the properties of the object '
 	+ 'and build a new object', () => {
 		const cb = (val, key) => key + val;
 
@@ -56,7 +56,7 @@ describe('Collection', () => {
 		});
 	});
 
-	test('filter should filter the properties of the object using the passed '
+	test('filter filters the properties of the object using the passed '
 	+ 'filter function', () => {
 		const cb = (val) => val === 1;
 
@@ -65,7 +65,7 @@ describe('Collection', () => {
 		});
 	});
 
-	test('traverse should recursively traverse through a given object and '
+	test('traverse recursively traverses through a given object and '
 	+ 'build a new object', () => {
 		const cb = (val, key) => key + val;
 
@@ -78,7 +78,7 @@ describe('Collection', () => {
 		});
 	});
 
-	test('clone should recursively clone given object', () => {
+	test('clone clones given object', () => {
 		const cloned = clone(complexObject);
 
 		// Verify equality.
@@ -89,7 +89,7 @@ describe('Collection', () => {
 		expect(cloned).not.toEqual(complexObject);
 	});
 
-	test('squash should squash objects and object lists to '
+	test('squash squashes objects and object lists to '
 	+ 'a single object', () => {
 		const squashed = squash(
 			{ a: 1 }, [{ b: 2 }], { c: 3 }
@@ -102,7 +102,7 @@ describe('Collection', () => {
 		});
 	});
 
-	test('merge should merge the second object to the first object', () => {
+	test('merge merges the second object to the first object', () => {
 		const base = clone(complexObject);
 		const extension = clone(complexObject);
 		const propToDelete = 'single';
@@ -121,7 +121,7 @@ describe('Collection', () => {
 		expect(merged.complexArray.innerArray[0]).toEqual(0);
 	});
 
-	test('combine should combine the second object '
+	test('combine combines the second object '
 	+ 'to the first object', () => {
 		const base = clone(complexObject);
 		const extension = clone(base);
@@ -145,7 +145,7 @@ describe('Collection', () => {
 		]);
 	});
 
-	test('merge and combine should work with multiple extensions', () => {
+	test('merge and combine work with multiple extensions', () => {
 		expect(merge(
 			{ a: 1 }, { b: 2 }, { c: 3 }
 		)).toEqual({
@@ -160,7 +160,7 @@ describe('Collection', () => {
 		});
 	});
 
-	test('merge nor combine should not mutate extensions', () => {
+	test('merge nor combine not mutate extensions', () => {
 		const extensionToTest = { b: [2] };
 		const cloned = clone(extensionToTest);
 
@@ -177,19 +177,19 @@ describe('Collection', () => {
 		expect(extensionToTest).toEqual(cloned);
 	});
 
-	test('merge and combine should work with simple arrays', () => {
+	test('merge and combine work with simple arrays', () => {
 		expect(merge([0, 1], [1])).toEqual([1, 1]);
 		expect(combine([0, 1], [1])).toEqual([0, 1, 1]);
 	});
 
-	test('flip should swap the keys and values of the given object', () => {
+	test('flip swaps the keys and values of the given object', () => {
 		expect(flip(simpleObj)).toEqual({
 			1: 'a',
 			2: 'b',
 		});
 	});
 
-	test('flipMany should build an one-to-one inverted mapping of '
+	test('flipMany builds an one-to-one inverted mapping of '
 	+ 'a many to one object', () => {
 		const oneToMany = {
 			a: [1, 2],
@@ -202,41 +202,41 @@ describe('Collection', () => {
 		expect(flipMany(oneToMany)).toEqual(invertedOneToOne);
 	});
 
-	test('translate should give the translation of the source based '
+	test('translate gives the translation of the source based '
 	+ 'on the translation map', () => {
 		expect(translate([3, 5], { 1: 'a' })).toEqual({ a: 5 });
 	});
 
-	test('fromEntries should be able to build an object out of entries', () => {
+	test('fromEntries builds an object out of entries', () => {
 		expect(fromEntries(entries(simpleObj))).toEqual(simpleObj);
 	});
 
-	test('prop should return the array of values for the given properties '
+	test('prop returns an array of values for the given properties '
 	+ 'from the given object', () => {
 		expect(props(simpleObj, ['a', 'b'])).toEqual([1, 2]);
 	});
 
-	test('select should return a sub-object of the given object, '
+	test('select returns a sub-object of the given object, '
 	+ 'with the given array of properties', () => {
 		expect(select(simpleObj, ['a'])).toEqual({ a: 1 });
 	});
 
-	test('select should return a sub-object of the given object, '
+	test('select returns a sub-object of the given object, '
 	+ 'with the properties in the given selector object', () => {
 		expect(select(simpleObj, { a: 'some-thing' })).toEqual({ a: 1 });
 	});
 
-	test('omit should return a sub-object of the given object, '
+	test('omit returns a sub-object of the given object, '
 	+ 'without the given array of properties', () => {
 		expect(omit(simpleObj, ['a'])).toEqual({ b: 2 });
 	});
 
-	test('omit should return a sub-object of the given object, '
+	test('omit returns a sub-object of the given object, '
 	+ 'without the properties in the given selector object', () => {
 		expect(omit(simpleObj, { a: 'some-thing' })).toEqual({ b: 2 });
 	});
 
-	test('result should work for normal paths escaped paths', () => {
+	test('result works for normal paths escaped paths', () => {
 		expect(result(complexObject, 'single')).toEqual(complexObject.single);
 		expect(result(complexObject, 'parent/child'))
 			.toEqual(complexObject.parent.child);
@@ -247,7 +247,7 @@ describe('Collection', () => {
 		expect(result(complexObject, 'non-existent')).toEqual(undefined);
 	});
 
-	test('compose should return an object from a list of objects, '
+	test('compose returns an object from a list of objects, '
 	+ 'with only keys from the first object and the values from '
 	+ 'the objects , with a ascending priority', () => {
 		expect(compose(
