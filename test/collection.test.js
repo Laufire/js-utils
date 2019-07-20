@@ -4,7 +4,7 @@
 // # NOTE: The reason for importing the modules, the old-school way is to ensure that, the downstream dependencies aren't affected.
 // # TODO: Write a helper to test immutability between a source and its derived object.
 const {
-	clean, clone, compose, collect, diff, entries,
+	clean, clone, compose, combine, collect, diff, entries,
 	filter, flip, flipMany, fromEntries, patch,
 	merge, omit, props, result, select, squash,
 	translate, traverse,
@@ -121,7 +121,31 @@ describe('Collection', () => {
 		expect(merged.complexArray.innerArray[0]).toEqual(0);
 	});
 
-	test('merge should merge multiple objects', () => {
+	test('combine should combine the second object '
+	+ 'to the first object', () => {
+		const base = clone(complexObject);
+		const extension = clone(base);
+		const baseCopy = clone(complexObject);
+		const propToDelete = 'single';
+		const newValue = 'new value';
+
+		delete extension[propToDelete];
+		extension.newProperty = newValue;
+		extension.parent.child.grandChild = newValue;
+
+		const combined = combine(base, extension);
+
+		expect(combined).toHaveProperty(propToDelete);
+		expect(combined.newProperty).toEqual(newValue);
+		expect(combined.parent.child.grandChild).toEqual(newValue);
+		expect(combined.array).toEqual(baseCopy.array.concat(extension.array));
+		expect(combined.complexArray).toEqual([
+			baseCopy.complexArray[0],
+			extension.complexArray[0],
+		]);
+	});
+
+	test('merge and combine should work with multiple extensions', () => {
 		expect(merge(
 			{ a: 1 }, { b: 2 }, { c: 3 }
 		)).toEqual({
@@ -129,18 +153,33 @@ describe('Collection', () => {
 			b: 2,
 			c: 3,
 		});
+
+		expect(combine({ a: [1] }, { a: [2], c: 3 })).toEqual({
+			a: [1, 2],
+			c: 3,
+		});
 	});
 
-	test('merge should not mutate the extensions', () => {
-		const extensionToTest = { b: 2 };
+	test('merge nor combine should not mutate extensions', () => {
+		const extensionToTest = { b: [2] };
+		const cloned = clone(extensionToTest);
 
 		merge(
-			{ a: 1 }, extensionToTest, { b: 3 }
+			{ a: [1] }, extensionToTest, { b: 3 }
 		);
 
-		expect(extensionToTest).toEqual({
-			b: 2,
-		});
+		expect(extensionToTest).toEqual(cloned);
+
+		combine(
+			{ a: [1] }, extensionToTest, { b: 3 }
+		);
+
+		expect(extensionToTest).toEqual(cloned);
+	});
+
+	test('merge and combine should work with simple arrays', () => {
+		expect(merge([0, 1], [1])).toEqual([1, 1]);
+		expect(combine([0, 1], [1])).toEqual([0, 1, 1]);
 	});
 
 	test('flip should swap the keys and values of the given object', () => {

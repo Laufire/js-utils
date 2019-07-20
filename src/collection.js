@@ -1,3 +1,4 @@
+
 /**
 * Helper functions to deal with collections.
 *
@@ -12,18 +13,31 @@
 import { isIterable, isObject } from './reflection';
 const { isArray } = Array; // eslint-disable-line id-match
 const toArray = (value) => (isArray(value) ? value : [value]);
-const keyArray = (object) => (isArray(object) ? object : keys(object));
+const keyArray = (object) => (isArray(object) ? object : keys(object)); // eslint-disable-line no-use-before-define
 
 const mergeObjects = (base, extension) => 	{
 	keys(extension).forEach((key) => { // eslint-disable-line no-use-before-define
 		const child = base[key];
 		const childExtension = extension[key];
 
-		child !== undefined && isIterable(child) && isIterable(childExtension)
+		isIterable(child) && isIterable(childExtension)
 			? mergeObjects(child, childExtension)
 			: base[key] = childExtension;
 	});
 };
+
+const combineObjects = (base, extension) =>
+	(isArray(base) && isArray(extension)
+		? base.concat(extension)
+		: (keys(extension).forEach((key) => { // eslint-disable-line no-use-before-define
+			/* eslint-disable complexity */
+			const child = base[key];
+			const childExtension = extension[key];
+
+			base[key] = isIterable(child) && isIterable(childExtension)
+				? combineObjects(child, childExtension)
+				: childExtension;
+		}), base));
 
 /* Exports */
 const { assign, entries, keys, values } = Object; // eslint-disable-line id-match
@@ -83,6 +97,18 @@ const omit = (obj, selector) => {
 		.reduce((aggregate, prop) => // eslint-disable-line no-return-assign
 			(aggregate[prop] = obj[prop], aggregate) // eslint-disable-line no-sequences
 		, {});
+};
+
+/**
+ * Combines multiple objects and their properties. The difference between merge and combine is that combine concatenates arrays.
+ * @param {object} base The base object onto which the extensions would be merged.
+ * @param  {...object} extensions
+ */
+const combine = (base, ...extensions) => {
+	extensions.forEach((extension) => // eslint-disable-line no-return-assign
+		base = combineObjects(base, extension)); // eslint-disable-line no-param-reassign
+
+	return base;
 };
 
 /**
@@ -207,6 +233,6 @@ export {
 	collect, traverse,
 	clean, filter, omit, select, result,
 	flip, flipMany, translate,
-	assign, clone, squash, merge, compose,
+	assign, clone, squash, combine, merge, compose,
 	patch, diff,
 };
