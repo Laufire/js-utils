@@ -12,6 +12,7 @@
 import { isIterable, isObject } from './reflection';
 const { isArray } = Array; // eslint-disable-line id-match
 const toArray = (value) => (isArray(value) ? value : [value]);
+const keyArray = (object) => (isArray(object) ? object : keys(object));
 
 const mergeObjects = (base, extension) => 	{
 	keys(extension).forEach((key) => { // eslint-disable-line no-use-before-define
@@ -70,17 +71,19 @@ const clone = (() => {
 
 const props = (obj, objProps) => objProps.map((prop) => obj[prop]);
 
-const select = (obj, selector) =>
-	(isArray(selector) ? selector : keys(selector))
-		.reduce((aggregate, prop) => // eslint-disable-line no-return-assign
-			(aggregate[prop] = obj[prop], aggregate), // eslint-disable-line no-sequences
-		{});
+const select = (obj, selector) => keyArray(selector)
+	.reduce((aggregate, prop) => // eslint-disable-line no-return-assign
+		(aggregate[prop] = obj[prop], aggregate), // eslint-disable-line no-sequences
+	{});
 
-const omit = (obj, propsToOmit) =>
-	keys(obj).filter((prop) => !propsToOmit.includes(prop))
+const omit = (obj, selector) => {
+	const propsToOmit = keyArray(selector);
+
+	return keys(obj).filter((prop) => !propsToOmit.includes(prop))
 		.reduce((aggregate, prop) => // eslint-disable-line no-return-assign
 			(aggregate[prop] = obj[prop], aggregate) // eslint-disable-line no-sequences
 		, {});
+};
 
 /**
  * Merges multiple objects and their properties.
@@ -94,7 +97,7 @@ const merge = (base, ...extensions) => {
 	return base;
 };
 
-// Merges arrays of objects into a single object.
+// Merges an array of objects into a single object.
 const squash = (...objects) =>
 	assign({}, ...objects.reduce((aggregate, value) =>
 		[...aggregate, ...toArray(value)], []));
