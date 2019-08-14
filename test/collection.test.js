@@ -223,7 +223,10 @@ describe('Collection', () => {
 
 	test('select returns a sub-object of the given object, '
 	+ 'with the properties in the given selector object', () => {
-		expect(select(simpleObj, { a: 'some-thing' })).toEqual({ a: 1 });
+		expect(select(simpleObj, {
+			a: 'some-thing',
+			keyNotInSource: 'some value',
+		})).toEqual({ a: 1 });
 	});
 
 	test('omit returns a sub-object of the given object, '
