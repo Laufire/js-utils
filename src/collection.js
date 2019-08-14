@@ -87,7 +87,7 @@ const props = (obj, objProps) => objProps.map((prop) => obj[prop]);
 
 const select = (obj, selector) => keyArray(selector)
 	.reduce((aggregate, prop) => // eslint-disable-line no-return-assign
-		(aggregate[prop] = obj[prop], aggregate), // eslint-disable-line no-sequences
+		(obj[prop] !== undefined && (aggregate[prop] = obj[prop]), aggregate), // eslint-disable-line no-sequences
 	{});
 
 const omit = (obj, selector) => {
