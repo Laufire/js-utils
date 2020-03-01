@@ -46,6 +46,7 @@ describe('Collection', () => {
 	/* Tests */
 	test('clean removes undefined props', () => {
 		expect(clean(complexObject)).not.toHaveProperty('undefinedProperty');
+		expect(clean([undefined, 1])).toEqual([1]);
 	});
 
 	test('collect works with all the properties of the object '
@@ -56,6 +57,12 @@ describe('Collection', () => {
 			a: 'a1',
 			b: 'b2',
 		});
+	});
+
+	test('collect handles arrays with keys instead of indexes', () => {
+		const cb = (val, key) => key + val;
+
+		expect(collect([1, 2], cb)).toEqual(['01', '12']);
 	});
 
 	test('filter filters the properties of the object using the passed '
