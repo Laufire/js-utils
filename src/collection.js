@@ -10,8 +10,8 @@
 */
 
 /* Helpers */
-import { isIterable, isObject } from './reflection';
-const { isArray } = Array; // eslint-disable-line id-match
+import { isArray, isIterable, isObject } from './reflection';
+
 const toArray = (value) => (isArray(value) ? value : [value]);
 const keyArray = (object) => (isArray(object) ? object : keys(object)); // eslint-disable-line no-use-before-define
 

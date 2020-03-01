@@ -33,6 +33,7 @@ const inferType = (value) => {
 export {
 	constructorName,
 	inferType,
+	isArray,
 	isIterable,
 	isFunction,
 	isObject,
