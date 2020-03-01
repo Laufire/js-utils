@@ -67,8 +67,9 @@ const filter = (obj, cb) => {
 	return ret;
 };
 
+// A recursive collect.
 const traverse = (obj, cb) => collect(obj, (value, key) =>
-	(isObject(value) ? collect(value, cb) : cb(value, key)));
+	(isObject(value) ? traverse(value, cb) : cb(value, key)));
 
 const clone = (() => {
 	const cloneObj = (obj) => collect(obj, clone);

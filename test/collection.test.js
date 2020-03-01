@@ -20,7 +20,9 @@ describe('Collection', () => {
 	const nestedObj = {
 		a: 1, b: 2,
 		c: {
-			d: 4,
+			d: {
+				e: 5,
+			},
 		},
 	};
 	const complexObject = {
@@ -73,7 +75,9 @@ describe('Collection', () => {
 			a: 'a1',
 			b: 'b2',
 			c: {
-				d: 'd4',
+				d: {
+					e: 'e5',
+				},
 			},
 		});
 	});
