@@ -24,9 +24,7 @@ const inferType = (value) => {
 	return type !== 'object'
 		? type
 		: value !== null
-			? value !== undefined
-				? value.constructor.name.toLowerCase()
-				: 'undefined'
+			? value.constructor.name.toLowerCase()
 			: 'null';
 };
 
