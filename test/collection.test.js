@@ -43,6 +43,9 @@ describe('Collection', () => {
 		],
 	};
 
+	/* Helpers */
+	const stitch = (val, key) => key + val;
+
 	/* Tests */
 	test('clean removes undefined props', () => {
 		expect(clean(complexObject)).not.toHaveProperty('undefinedProperty');
@@ -51,34 +54,28 @@ describe('Collection', () => {
 
 	test('collect works with all the properties of the object '
 	+ 'and build a new object', () => {
-		const cb = (val, key) => key + val;
-
-		expect(collect(simpleObj, cb)).toEqual({
+		expect(collect(simpleObj, stitch)).toEqual({
 			a: 'a1',
 			b: 'b2',
 		});
 	});
 
 	test('collect handles arrays with keys instead of indexes', () => {
-		const cb = (val, key) => key + val;
-
-		expect(collect([1, 2], cb)).toEqual(['01', '12']);
+		expect(collect([1, 2], stitch)).toEqual(['01', '12']);
 	});
 
 	test('filter filters the properties of the object using the passed '
 	+ 'filter function', () => {
-		const cb = (val) => val === 1;
+		const predicate = (val) => val === 1;
 
-		expect(filter(simpleObj, cb)).toEqual({
+		expect(filter(simpleObj, predicate)).toEqual({
 			a: 1,
 		});
 	});
 
 	test('traverse recursively traverses through a given object and '
 	+ 'build a new object', () => {
-		const cb = (val, key) => key + val;
-
-		expect(traverse(nestedObj, cb)).toEqual({
+		expect(traverse(nestedObj, stitch)).toEqual({
 			a: 'a1',
 			b: 'b2',
 			c: {
