@@ -66,7 +66,7 @@ const filter = (obj, cb) => {
 	return ret;
 };
 
-// A recursive collect.
+// Recursively passes all the primitives to the given callback.
 const traverse = (obj, cb) => collect(obj, (value, key) =>
 	(isIterable(value) ? traverse(value, cb) : cb(value, key)));
 
@@ -148,11 +148,12 @@ const result = (obj, path) => {
 		return currentObject;
 };
 
+// NOTE: Clean does not clean recursively to allow for shallow cleaning.
 const clean = (iterable) => {
 	if(isArray(iterable))
 		return iterable.filter((value) => value !== undefined);
 
-	const ret = getShell(it);
+	const ret = {};
 	const objKeys = keys(iterable);
 	const l = objKeys.length;
 	let i = 0;
@@ -167,6 +168,11 @@ const clean = (iterable) => {
 
 	return ret;
 };
+
+/* A recursive clean */
+const sanitize = (iterable) =>
+	clean(collect(iterable,
+		(value) => (isIterable(value) ? sanitize(value) : value)));
 
 // Swaps the keys and values of a map.
 const flip = (obj) => {
@@ -234,7 +240,8 @@ const diff = (base, compared) => {
 export {
 	keys, values, entries, fromEntries, props,
 	collect, traverse,
-	clean, filter, omit, select, result,
+	clean, sanitize,
+	filter, omit, select, result,
 	flip, flipMany, translate,
 	assign, clone, squash, combine, merge, compose,
 	patch, diff,

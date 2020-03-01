@@ -6,7 +6,7 @@
 const {
 	clean, clone, compose, combine, collect, diff, entries,
 	filter, flip, flipMany, fromEntries, patch,
-	merge, omit, props, result, select, squash,
+	merge, omit, props, result, sanitize, select, squash,
 	translate, traverse,
 } = require('../src/collection');
 
@@ -39,6 +39,7 @@ describe('Collection', () => {
 		complexArray: [
 			{
 				innerArray: [1, 3],
+				dirtyArray: [undefined, 1],
 			},
 		],
 	};
@@ -50,6 +51,13 @@ describe('Collection', () => {
 	test('clean removes undefined props', () => {
 		expect(clean(complexObject)).not.toHaveProperty('undefinedProperty');
 		expect(clean([undefined, 1])).toEqual([1]);
+	});
+
+	test('sanitize removes undefined props recursively', () => {
+		const sanitized = sanitize(complexObject);
+
+		expect(sanitized).not.toHaveProperty('undefinedProperty');
+		expect(sanitized.complexArray[0].dirtyArray).toEqual([1]);
 	});
 
 	test('collect works with all the properties of the object '
