@@ -11,10 +11,9 @@
 
 /* Helpers */
 import { isArray, isIterable, isObject } from './reflection';
-
 const toArray = (value) => (isArray(value) ? value : [value]);
 const keyArray = (object) => (isArray(object) ? object : keys(object)); // eslint-disable-line no-use-before-define
-
+const getShell = (iterable) => (isObject(iterable) ? {} : []);
 const mergeObjects = (base, extension) => 	{
 	keys(extension).forEach((key) => { // eslint-disable-line no-use-before-define
 		const child = base[key];
@@ -48,10 +47,10 @@ const fromEntries = (kvPairs) => kvPairs.reduce((agg, pair) => {
 }, {});
 
 // An Array.map like function for Objects.
-const collect = (obj, cb) => {
-	const ret = {};
+const collect = (iterable, cb) => {
+	const ret = getShell(iterable);
 
-	keys(obj).forEach((key) => (ret[key] = cb(obj[key], key)));
+	keys(iterable).forEach((key) => (ret[key] = cb(iterable[key], key)));
 	return ret;
 };
 
@@ -69,7 +68,7 @@ const filter = (obj, cb) => {
 
 // A recursive collect.
 const traverse = (obj, cb) => collect(obj, (value, key) =>
-	(isObject(value) ? traverse(value, cb) : cb(value, key)));
+	(isIterable(value) ? traverse(value, cb) : cb(value, key)));
 
 const clone = (() => {
 	const cloneObj = (obj) => collect(obj, clone);
@@ -149,15 +148,18 @@ const result = (obj, path) => {
 		return currentObject;
 };
 
-const clean = (obj) => {
-	const ret = {};
-	const objKeys = keys(obj);
+const clean = (iterable) => {
+	if(isArray(iterable))
+		return iterable.filter((value) => value !== undefined);
+
+	const ret = getShell(it);
+	const objKeys = keys(iterable);
 	const l = objKeys.length;
 	let i = 0;
 
 	while(i < l) {
 		const key = objKeys[i++];
-		const val = obj[key];
+		const val = iterable[key];
 
 		if(val !== undefined)
 			ret[key] = val;
