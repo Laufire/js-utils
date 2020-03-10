@@ -4,7 +4,6 @@
 *
 * # ToDo
 * 	* Complete the doc comments.
-* 	* Handle arrays in a better fashion. Assume the base based on the type of the iterable ({} / []).
 * #  Notes
 * 	* Keys with undefined values are treated as non-existent, so to allow for simplicity.
 */
