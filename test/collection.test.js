@@ -5,7 +5,7 @@
 // # TODO: Write a helper to test immutability between a source and its derived object.
 const {
 	clean, clone, compose, combine, collect, diff, entries,
-	filter, flip, flipMany, fromEntries, patch,
+	equals, filter, flip, flipMany, fromEntries, patch,
 	merge, omit, props, result, sanitize, select, squash,
 	translate, traverse,
 } = require('../src/collection');
@@ -342,5 +342,23 @@ describe('Collection', () => {
 		expect(patched).not.toHaveProperty('d');
 
 		expect(patched).toEqual(comparedObject);
+	});
+
+	test('diff and patch are complementary', () => {
+		const difference = diff(baseObject, comparedObject);
+		const patched = patch(baseObject, difference);
+
+		// Verify the absence of missing keys.
+		expect(patched).not.toHaveProperty('d');
+
+		expect(patched).toEqual(comparedObject);
+	});
+
+	test('equals tests the equality of primitives and'
+	+ 'complex objects', () => {
+		expect(equals(1, 1)).toBe(true);
+		expect(equals(1, 0)).toBe(false);
+		expect(equals(complexObject, clone(complexObject))).toBe(true);
+		expect(equals(simpleObj, {})).toBe(false);
 	});
 });
