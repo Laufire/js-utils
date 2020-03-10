@@ -1,5 +1,3 @@
-/* eslint-disable sort-keys */
-
 /* Tested */
 // # NOTE: The reason for importing the modules, the old-school way is to ensure that, the downstream dependencies aren't affected.
 // # TODO: Write a helper to test immutability between a source and its derived object.
@@ -8,7 +6,7 @@ const {
 	equals, filter, flip, flipMany, fromEntries, patch,
 	merge, omit, props, result, sanitize, select, squash,
 	translate, traverse,
-} = require('../src/collection');
+} = require('./collection');
 
 describe('Collection', () => {
 	/* Mocks and Stubs */

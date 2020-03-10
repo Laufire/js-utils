@@ -61,10 +61,10 @@ rules:
   }]
   line-comment-position: ["error", { "position": "above" }]
   lines-around-comment: ["error", {
-		"beforeLineComment": false,
-		"afterLineComment": false,
-		"applyDefaultIgnorePatterns": true,
-		"ignorePattern": "Helpers|Tasks|Exports|Tested|Mocks"
+    "beforeLineComment": false,
+    "afterLineComment": false,
+    "applyDefaultIgnorePatterns": true,
+    "ignorePattern": "Helpers|Tasks|Exports|Tested|Mocks"
   }]
   lines-between-class-members: ["error", "always"]
   linebreak-style: ["error", "unix"]
@@ -260,3 +260,11 @@ rules:
 
   # Security
   # require-atomic-updates: error # Marked.
+overrides:
+  # Overrides for tests.
+  - files: [ "**.spec.js" ]
+    rules:
+      max-lines-per-function: off
+      max-statements: 0
+      no-magic-numbers: 0
+      sort-keys: 0
