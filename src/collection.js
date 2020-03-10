@@ -240,6 +240,12 @@ const diff = (base, compared) => {
 	return difference;
 };
 
+const equals = (base, compared) =>
+	(isIterable(base) && isIterable(compared)
+		? keys(base)
+			.findIndex((key) => !equals(base[key], compared[key])) === -1 // eslint-disable-line no-magic-numbers
+		: base === compared);
+
 export {
 	keys, values, entries, fromEntries, props,
 	collect, traverse,
@@ -247,5 +253,5 @@ export {
 	filter, omit, select, result,
 	flip, flipMany, translate,
 	assign, clone, squash, combine, merge, compose,
-	patch, diff,
+	patch, diff, equals,
 };
