@@ -9,4 +9,3 @@
 ## ToDo
 
 * Allow for sub-module imports.
-* Add coverage reports and hooks.
