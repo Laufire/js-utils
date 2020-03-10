@@ -139,13 +139,12 @@ const result = (obj, path) => {
 		.map((part) => part.replace(/\\(.)/g, '$1'));
 	const partCount = parts.length;
 	let currentObject = obj;
-	let partIndex = 0;
+	let cursor = 0;
 
-	while(partIndex < partCount && isIterable(currentObject))
-		currentObject = currentObject[parts[partIndex++]];
+	while(cursor < partCount && isIterable(currentObject))
+		currentObject = currentObject[parts[cursor++]];
 
-	if(partIndex === partCount)
-		return currentObject;
+	return currentObject;
 };
 
 // NOTE: Clean does not clean recursively to allow for shallow cleaning.
@@ -226,10 +225,7 @@ const diff = (base, compared) => {
 
 		if(baseChild !== comparedChild) {
 			difference[key] = isIterable(comparedChild)
-				?	diff(isArray(baseChild) !== isArray(comparedChild)
-					? isObject(comparedChild) ? {} : []
-					: baseChild,
-				comparedChild)
+				?	diff(baseChild, comparedChild)
 				: comparedChild;
 		}
 	});
