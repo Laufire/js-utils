@@ -10,4 +10,3 @@
 
 * Allow for sub-module imports.
 * Add coverage reports and hooks.
-* Use JSON pointers for paths.

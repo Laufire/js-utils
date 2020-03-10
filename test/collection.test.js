@@ -31,7 +31,7 @@ describe('Collection', () => {
 			'child': {
 				grandChild: 'grandChild',
 			},
-			'unescaped/child': 'unescaped/child',
+			'/unescaped/child': 'unescaped/child',
 			'escaped\\/child': 'escaped\\/child',
 		},
 		undefinedProp: undefined,
@@ -273,13 +273,15 @@ describe('Collection', () => {
 
 	test('result works for normal paths escaped paths', () => {
 		expect(result(complexObject, 'single')).toEqual(complexObject.single);
+		expect(result(complexObject, '/single')).toEqual(complexObject.single);
 		expect(result(complexObject, 'parent/child'))
 			.toEqual(complexObject.parent.child);
-		expect(result(complexObject, 'parent/unescaped\\/child'))
-			.toEqual(complexObject.parent['unescaped/child']);
+		expect(result(complexObject, 'parent/\\/unescaped\\/child'))
+			.toEqual(complexObject.parent['/unescaped/child']);
 		expect(result(complexObject, 'parent/escaped\\\\\\/child'))
 			.toEqual(complexObject.parent['escaped\\/child']);
 		expect(result(complexObject, 'non-existent')).toEqual(undefined);
+		expect(result(complexObject, 'array/1')).toEqual(2);
 	});
 
 	test('compose returns an object from a list of objects, '
