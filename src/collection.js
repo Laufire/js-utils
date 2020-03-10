@@ -135,13 +135,13 @@ const squash = (...objects) =>
  * @returns {*} The value from the path or undefined.
  */
 const result = (obj, path) => {
-	const parts = path.split(/(?<!(?:[^\\])(?:\\{2})*\\)\//g)
+	const parts = path.replace(/^\//, '').split(/(?<!(?:[^\\])(?:\\{2})*\\)\//g)
 		.map((part) => part.replace(/\\(.)/g, '$1'));
 	const partCount = parts.length;
 	let currentObject = obj;
 	let partIndex = 0;
 
-	while(partIndex < partCount && typeof currentObject === 'object')
+	while(partIndex < partCount && isIterable(currentObject))
 		currentObject = currentObject[parts[partIndex++]];
 
 	if(partIndex === partCount)
