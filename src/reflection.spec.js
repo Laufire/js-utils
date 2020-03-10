@@ -5,7 +5,7 @@ const {
 	isIterable,
 	isFunction,
 	isObject,
-} = require('../src/reflection');
+} = require('./reflection');
 
 describe('Reflection', () => {
 	/* Mocks and Stubs */

@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest --no-cache",
     "lint": "eslint .",
-    "build": "babel -d ./dist ./src",
+    "build": "rm -rf ./dist && babel --ignore '**/*.spec.js' -d ./dist ./src",
     "prepublishOnly": "npm run lint && npm test && npm run build"
   },
   "repository": {
