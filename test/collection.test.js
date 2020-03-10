@@ -296,7 +296,13 @@ describe('Collection', () => {
 
 	test('diff returns the difference between a baseObject '
 	+ 'and a comparedObject', () => {
-		const baseObject = { a: 1, b: 2, c: 1 };
+		const baseObject = {
+			a: 1,
+			b: 2,
+			c: 1,
+			d: 'should be absent',
+			e: [0],
+		};
 		const comparedObject = {
 			a: 1,
 			b: 3,
@@ -304,6 +310,7 @@ describe('Collection', () => {
 			c: {
 				d: 3,
 			},
+			e: [0, 1],
 		};
 
 		const difference = diff(baseObject, comparedObject);
@@ -313,6 +320,10 @@ describe('Collection', () => {
 			c: {
 				d: 3,
 			},
+			e: [
+				undefined,
+				1,
+			],
 		});
 
 		// Verify immutability of nested diffs.
