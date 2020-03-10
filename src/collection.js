@@ -13,7 +13,7 @@
 import { isArray, isIterable, isObject } from './reflection';
 const toArray = (value) => (isArray(value) ? value : [value]);
 const keyArray = (object) => (isArray(object) ? object : keys(object)); // eslint-disable-line no-use-before-define
-const getShell = (iterable) => (isObject(iterable) ? {} : []);
+const getShell = (iterable) => (isArray(iterable) ? [] : {});
 const mergeObjects = (base, extension) => 	{
 	keys(extension).forEach((key) => { // eslint-disable-line no-use-before-define
 		const child = base[key];
@@ -218,7 +218,7 @@ const patch = (base, extension) =>
 	merge(clone(base), extension);
 
 const diff = (base, compared) => {
-	const difference = {};
+	const difference = getShell(base);
 
 	keys(compared).forEach((key) => { // eslint-disable-line complexity
 		const baseChild = base[key];
