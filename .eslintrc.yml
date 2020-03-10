@@ -265,6 +265,7 @@ overrides:
   - files: [ "**.spec.js" ]
     rules:
       max-lines-per-function: off
+      max-nested-callbacks: 0
       max-statements: 0
       no-magic-numbers: 0
       sort-keys: 0
