@@ -215,7 +215,7 @@ const compose = (...objects) => {
 };
 
 const patch = (base, extension) =>
-	merge(clone(base), extension);
+	sanitize(merge(clone(base), extension));
 
 const diff = (base, compared) => {
 	const difference = getShell(base);
@@ -233,6 +233,9 @@ const diff = (base, compared) => {
 				: comparedChild;
 		}
 	});
+
+	keys(base).forEach((key) =>
+		compared[key] === undefined && (difference[key] = undefined));
 
 	return difference;
 };

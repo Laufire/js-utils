@@ -43,6 +43,22 @@ describe('Collection', () => {
 			},
 		],
 	};
+	const baseObject = {
+		a: 1,
+		b: 2,
+		c: 1,
+		d: 'only in base',
+		e: [0],
+	};
+	const comparedObject = {
+		a: 1,
+		b: 3,
+		c: {
+			d: 3,
+		},
+		e: [0, 1],
+		f: 'only in compared',
+	};
 
 	/* Helpers */
 	const stitch = (val, key) => key + val;
@@ -282,37 +298,19 @@ describe('Collection', () => {
 
 	test('patch creates a new variation of a baseObject based on '
 	+ 'the given extension, while preserving them both', () => {
-		const baseObject = { a: 1, b: 2 };
 		const extension = { b: 3 };
 
-		expect(patch(baseObject, extension)).toEqual({
+		expect(patch(simpleObj, extension)).toEqual({
 			a: 1,
 			b: 3,
 		});
 
-		expect(baseObject).toEqual({ a: 1, b: 2 });
+		expect(simpleObj).toEqual({ a: 1, b: 2 });
 		expect(extension).toEqual({ b: 3 });
 	});
 
 	test('diff returns the difference between a baseObject '
 	+ 'and a comparedObject', () => {
-		const baseObject = {
-			a: 1,
-			b: 2,
-			c: 1,
-			d: 'should be absent',
-			e: [0],
-		};
-		const comparedObject = {
-			a: 1,
-			b: 3,
-			// # TODO: Test for mixed nested object types (array and object).
-			c: {
-				d: 3,
-			},
-			e: [0, 1],
-		};
-
 		const difference = diff(baseObject, comparedObject);
 
 		expect(difference).toEqual({
@@ -320,29 +318,29 @@ describe('Collection', () => {
 			c: {
 				d: 3,
 			},
+			d: undefined,
 			e: [
 				undefined,
 				1,
 			],
+			f: 'only in compared',
 		});
 
-		// Verify immutability of nested diffs.
+		// Verify the presence of missing keys.
+		expect(difference).toHaveProperty('d');
+
+		// Verify the immutability of nested diffs.
 		difference.c.d = 1;
 		expect(comparedObject.c.d).toEqual(3);
 	});
 
 	test('diff and patch are complementary', () => {
-		const baseObject = { a: 1, b: 2, c: 1 };
-		const comparedObject = {
-			a: 1,
-			b: 3,
-			c: {
-				d: 3,
-			},
-		};
-
 		const difference = diff(baseObject, comparedObject);
+		const patched = patch(baseObject, difference);
 
-		expect(patch(baseObject, difference)).toEqual(comparedObject);
+		// Verify the absence of missing keys.
+		expect(patched).not.toHaveProperty('d');
+
+		expect(patched).toEqual(comparedObject);
 	});
 });
