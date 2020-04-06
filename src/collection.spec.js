@@ -154,6 +154,18 @@ describe('Collection', () => {
 		expect(merged.complexArray.innerArray[0]).toEqual(0);
 	});
 
+	test('merge does not mutate the passed objects', () => {
+		const objOne = clone(complexObject);
+		const objTwo = clone(nestedObj);
+
+		merge(
+			objOne, objTwo, objOne, objTwo
+		);
+
+		expect(objOne).toEqual(complexObject);
+		expect(objTwo).toEqual(nestedObj);
+	});
+
 	test('combine combines the second object '
 	+ 'to the first object', () => {
 		const base = clone(complexObject);
@@ -176,6 +188,22 @@ describe('Collection', () => {
 			baseCopy.complexArray[0],
 			extension.complexArray[0],
 		]);
+	});
+
+	test('combine does not mutate the passed objects', () => {
+		const objOne = clone(nestedObj);
+		const objTwo = clone(nestedObj);
+
+		objTwo.b = { c: 1 };
+
+		const clonedObjTwo = clone(objTwo);
+
+		combine(
+			objOne, objTwo, objOne, objTwo
+		);
+
+		expect(objOne).toEqual(nestedObj);
+		expect(objTwo).toEqual(clonedObjTwo);
 	});
 
 	test('merge and combine work with multiple extensions', () => {
