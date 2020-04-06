@@ -53,7 +53,10 @@ const collect = (iterable, cb) => {
 	return ret;
 };
 
-// An Array.map like function for Objects.
+// NOTE: The standard each implementation is avoided, it doesn't align with the principle of having a return value.
+const each = collect;
+
+// An Array.filter like function for Objects.
 const filter = (obj, cb) => {
 	const ret = {};
 
@@ -243,7 +246,7 @@ const equals = (base, compared) =>
 
 export {
 	keys, values, entries, fromEntries, props,
-	collect, traverse,
+	each, collect, traverse,
 	clean, sanitize,
 	filter, omit, select, result,
 	flip, flipMany, translate,
