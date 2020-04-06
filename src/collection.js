@@ -18,10 +18,17 @@ const mergeObjects = (base, extension) => 	{
 		const child = base[key];
 		const childExtension = extension[key];
 
-		isIterable(child) && isIterable(childExtension)
-			? mergeObjects(child, childExtension)
-			: base[key] = childExtension;
+		base[key] = isIterable(child)
+			? isIterable(childExtension)
+				? mergeObjects(mergeObjects(getShell(child), child),
+					childExtension)
+				: childExtension
+			: isIterable(childExtension)
+				? mergeObjects(getShell(childExtension), childExtension)
+				: childExtension;
 	});
+
+	return base;
 };
 
 const combineObjects = (base, extension) =>
@@ -32,9 +39,14 @@ const combineObjects = (base, extension) =>
 			const child = base[key];
 			const childExtension = extension[key];
 
-			base[key] = isIterable(child) && isIterable(childExtension)
-				? combineObjects(child, childExtension)
-				: childExtension;
+			base[key] = isIterable(child)
+				? isIterable(childExtension)
+					? combineObjects(combineObjects(getShell(child), child),
+						childExtension)
+					: childExtension
+				: isIterable(childExtension)
+					? combineObjects(getShell(childExtension), childExtension)
+					: childExtension;
 		}), base));
 
 /* Exports */
@@ -102,27 +114,29 @@ const omit = (obj, selector) => {
 };
 
 /**
- * Combines multiple objects and their properties. The difference between merge and combine is that combine concatenates arrays.
- * @param {object} base The base object onto which the extensions would be merged.
- * @param  {...object} extensions
+ * Combines multiple objects and their properties. The difference between merge and combine is that combine concatenates arrays, instead of merging them.
+ * @param  {...object} objects The objects to be combined.
  */
-const combine = (base, ...extensions) => {
-	extensions.forEach((extension) => // eslint-disable-line no-return-assign
-		base = combineObjects(base, extension)); // eslint-disable-line no-param-reassign
+const combine = (...objects) => {
+	let ret = getShell(objects[0]);
 
-	return base;
+	objects.forEach((extension) => // eslint-disable-line no-return-assign
+		ret = combineObjects(ret, extension)); // eslint-disable-line no-param-reassign
+
+	return ret;
 };
 
 /**
  * Merges multiple objects and their properties.
- * @param {object} base The base object onto which the extensions would be merged.
- * @param  {...object} extensions
+ * @param  {...object} objects The objects to be merged.
  */
-const merge = (base, ...extensions) => {
-	extensions.forEach((extension) =>
-		mergeObjects(base, extension));
+const merge = (...objects) => {
+	const ret = getShell(objects[0]);
 
-	return base;
+	objects.forEach((object) =>
+		mergeObjects(ret, object));
+
+	return ret;
 };
 
 // Merges an array of objects into a single object.
