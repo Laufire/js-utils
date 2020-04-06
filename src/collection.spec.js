@@ -243,6 +243,11 @@ describe('Collection', () => {
 		expect(combine([0, 1], [1])).toEqual([0, 1, 1]);
 	});
 
+	test('merge and combine can work with undefined and null values', () => {
+		expect(merge(undefined, {}, null)).toEqual({});
+		expect(combine(undefined, [], null)).toEqual({});
+	});
+
 	test('flip swaps the keys and values of the given object', () => {
 		expect(flip(simpleObj)).toEqual({
 			1: 'a',
