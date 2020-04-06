@@ -121,7 +121,9 @@ const combine = (...objects) => {
 	let ret = getShell(objects[0]);
 
 	objects.forEach((extension) => // eslint-disable-line no-return-assign
-		ret = combineObjects(ret, extension)); // eslint-disable-line no-param-reassign
+		ret = extension
+			? combineObjects(ret, extension)
+			: ret); // eslint-disable-line no-param-reassign
 
 	return ret;
 };
@@ -134,7 +136,7 @@ const merge = (...objects) => {
 	const ret = getShell(objects[0]);
 
 	objects.forEach((object) =>
-		mergeObjects(ret, object));
+		object && mergeObjects(ret, object));
 
 	return ret;
 };
