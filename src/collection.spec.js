@@ -2,10 +2,9 @@
 // # NOTE: The reason for importing the modules, the old-school way is to ensure that, the downstream dependencies aren't affected.
 // # TODO: Write a helper to test immutability between a source and its derived object.
 const {
-	clean, clone, compose, combine, collect, diff, entries,
-	equals, filter, flip, flipMany, fromEntries, patch,
-	merge, omit, props, result, sanitize, select, squash,
-	translate, traverse,
+	clean, clone, compose, combine, collect, diff, each, entries, equals,
+	filter, flip, flipMany, fromEntries, patch, merge, omit, props, result,
+	sanitize, select, squash, translate, traverse,
 } = require('./collection');
 
 describe('Collection', () => {
@@ -72,6 +71,10 @@ describe('Collection', () => {
 
 		expect(sanitized).not.toHaveProperty('undefinedProperty');
 		expect(sanitized.complexArray[0].dirtyArray).toEqual([1]);
+	});
+
+	test('each is an alias for collect', () => {
+		expect(collect).toEqual(each);
 	});
 
 	test('collect works with all the properties of the object '
