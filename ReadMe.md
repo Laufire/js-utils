@@ -8,4 +8,4 @@
 
 ## ToDo
 
-* Allow for sub-module imports.
+* *None, yet.*
