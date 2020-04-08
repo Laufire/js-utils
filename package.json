@@ -4,10 +4,14 @@
   "description": "A simple set of utility libraries to ease development.",
   "main": "./dist/index.js",
   "scripts": {
+    "copy": "cp ./package.json ./ReadMe.md ./LICENSE ./dist/",
+    "build": "babel --ignore '**/*.spec.js' -d ./dist ./src && npm run copy",
+    "dev": "node -e 'require(\"./dist/index.js\").main()'",
     "test": "jest --no-cache",
     "lint": "eslint .",
-    "build": "rm -rf ./dist && babel --ignore '**/*.spec.js' -d ./dist ./src",
-    "prepublishOnly": "npm run lint && npm test && npm run build"
+    "prepublishOnly": "echo \"Error: Don't run 'npm publish' in root. Use 'npm run dist' instead.\" && exit 1",
+    "prepareDist": "npm run lint && npm test && rm -rf ./dist && npm run build",
+    "dist": "npm run prepareDist && cd dist && npm publish --ignore-scripts"
   },
   "repository": {
     "type": "git",
