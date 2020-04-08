@@ -147,23 +147,30 @@ const squash = (...objects) =>
 		[...aggregate, ...toArray(value)], []));
 
 /**
- * Retrieves the value, notified by a path, from a nested map. Slashes are used as the separator for readability.
+ * Retrieves the value, notified by a path, from a nested map. Slashes are used as the separator for readability. Starting paths with a slash yields better accuracy.
  * @param {object} obj The object to look into.
  * @param {string} path The path to look for. Slash is the separator. And backslash is the escape char.
  * @returns {*} The value from the path or undefined.
  */
-const result = (obj, path) => {
-	const parts = path.replace(/^\//, '').split(/(?<!(?:[^\\])(?:\\{2})*\\)\//g)
-		.map((part) => part.replace(/\\(.)/g, '$1'));
-	const partCount = parts.length;
-	let currentObject = obj;
-	let cursor = 0;
+const result = (() => {
+	const initialSlash = /^\//;
+	const matcher = /(?:(?:[^/\\]|\\.)*\/)/g;
+	const escapedSequence = /\\(.)/g;
 
-	while(cursor < partCount && isIterable(currentObject))
-		currentObject = currentObject[parts[cursor++]];
+	return (obj, path) => {
+		const parts = (`${ path }/`.replace(initialSlash, '').match(matcher) || [])
+			.map((part) => part.replace(escapedSequence, '$1').slice(0, -1));
 
-	return currentObject;
-};
+		const partCount = parts.length;
+		let currentObject = obj;
+		let cursor = 0;
+
+		while(cursor < partCount && isIterable(currentObject))
+			currentObject = currentObject[parts[cursor++]];
+
+		return currentObject;
+	};
+})();
 
 // NOTE: Clean does not clean recursively to allow for shallow cleaning.
 const clean = (iterable) => {
