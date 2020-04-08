@@ -316,6 +316,8 @@ describe('Collection', () => {
 			.toEqual(complexObject.parent['escaped\\/child']);
 		expect(result(complexObject, 'non-existent')).toEqual(undefined);
 		expect(result(complexObject, 'array/1')).toEqual(2);
+		expect(result({ '': 1 }, '/')).toEqual(1);
+		expect(result(complexObject, '')).toEqual(complexObject);
 	});
 
 	test('compose returns an object from a list of objects, '
