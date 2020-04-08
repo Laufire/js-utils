@@ -16,12 +16,12 @@ test('peek logs a value to the console and returns the same value.', () => {
 });
 
 test('sleep stalls the flow for 1000ms by default.', async () => {
-	const startedAt = new Date();
+	const startedAt = performance.now();
 
 	await sleep();
 
-	const resumedAt = new Date();
+	const resumedAt = performance.now();
 
-	expect(resumedAt - startedAt > 1000).toBe(true);
-	expect(resumedAt - startedAt < 1100).toBe(true);
+	expect(resumedAt - startedAt >= 1000).toBe(true);
+	expect(resumedAt - startedAt < 1010).toBe(true);
 });
