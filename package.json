@@ -2,7 +2,7 @@
   "name": "@laufire/utils",
   "version": "1.3.0",
   "description": "A simple set of utility libraries to ease development.",
-  "main": "./dist/index.js",
+  "main": "./index.js",
   "scripts": {
     "copy": "cp ./package.json ./ReadMe.md ./LICENSE ./dist/",
     "build": "babel --ignore '**/*.spec.js' -d ./dist ./src && npm run copy",
