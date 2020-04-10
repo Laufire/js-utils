@@ -78,7 +78,7 @@ describe('Collection', () => {
 	});
 
 	test('collect works with all the properties of the object '
-	+ 'and build a new object', () => {
+	+ 'and builds a new object', () => {
 		expect(collect(simpleObj, stitch)).toEqual({
 			a: 'a1',
 			b: 'b2',
@@ -89,8 +89,8 @@ describe('Collection', () => {
 		expect(collect([1, 2], stitch)).toEqual(['01', '12']);
 	});
 
-	test('filter filters the properties of the object using the passed '
-	+ 'filter function', () => {
+	test('filter filters the properties of the given object using '
+	+ ' the passed filter function', () => {
 		const predicate = (val) => val === 1;
 
 		expect(filter(simpleObj, predicate)).toEqual({
@@ -99,7 +99,7 @@ describe('Collection', () => {
 	});
 
 	test('traverse recursively traverses through a given object and '
-	+ 'build a new object', () => {
+	+ 'builds a new object', () => {
 		expect(traverse(nestedObj, stitch)).toEqual({
 			a: 'a1',
 			b: 'b2',
@@ -111,7 +111,7 @@ describe('Collection', () => {
 		});
 	});
 
-	test('clone clones given object', () => {
+	test('clone clones the given object', () => {
 		const cloned = clone(complexObject);
 
 		// Verify equality.
@@ -122,8 +122,8 @@ describe('Collection', () => {
 		expect(cloned).not.toEqual(complexObject);
 	});
 
-	test('squash squashes objects and object lists to '
-	+ 'a single object', () => {
+	test('squash squashes objects and object lists '
+	+ 'to a single object', () => {
 		const squashed = squash(
 			{ a: 1 }, [{ b: 2 }], { c: 3 }
 		);
@@ -135,7 +135,7 @@ describe('Collection', () => {
 		});
 	});
 
-	test('merge merges the second object to the first object', () => {
+	test('merge merges multiple objects into one', () => {
 		const base = clone(complexObject);
 		const extension = clone(complexObject);
 		const propToDelete = 'single';
@@ -166,8 +166,7 @@ describe('Collection', () => {
 		expect(objTwo).toEqual(nestedObj);
 	});
 
-	test('combine combines the second object '
-	+ 'to the first object', () => {
+	test('combine combines multiple objects into one', () => {
 		const base = clone(complexObject);
 		const extension = clone(base);
 		const baseCopy = clone(complexObject);
@@ -221,7 +220,7 @@ describe('Collection', () => {
 		});
 	});
 
-	test('merge nor combine not mutate extensions', () => {
+	test('merge nor combine do not mutate extensions', () => {
 		const extensionToTest = { b: [2] };
 		const cloned = clone(extensionToTest);
 
@@ -305,7 +304,8 @@ describe('Collection', () => {
 		expect(omit(simpleObj, { a: 'some-thing' })).toEqual({ b: 2 });
 	});
 
-	test('result works for normal paths escaped paths', () => {
+	test('result returns the value for the given simple path '
+	+ 'or escaped path', () => {
 		expect(result(complexObject, 'single')).toEqual(complexObject.single);
 		expect(result(complexObject, '/single')).toEqual(complexObject.single);
 		expect(result(complexObject, 'parent/child'))
@@ -370,16 +370,6 @@ describe('Collection', () => {
 		// Verify the immutability of nested diffs.
 		difference.c.d = 1;
 		expect(comparedObject.c.d).toEqual(3);
-	});
-
-	test('diff and patch are complementary', () => {
-		const difference = diff(baseObject, comparedObject);
-		const patched = patch(baseObject, difference);
-
-		// Verify the absence of missing keys.
-		expect(patched).not.toHaveProperty('d');
-
-		expect(patched).toEqual(comparedObject);
 	});
 
 	test('diff and patch are complementary', () => {
