@@ -3,8 +3,8 @@
 // # TODO: Write a helper to test immutability between a source and its derived object.
 const {
 	clean, clone, compose, combine, collect, diff, each, entries, equals,
-	filter, flip, flipMany, fromEntries, patch, merge, omit, props, result,
-	sanitize, select, squash, translate, traverse,
+	filter, flip, flipMany, fromEntries, impose, patch, merge, omit,
+	props, result, sanitize, select, squash, translate, traverse,
 } = require('./collection');
 
 describe('Collection', () => {
@@ -245,6 +245,19 @@ describe('Collection', () => {
 	test('merge and combine can work with undefined and null values', () => {
 		expect(merge(undefined, {}, null)).toEqual({});
 		expect(combine(undefined, [], null)).toEqual({});
+	});
+
+	test('impose imposes the given objects over the first one', () => {
+		const base = clone(complexObject);
+		const baseCopy = base;
+		const extension = clone(simpleObj);
+
+		const merged = merge(base, extension);
+		const imposed = impose(base, extension);
+
+		expect(imposed).toEqual(merged);
+		expect(imposed).toEqual(merged);
+		expect(imposed).not.toEqual(comparedObject);
 	});
 
 	test('flip swaps the keys and values of the given object', () => {
