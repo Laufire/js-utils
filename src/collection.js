@@ -141,6 +141,18 @@ const merge = (...objects) => {
 	return ret;
 };
 
+/**
+ * Imposes the given extensions over the given base object.
+ * @param {object} base The object to be imposed.
+ * @param {...object} impositions The impositions.
+ */
+const impose = (base, ...impositions) => {
+	impositions.forEach((object) =>
+		object && mergeObjects(base, object));
+
+	return base;
+};
+
 // Merges an array of objects into a single object.
 const squash = (...objects) =>
 	assign({}, ...objects.reduce((aggregate, value) =>
@@ -273,6 +285,6 @@ export {
 	clean, sanitize,
 	filter, omit, select, result,
 	flip, flipMany, translate,
-	assign, clone, squash, combine, merge, compose,
+	assign, clone, squash, combine, merge, impose, compose,
 	patch, diff, equals,
 };
