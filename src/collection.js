@@ -115,7 +115,7 @@ const omit = (obj, selector) => {
 
 /**
  * Combines multiple objects and their properties. The difference between merge and combine is that combine concatenates arrays, instead of merging them.
- * @param  {...object} objects The objects to be combined.
+ * @param {...object} objects The objects to be combined.
  */
 const combine = (...objects) => {
 	let ret = getShell(objects[0]);
@@ -130,13 +130,13 @@ const combine = (...objects) => {
 
 /**
  * Merges multiple objects and their properties.
- * @param  {...object} objects The objects to be merged.
+ * @param {...object} objects The objects to be merged.
  */
 const merge = (...objects) => {
 	const ret = getShell(objects[0]);
 
 	objects.forEach((object) =>
-		object && mergeObjects(ret, object));
+		isIterable(object) && mergeObjects(ret, object));
 
 	return ret;
 };
