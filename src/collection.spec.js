@@ -4,8 +4,8 @@
 
 const {
 	clean, clone, compose, combine, collect, diff, each, entries, equals,
-	filter, flip, flipMany, fromEntries, secure, patch, merge, omit,
-	props, result, sanitize, select, squash, translate, traverse,
+	filter, flip, flipMany, fromEntries, shell, patch, merge, omit,
+	props, result, sanitize, secure, select, squash, translate, traverse,
 } = require('./collection');
 
 describe('Collection', () => {
@@ -63,6 +63,11 @@ describe('Collection', () => {
 	const stitch = (val, key) => key + val;
 
 	/* Tests */
+	test('shell returns an empty container of the same type as the given iterable', () => {
+		expect(shell(simpleObj)).toEqual({});
+		expect(shell(simpleArray)).toEqual([]);
+	});
+
 	test('clean removes undefined props', () => {
 		expect(clean(complexObject)).not.toHaveProperty('undefinedProperty');
 		expect(clean([undefined, 1])).toEqual([1]);

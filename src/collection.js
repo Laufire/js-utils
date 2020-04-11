@@ -11,7 +11,6 @@
 import { isArray, isIterable, isObject } from './reflection';
 const toArray = (value) => (isArray(value) ? value : [value]);
 const keyArray = (object) => (isArray(object) ? object : keys(object)); // eslint-disable-line no-use-before-define
-const getShell = (iterable) => (isArray(iterable) ? [] : {});
 const mergeObjects = (base, extension) => 	{
 	keys(extension).forEach((key) => { // eslint-disable-line no-use-before-define
 		const child = base[key];
@@ -44,6 +43,12 @@ const { freeze, preventExtensions, // eslint-disable-line id-length
 /* Exports */
 const { assign, entries, keys, values } = Object; // eslint-disable-line id-match
 
+/**
+ * Returns an empty container of the same type as the given iterable.
+ * @param {*} iterable The iterable to get a shell for.
+ */
+const shell = (iterable) => (isArray(iterable) ? [] : {});
+
 const fromEntries = (kvPairs) => kvPairs.reduce((agg, pair) => {
 	agg[pair[0]] = pair[1];
 	return agg;
@@ -51,7 +56,7 @@ const fromEntries = (kvPairs) => kvPairs.reduce((agg, pair) => {
 
 // An Array.map like function for Iterables.
 const collect = (iterable, cb) => {
-	const ret = getShell(iterable);
+	const ret = shell(iterable);
 
 	keys(iterable).forEach((key) => (ret[key] = cb(iterable[key], key)));
 	return ret;
@@ -62,7 +67,7 @@ const each = collect;
 
 // An Array.filter like function for Objects.
 const filter = (obj, cb) => {
-	const ret = getShell(obj);
+	const ret = shell(obj);
 
 	keys(obj).forEach((key) => {
 		if(cb(obj[key], key))
@@ -224,7 +229,7 @@ const patch = (base, extension) =>
 	sanitize(merge(clone(base), extension));
 
 const diff = (base, compared) => {
-	const difference = getShell(base);
+	const difference = shell(base);
 
 	keys(compared).forEach((key) => { // eslint-disable-line complexity
 		const baseChild = base[key];
@@ -259,6 +264,6 @@ export {
 	clean, sanitize,
 	filter, omit, select, result,
 	flip, flipMany, translate,
-	assign, clone, squash, combine, merge, compose,
+	shell, assign, clone, squash, combine, merge, compose,
 	patch, diff, secure, equals,
 };
