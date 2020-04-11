@@ -55,7 +55,7 @@ const fromEntries = (kvPairs) => kvPairs.reduce((agg, pair) => {
 }, {});
 
 // An Array.map like function for Iterables.
-const collect = (iterable, cb) => {
+const map = (iterable, cb) => {
 	const ret = shell(iterable);
 
 	keys(iterable).forEach((key) => (ret[key] = cb(iterable[key], key)));
@@ -63,7 +63,7 @@ const collect = (iterable, cb) => {
 };
 
 // NOTE: The standard each implementation is avoided, it doesn't align with the principle of having a return value.
-const each = collect;
+const each = map;
 
 // An Array.filter like function for Objects.
 const filter = (obj, cb) => {
@@ -78,11 +78,11 @@ const filter = (obj, cb) => {
 };
 
 // Recursively passes all the primitives to the given callback.
-const traverse = (obj, cb) => collect(obj, (value, key) =>
+const traverse = (obj, cb) => map(obj, (value, key) =>
 	(isIterable(value) ? traverse(value, cb) : cb(value, key)));
 
 const clone = (() => {
-	const cloneObj = (obj) => collect(obj, clone);
+	const cloneObj = (obj) => map(obj, clone);
 	const cloneArray = (arr) => arr.map(clone);
 
 	return (value) =>
@@ -182,7 +182,7 @@ const clean = (iterable) => {
 
 /* A recursive clean */
 const sanitize = (iterable) =>
-	clean(collect(iterable,
+	clean(map(iterable,
 		(value) => (isIterable(value) ? sanitize(value) : value)));
 
 // Swaps the keys and values of a map.
@@ -249,7 +249,7 @@ const diff = (base, compared) => {
 };
 
 const secure = (object) =>
-	freeze(preventExtensions(seal(collect(object, (value) =>
+	freeze(preventExtensions(seal(map(object, (value) =>
 		(isIterable(value) ? secure(value) : value)))));
 
 const equals = (base, compared) =>
@@ -260,7 +260,7 @@ const equals = (base, compared) =>
 
 export {
 	keys, values, entries, fromEntries, props,
-	each, collect, traverse,
+	each, map, traverse,
 	clean, sanitize,
 	filter, omit, select, result,
 	flip, flipMany, translate,
