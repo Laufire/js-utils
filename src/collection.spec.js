@@ -4,7 +4,7 @@
 
 const {
 	clean, clone, compose, combine, collect, diff, each, entries, equals,
-	filter, flip, flipMany, fromEntries, secure, impose, patch, merge, omit,
+	filter, flip, flipMany, fromEntries, secure, patch, merge, omit,
 	props, result, sanitize, select, squash, translate, traverse,
 } = require('./collection');
 
@@ -214,19 +214,6 @@ describe('Collection', () => {
 	test('merge and combine work with simple arrays', () => {
 		expect(merge([0, 1], [1])).toEqual([1, 1]);
 		expect(combine([0, 1], [1])).toEqual([0, 1, 1]);
-	});
-
-	test('impose imposes the given objects over the first one', () => {
-		const base = clone(complexObject);
-		const baseCopy = base;
-		const extension = clone(simpleObj);
-
-		const merged = merge(base, extension);
-		const imposed = impose(base, extension);
-
-		expect(imposed).toEqual(merged);
-		expect(imposed).toEqual(merged);
-		expect(imposed).not.toEqual(comparedObject);
 	});
 
 	test('flip swaps the keys and values of the given object', () => {
