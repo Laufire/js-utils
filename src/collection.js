@@ -141,8 +141,8 @@ const spread = (base, seeds) =>
 
 /**
  * Combines multiple objects and their descendants with the given base object. When immutability is required, a shell could be passed as the base object.
- * @param {object} base The base object on which the extensions would be combined to.
- * @param {...object} extensions The objects to be combined.
+ * @param {iterable} base The base iterable on which the extensions would be combined to.
+ * @param {...iterable} extensions The extensions to be combined.
  */
 const combine = (base, ...extensions) =>
 	extensions.forEach((extension) =>
@@ -150,8 +150,8 @@ const combine = (base, ...extensions) =>
 
 /**
  * Merges multiple objects and their descendants with to the given base object. When immutability is required, a shell could be passed as the base object.
- * @param {object} base The base object on which the extensions would be merged to.
- * @param {...object} extensions The objects to be merged.
+ * @param {iterable} base The base iterable on which the extensions would be merged to.
+ * @param {...iterable} extensions The extensions to be merged.
  */
 const merge = (base, ...extensions) =>
 	extensions.forEach((extension) =>
@@ -164,7 +164,7 @@ const squash = (...objects) =>
 
 /**
  * Retrieves the value, notified by a path, from a nested map. Slashes are used as the separator for readability. Starting paths with a slash yields better accuracy.
- * @param {object} obj The object to look into.
+ * @param {iterable} obj The iterable to look into.
  * @param {string} path The path to look for. Slash is the separator. And backslash is the escape char.
  * @returns {*} The value from the path or undefined.
  */
@@ -260,7 +260,7 @@ const patch = (base, extension) =>
 const diff = (base, compared) => {
 	const difference = shell(base);
 
-	keys(compared).forEach((key) => { // eslint-disable-line complexity
+	keys(compared).forEach((key) => {
 		const baseChild = base[key];
 		const comparedChild = compared[key];
 
