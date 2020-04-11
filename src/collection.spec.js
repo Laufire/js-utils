@@ -3,7 +3,7 @@
 // # TODO: Write a helper to test immutability between a source and its derived object.
 const {
 	clean, clone, compose, combine, collect, diff, each, entries, equals,
-	filter, flip, flipMany, fromEntries, impose, patch, merge, omit,
+	filter, flip, flipMany, fromEntries, secure, impose, patch, merge, omit,
 	props, result, sanitize, select, squash, translate, traverse,
 } = require('./collection');
 
@@ -25,7 +25,7 @@ describe('Collection', () => {
 	const complexObject = {
 		single: 'single',
 		parent: {
-			'child': {
+			child: {
 				grandChild: 'grandChild',
 			},
 			'/unescaped/child': 'unescaped/child',
@@ -393,6 +393,22 @@ describe('Collection', () => {
 		expect(patched).not.toHaveProperty('d');
 
 		expect(patched).toEqual(comparedObject);
+	});
+
+	test('secure prevents further modifications to the given iterable', () => {
+		const frozenObject = secure(clone(complexObject));
+		const frozenArray = frozenObject.array;
+
+		const actions = {
+			objectMutation: () => frozenObject.parent.child = Symbol(),
+			objectExtension: () => frozenObject.parent.child1 = Symbol(),
+			objectDeletion: () => delete frozenObject.parent.child,
+			arrayMutation: () => frozenArray[0] = Symbol(),
+			arrayExtension: () => frozenArray.push(Symbol()),
+			arrayDeletion: () => frozenArray.pop(),
+		}
+
+		collect(actions, (action) => expect(action).toThrow());
 	});
 
 	test('equals tests the equality of primitives and'
