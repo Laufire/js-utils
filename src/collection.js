@@ -59,7 +59,7 @@ const fromEntries = (kvPairs) => kvPairs.reduce((agg, pair) => {
 	return agg;
 }, {});
 
-// An Array.map like function for Objects.
+// An Array.map like function for Iterables.
 const collect = (iterable, cb) => {
 	const ret = getShell(iterable);
 
@@ -122,9 +122,9 @@ const omit = (obj, selector) => {
 const combine = (...objects) => {
 	let ret = getShell(objects[0]);
 
-	objects.forEach((extension) => // eslint-disable-line no-return-assign
-		ret = extension
-			? combineObjects(ret, extension)
+	objects.forEach((object) => // eslint-disable-line no-return-assign
+		ret = object
+			? combineObjects(ret, object)
 			: ret); // eslint-disable-line no-param-reassign
 
 	return ret;
@@ -155,7 +155,7 @@ const impose = (base, ...impositions) => {
 	return base;
 };
 
-// Merges an array of objects into a single object.
+// Merges an array of objects / object-arrays into a single object.
 const squash = (...objects) =>
 	assign({}, ...objects.reduce((aggregate, value) =>
 		[...aggregate, ...toArray(value)], []));
