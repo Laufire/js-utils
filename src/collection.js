@@ -18,7 +18,7 @@ const mergeObjects = (base, extension) => 	{
 
 		base[key] = isIterable(childExtension) && isIterable(child)
 			? mergeObjects(child, childExtension)
-			: childExtension;
+			: clone(childExtension); // eslint-disable-line no-use-before-define
 	});
 
 	return base;
@@ -33,7 +33,7 @@ const combineObjects = (base, extension) =>
 
 			base[key] = isIterable(child) && isIterable(childExtension)
 				? combineObjects(child, childExtension)
-				: childExtension;
+				: clone(childExtension); // eslint-disable-line no-use-before-define
 		}), base)
 	);
 
