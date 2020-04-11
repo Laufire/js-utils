@@ -3,7 +3,7 @@
 // # NOTE: Immutability is tested implicitly, by preventing mutations the mock objects.
 
 const {
-	clean, clone, compose, combine, collect, diff, each, entries, equals,
+	clean, clone, compose, combine, map, diff, each, entries, equals,
 	filter, flip, flipMany, fromEntries, shell, patch, merge, omit,
 	props, result, sanitize, secure, select, squash, translate, traverse,
 } = require('./collection');
@@ -80,20 +80,20 @@ describe('Collection', () => {
 		expect(sanitized.complexArray[0].dirtyArray).toEqual([1]);
 	});
 
-	test('each is an alias for collect', () => {
-		expect(collect).toEqual(each);
+	test('each is an alias for map', () => {
+		expect(map).toEqual(each);
 	});
 
-	test('collect works with all the properties of the object '
+	test('map works with all the properties of the object '
 	+ 'and builds a new object', () => {
-		expect(collect(simpleObj, stitch)).toEqual({
+		expect(map(simpleObj, stitch)).toEqual({
 			a: 'a1',
 			b: 'b2',
 		});
 	});
 
-	test('collect handles arrays with keys instead of indexes', () => {
-		expect(collect([1, 2], stitch)).toEqual(['01', '12']);
+	test('map handles arrays with keys instead of indexes', () => {
+		expect(map([1, 2], stitch)).toEqual(['01', '12']);
 	});
 
 	test('filter filters the properties of the given iterable using '
@@ -365,7 +365,7 @@ describe('Collection', () => {
 			arrayDeletion: () => frozenArray.pop(),
 		}
 
-		collect(actions, (action) => expect(action).toThrow());
+		map(actions, (action) => expect(action).toThrow());
 	});
 
 	test('equals tests the equality of primitives and'
