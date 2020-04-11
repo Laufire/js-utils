@@ -195,14 +195,22 @@ describe('Collection', () => {
 		});
 	});
 
+	test('merge and combine work ignores undefined values', () => {
+		expect(merge(
+			{ a: 1 }, undefined, { c: 3 }
+		)).toEqual({
+			a: 1,
+			c: 3,
+		});
+
+		expect(combine({ a: [1] }, undefined, { a: [2] })).toEqual({
+			a: [1, 2],
+		});
+	});
+
 	test('merge and combine work with simple arrays', () => {
 		expect(merge([0, 1], [1])).toEqual([1, 1]);
 		expect(combine([0, 1], [1])).toEqual([0, 1, 1]);
-	});
-
-	test('merge and combine can work with undefined and null values', () => {
-		expect(merge(undefined, {}, null)).toEqual({});
-		expect(combine(undefined, [], null)).toEqual({});
 	});
 
 	test('impose imposes the given objects over the first one', () => {
