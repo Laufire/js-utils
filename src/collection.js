@@ -3,7 +3,7 @@
 *
 * # ToDo
 * 	* Complete the doc comments.
-* #  Notes
+* # Notes
 * 	* Keys with undefined values are treated as non-existent, so to allow for simplicity.
 */
 
@@ -109,6 +109,35 @@ const omit = (obj, selector) => {
 			(aggregate[prop] = obj[prop], aggregate) // eslint-disable-line no-sequences
 		, {});
 };
+
+/**
+ * Gathers the given props from the children of the given iterable, as an iterable.
+ * @param {*} iterable The iterable to collect the values from.
+ * @param {...any} props The props to collect from the children of the iterable.
+ */
+const gather = (iterable, ...props) => { // eslint-disable-line no-shadow
+	const propShell = shell(iterable);
+	const ret = shell(values(iterable)[0]);
+
+	props.forEach((prop) => {
+		const child = shell(propShell);
+
+		map(iterable, (value, key) => (child[key] = value[prop]));
+		ret[prop] = child;
+	});
+
+	return ret;
+};
+
+/**
+ * Spreads the children of given seeds iterable into the given base iterable.
+ * @param {iterable} base The iterable to collect the values from.
+ * @param {iterable} seeds The seeds iterable from where the props are spread.
+ */
+const spread = (base, seeds) =>
+	map(seeds, (propValues, targetProp) =>
+		map(propValues, (value, targetKey) =>
+			(base[targetKey][targetProp] = value))) && base;
 
 /**
  * Combines multiple objects and their descendants with the given base object. When immutability is required, a shell could be passed as the base object.
@@ -266,4 +295,5 @@ export {
 	flip, flipMany, translate,
 	shell, assign, clone, squash, combine, merge, compose,
 	patch, diff, secure, equals,
+	gather, spread,
 };
