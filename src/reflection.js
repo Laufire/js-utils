@@ -18,6 +18,8 @@ const isObject = (value) =>
 
 const isIterable = (value) => isArray(value) || isObject(value);
 
+const isDefined = (value) => value !== undefined;
+
 const inferType = (value) => {
 	const type = typeof value;
 
@@ -35,4 +37,5 @@ export {
 	isIterable,
 	isFunction,
 	isObject,
+	isDefined,
 };
