@@ -4,7 +4,7 @@
 
 const {
 	clean, clone, compose, combine, map, diff, each, entries, equals,
-	filter, flip, flipMany, fromEntries, gather, patch, merge, omit,
+	filter, flip, flipMany, fromEntries, gather, merge, patch, pick, omit,
 	props, result, sanitize, secure, select, shell, spread, squash,
 	translate, traverse,
 } = require('./collection');
@@ -405,27 +405,27 @@ describe('Collection', () => {
 		expect(gather(objectOfArrays, 0, 1)).toEqual(arrayOfObjects);
 	});
 
+	test('pick picks the given prop from the children of the given iterable, '
+	+ 'as an iterable', () => {
+		const arrayOfObjects = secure([{ a: 1 }, { a: 2, b: 1 }]);
+
+		expect(pick(arrayOfObjects, 'a')).toEqual([1, 2]);
+	});
+
 	test('spread spreads the children of given iterable '
 	+ 'into the base iterable', () => {
-		const base = {a: {}, b: {}};
+		const base = { a: {}, b: {} };
 		const seeds = secure({
-			prop1: { a: 1, b: 2},
-			prop2: {a: 3, b: 4},
+			prop1: { a: 1, b: 2 },
+			prop2: { a: 3, b: 4 },
 		});
 
 		const seeded = spread(base, seeds);
 
 		expect(seeded).toEqual({
-			a: {
-				prop1: 1,
-				prop2: 3,
-			},
-			b: {
-				prop1: 2,
-				prop2: 4,
-			}
+			a: { prop1: 1, prop2: 3 },
+			b: { prop1: 2, prop2: 4 },
 		});
-
 		expect(seeded).toEqual(base);
 	});
 });
