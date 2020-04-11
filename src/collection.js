@@ -17,14 +17,9 @@ const mergeObjects = (base, extension) => 	{
 		const child = base[key];
 		const childExtension = extension[key];
 
-		base[key] = isIterable(child)
-			? isIterable(childExtension)
-				? mergeObjects(mergeObjects(getShell(child), child),
-					childExtension)
-				: childExtension
-			: isIterable(childExtension)
-				? mergeObjects(getShell(childExtension), childExtension)
-				: childExtension;
+		base[key] = isIterable(childExtension) && isIterable(child)
+			? mergeObjects(child, childExtension)
+			: childExtension;
 	});
 
 	return base;
@@ -32,21 +27,16 @@ const mergeObjects = (base, extension) => 	{
 
 const combineObjects = (base, extension) =>
 	(isArray(base) && isArray(extension)
-		? base.concat(extension)
+		? (base.push(...extension), base)
 		: (keys(extension).forEach((key) => { // eslint-disable-line no-use-before-define
-			/* eslint-disable complexity */
 			const child = base[key];
 			const childExtension = extension[key];
 
-			base[key] = isIterable(child)
-				? isIterable(childExtension)
-					? combineObjects(combineObjects(getShell(child), child),
-						childExtension)
-					: childExtension
-				: isIterable(childExtension)
-					? combineObjects(getShell(childExtension), childExtension)
-					: childExtension;
-		}), base));
+			base[key] = isIterable(child) && isIterable(childExtension)
+				? combineObjects(child, childExtension)
+				: childExtension;
+		}), base)
+	);
 
 const { freeze, preventExtensions, // eslint-disable-line id-length
 	seal } = Object; // eslint-disable-line id-match
@@ -116,32 +106,22 @@ const omit = (obj, selector) => {
 };
 
 /**
- * Combines multiple objects and their properties. The difference between merge and combine is that combine concatenates arrays, instead of merging them.
- * @param {...object} objects The objects to be combined.
+ * Combines multiple objects and their descendants with the given base object. When immutability is required, a shell could be passed as the base object.
+ * @param {object} base The base object on which the extensions would be combined to.
+ * @param {...object} extensions The objects to be combined.
  */
-const combine = (...objects) => {
-	let ret = getShell(objects[0]);
-
-	objects.forEach((object) => // eslint-disable-line no-return-assign
-		ret = object !== undefined
-			? combineObjects(ret, object)
-			: ret); // eslint-disable-line no-param-reassign
-
-	return ret;
-};
+const combine = (base, ...extensions) =>
+	extensions.forEach((extension) =>
+		extension !== undefined && combineObjects(base, extension)) || base;
 
 /**
- * Merges multiple objects and their properties.
- * @param {...object} objects The objects to be merged.
+ * Merges multiple objects and their descendants with to the given base object. When immutability is required, a shell could be passed as the base object.
+ * @param {object} base The base object on which the extensions would be merged to.
+ * @param {...object} extensions The objects to be merged.
  */
-const merge = (...objects) => {
-	const ret = getShell(objects[0]);
-
-	objects.forEach((object) =>
-		object !== undefined && mergeObjects(ret, object));
-
-	return ret;
-};
+const merge = (base, ...extensions) =>
+	extensions.forEach((extension) =>
+		extension !== undefined && mergeObjects(base, extension)) || base;
 
 /**
  * Imposes the given extensions over the given base object.

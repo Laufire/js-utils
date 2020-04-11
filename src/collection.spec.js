@@ -136,18 +136,20 @@ describe('Collection', () => {
 
 	test('merge merges multiple objects into one', () => {
 		const base = clone(complexObject);
-		const extension = clone(complexObject);
+		const extensionBase = clone(complexObject);
 		const propToDelete = 'single';
 		const newValue = 'new value';
 
-		delete extension[propToDelete];
-		extension.newProperty = newValue;
-		extension.parent.child.grandChild = newValue;
-		extension.primitiveOverlay = 0;
-		extension.complexArray.innerArray = [0];
+		delete extensionBase[propToDelete];
+		extensionBase.newProperty = newValue;
+		extensionBase.parent.child.grandChild = newValue;
+		extensionBase.primitiveOverlay = 0;
+		extensionBase.complexArray.innerArray = [0];
+		const extension = secure(extensionBase);
 
 		const merged = merge(base, extension);
 
+		expect(base).not.toEqual(complexObject);
 		expect(merged).toHaveProperty(propToDelete);
 		expect(merged.newProperty).toEqual(newValue);
 		expect(merged.parent.child.grandChild).toEqual(newValue);
@@ -157,26 +159,27 @@ describe('Collection', () => {
 
 	test('combine combines multiple objects into one', () => {
 		const base = clone(complexObject);
-		const extension = clone(base);
-		const baseCopy = clone(complexObject);
+		const extensionBase = clone(base);
 		const propToDelete = 'single';
 		const newValue = 'new value';
 
-		delete extension[propToDelete];
-		extension.newProperty = newValue;
-		extension.parent.child.grandChild = newValue;
-		extension.primitiveOverlay = 0;
+		delete extensionBase[propToDelete];
+		extensionBase.newProperty = newValue;
+		extensionBase.parent.child.grandChild = newValue;
+		extensionBase.primitiveOverlay = 0;
+		const extension = secure(extensionBase);
 
 		const combined = combine(base, extension);
 
+		expect(base).not.toEqual(complexObject);
 		expect(combined).toHaveProperty(propToDelete);
 		expect(combined.newProperty).toEqual(newValue);
 		expect(combined.parent.child.grandChild).toEqual(newValue);
-		expect(combined.array).toEqual(baseCopy.array.concat(extension.array));
+		expect(combined.array).toEqual(complexObject.array.concat(extensionBase.array));
 		expect(combined.primitiveOverlay).toEqual(0);
 		expect(combined.complexArray).toEqual([
-			baseCopy.complexArray[0],
-			extension.complexArray[0],
+			complexObject.complexArray[0],
+			extensionBase.complexArray[0],
 		]);
 	});
 
