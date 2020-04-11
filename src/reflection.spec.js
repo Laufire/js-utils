@@ -5,6 +5,7 @@ const {
 	isIterable,
 	isFunction,
 	isObject,
+	isDefined,
 } = require('./reflection');
 
 describe('Reflection', () => {
@@ -44,5 +45,11 @@ describe('Reflection', () => {
 		+ 'is an Object', () => {
 		expect(isObject(obj)).toEqual(true);
 		expect(isObject(arr)).toEqual(false);
+	});
+
+	test('isDefined returns false only when the given value '
+		+ 'is undefined', () => {
+		expect(isDefined(undefined)).toEqual(false);
+		expect(isDefined(obj)).toEqual(true);
 	});
 });
