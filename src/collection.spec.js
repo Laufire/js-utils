@@ -4,8 +4,9 @@
 
 const {
 	clean, clone, compose, combine, map, diff, each, entries, equals,
-	filter, flip, flipMany, fromEntries, shell, patch, merge, omit,
-	props, result, sanitize, secure, select, squash, translate, traverse,
+	filter, flip, flipMany, fromEntries, gather, patch, merge, omit,
+	props, result, sanitize, secure, select, shell, spread, squash,
+	translate, traverse,
 } = require('./collection');
 
 describe('Collection', () => {
@@ -374,5 +375,38 @@ describe('Collection', () => {
 		expect(equals(1, 0)).toBe(false);
 		expect(equals(complexObject, clone(complexObject))).toBe(true);
 		expect(equals(simpleObj, {})).toBe(false);
+	});
+
+	test('gather gathers the given props from the children '
+	+ 'of the given iterable, as an iterable', () => {
+		const arrayOfObjects = secure([{ a: 1, b: 2}, {a: 2, b: 1}]);
+		const objectOfArrays = secure({a: [1, 2], b: [2, 1]});
+
+		expect(gather(arrayOfObjects, 'a', 'b')).toEqual(objectOfArrays);
+		expect(gather(objectOfArrays, 0, 1)).toEqual(arrayOfObjects);
+	});
+
+	test('spread spreads the children of given iterable '
+	+ 'into the base iterable', () => {
+		const base = {a: {}, b: {}};
+		const seeds = secure({
+			prop1: { a: 1, b: 2},
+			prop2: {a: 3, b: 4},
+		});
+
+		const seeded = spread(base, seeds);
+
+		expect(seeded).toEqual({
+			a: {
+				prop1: 1,
+				prop2: 3,
+			},
+			b: {
+				prop1: 2,
+				prop2: 4,
+			}
+		});
+
+		expect(seeded).toEqual(base);
 	});
 });
