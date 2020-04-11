@@ -94,6 +94,32 @@ const clone = (() => {
 		);
 })();
 
+// NOTE: Clean does not clean recursively to allow for shallow cleaning.
+const clean = (iterable) => {
+	if(isArray(iterable))
+		return iterable.filter((value) => value !== undefined);
+
+	const ret = {};
+	const objKeys = keys(iterable);
+	const l = objKeys.length;
+	let i = 0;
+
+	while(i < l) {
+		const key = objKeys[i++];
+		const val = iterable[key];
+
+		if(val !== undefined)
+			ret[key] = val;
+	}
+
+	return ret;
+};
+
+/* A recursive clean */
+const sanitize = (iterable) =>
+	clean(map(iterable,
+		(value) => (isIterable(value) ? sanitize(value) : value)));
+
 const props = (obj, objProps) => objProps.map((prop) => obj[prop]);
 
 const select = (obj, selector) => keyArray(selector)
@@ -122,7 +148,8 @@ const gather = (iterable, ...props) => { // eslint-disable-line no-shadow
 	props.forEach((prop) => {
 		const child = shell(propShell);
 
-		map(iterable, (value, key) => (child[key] = value[prop]));
+		map(iterable, (value, key) =>
+			(value[prop] !== undefined && (child[key] = value[prop])));
 		ret[prop] = child;
 	});
 
@@ -195,32 +222,6 @@ const result = (() => {
 		return currentObject;
 	};
 })();
-
-// NOTE: Clean does not clean recursively to allow for shallow cleaning.
-const clean = (iterable) => {
-	if(isArray(iterable))
-		return iterable.filter((value) => value !== undefined);
-
-	const ret = {};
-	const objKeys = keys(iterable);
-	const l = objKeys.length;
-	let i = 0;
-
-	while(i < l) {
-		const key = objKeys[i++];
-		const val = iterable[key];
-
-		if(val !== undefined)
-			ret[key] = val;
-	}
-
-	return ret;
-};
-
-/* A recursive clean */
-const sanitize = (iterable) =>
-	clean(map(iterable,
-		(value) => (isIterable(value) ? sanitize(value) : value)));
 
 // Swaps the keys and values of a map.
 const flip = (obj) => {

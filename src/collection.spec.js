@@ -398,16 +398,28 @@ describe('Collection', () => {
 
 	test('gather gathers the given props from the children '
 	+ 'of the given iterable, as an iterable', () => {
-		const arrayOfObjects = secure([{ a: 1, b: 2}, {a: 2, b: 1}]);
-		const objectOfArrays = secure({a: [1, 2], b: [2, 1]});
+		const arrayOfObjects = secure([
+			{ a: 1, b: 2 },
+			{ a: 2, b: 1 },
+			{ c: 3 }, // Objects do not hold references to undefined values.
+		]);
+		const objectOfArrays = secure({
+			a: [1, 2],
+			b: [2, 1],
+			c: [undefined, undefined, 3], // Arrays do hold references to undefined values, to preserve indices.
+		});
 
-		expect(gather(arrayOfObjects, 'a', 'b')).toEqual(objectOfArrays);
-		expect(gather(objectOfArrays, 0, 1)).toEqual(arrayOfObjects);
+		expect(gather(arrayOfObjects, 'a', 'b', 'c')).toEqual(objectOfArrays);
+		expect(gather(objectOfArrays, 0, 1, 2)).toEqual(arrayOfObjects);
 	});
 
 	test('pick picks the given prop from the children of the given iterable, '
 	+ 'as an iterable', () => {
-		const arrayOfObjects = secure([{ a: 1 }, { a: 2, b: 1 }]);
+		const arrayOfObjects = secure([
+			{ a: 1 },
+			{ a: 2, b: 3 },
+			{ c: 4},
+		]);
 
 		expect(pick(arrayOfObjects, 'a')).toEqual([1, 2]);
 	});
