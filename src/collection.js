@@ -1,4 +1,3 @@
-
 /**
 * Helper functions to deal with collections.
 *
@@ -48,6 +47,9 @@ const combineObjects = (base, extension) =>
 					? combineObjects(getShell(childExtension), childExtension)
 					: childExtension;
 		}), base));
+
+const { freeze, preventExtensions, // eslint-disable-line id-length
+	seal } = Object; // eslint-disable-line id-match
 
 /* Exports */
 const { assign, entries, keys, values } = Object; // eslint-disable-line id-match
@@ -273,6 +275,10 @@ const diff = (base, compared) => {
 	return difference;
 };
 
+const secure = (object) =>
+	freeze(preventExtensions(seal(collect(object, (value) =>
+		(isIterable(value) ? secure(value) : value)))));
+
 const equals = (base, compared) =>
 	(isIterable(base) && isIterable(compared)
 		? keys(base)
@@ -286,5 +292,5 @@ export {
 	filter, omit, select, result,
 	flip, flipMany, translate,
 	assign, clone, squash, combine, merge, impose, compose,
-	patch, diff, equals,
+	patch, diff, secure, equals,
 };
