@@ -130,6 +130,14 @@ const gather = (iterable, ...props) => { // eslint-disable-line no-shadow
 };
 
 /**
+ * Picks the given prop from the children of the given iterable, as an iterable.
+ * @param {*} iterable The iterable to collect the values from.
+ * @param {any} props The props to collect from the children of the iterable.
+ */
+const pick = (iterable, prop) => // eslint-disable-line no-shadow
+	gather(iterable, prop)[prop];
+
+/**
  * Spreads the children of given seeds iterable into the given base iterable.
  * @param {iterable} base The iterable to collect the values from.
  * @param {iterable} seeds The seeds iterable from where the props are spread.
@@ -295,5 +303,5 @@ export {
 	flip, flipMany, translate,
 	shell, assign, clone, squash, combine, merge, compose,
 	patch, diff, secure, equals,
-	gather, spread,
+	gather, pick, spread,
 };
