@@ -123,7 +123,7 @@ const combine = (...objects) => {
 	let ret = getShell(objects[0]);
 
 	objects.forEach((object) => // eslint-disable-line no-return-assign
-		ret = object
+		ret = object !== undefined
 			? combineObjects(ret, object)
 			: ret); // eslint-disable-line no-param-reassign
 
@@ -138,7 +138,7 @@ const merge = (...objects) => {
 	const ret = getShell(objects[0]);
 
 	objects.forEach((object) =>
-		isIterable(object) && mergeObjects(ret, object));
+		object !== undefined && mergeObjects(ret, object));
 
 	return ret;
 };
