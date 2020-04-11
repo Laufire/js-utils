@@ -1,6 +1,7 @@
 /* Tested */
 // # NOTE: The reason for importing the modules, the old-school way is to ensure that, the downstream dependencies aren't affected.
-// # TODO: Write a helper to test immutability between a source and its derived object.
+// # NOTE: Immutability is tested implicitly, by preventing mutations the mock objects.
+
 const {
 	clean, clone, compose, combine, collect, diff, each, entries, equals,
 	filter, flip, flipMany, fromEntries, secure, impose, patch, merge, omit,
@@ -9,20 +10,20 @@ const {
 
 describe('Collection', () => {
 	/* Mocks and Stubs */
-	const simpleObj = {
+	const simpleObj = secure({
 		a: 1,
 		b: 2,
-	};
+	});
 
-	const nestedObj = {
+	const nestedObj = secure({
 		a: 1, b: 2,
 		c: {
 			d: {
 				e: 5,
 			},
 		},
-	};
-	const complexObject = {
+	});
+	const complexObject = secure({
 		single: 'single',
 		parent: {
 			child: {
@@ -33,21 +34,22 @@ describe('Collection', () => {
 		},
 		undefinedProp: undefined,
 		array: [1, 2],
+		primitiveOverlay: {},
 		complexArray: [
 			{
 				innerArray: [1, 3],
 				dirtyArray: [undefined, 1],
 			},
 		],
-	};
-	const baseObject = {
+	});
+	const baseObject = secure({
 		a: 1,
 		b: 2,
 		c: 1,
 		d: 'only in base',
 		e: [0],
-	};
-	const comparedObject = {
+	});
+	const comparedObject = secure({
 		a: 1,
 		b: 3,
 		c: {
@@ -55,7 +57,7 @@ describe('Collection', () => {
 		},
 		e: [0, 1],
 		f: 'only in compared',
-	};
+	});
 
 	/* Helpers */
 	const stitch = (val, key) => key + val;
@@ -114,12 +116,7 @@ describe('Collection', () => {
 	test('clone clones the given object', () => {
 		const cloned = clone(complexObject);
 
-		// Verify equality.
 		expect(cloned).toEqual(complexObject);
-
-		// Verify immutability.
-		cloned.complexArray[0].innerArray[0] = Symbol('some value');
-		expect(cloned).not.toEqual(complexObject);
 	});
 
 	test('squash squashes objects and object lists '
@@ -144,6 +141,7 @@ describe('Collection', () => {
 		delete extension[propToDelete];
 		extension.newProperty = newValue;
 		extension.parent.child.grandChild = newValue;
+		extension.primitiveOverlay = 0;
 		extension.complexArray.innerArray = [0];
 
 		const merged = merge(base, extension);
@@ -151,19 +149,8 @@ describe('Collection', () => {
 		expect(merged).toHaveProperty(propToDelete);
 		expect(merged.newProperty).toEqual(newValue);
 		expect(merged.parent.child.grandChild).toEqual(newValue);
+		expect(merged.primitiveOverlay).toEqual(0);
 		expect(merged.complexArray.innerArray[0]).toEqual(0);
-	});
-
-	test('merge does not mutate the passed objects', () => {
-		const objOne = clone(complexObject);
-		const objTwo = clone(nestedObj);
-
-		merge(
-			objOne, objTwo, objOne, objTwo
-		);
-
-		expect(objOne).toEqual(complexObject);
-		expect(objTwo).toEqual(nestedObj);
 	});
 
 	test('combine combines multiple objects into one', () => {
@@ -176,6 +163,7 @@ describe('Collection', () => {
 		delete extension[propToDelete];
 		extension.newProperty = newValue;
 		extension.parent.child.grandChild = newValue;
+		extension.primitiveOverlay = 0;
 
 		const combined = combine(base, extension);
 
@@ -183,26 +171,11 @@ describe('Collection', () => {
 		expect(combined.newProperty).toEqual(newValue);
 		expect(combined.parent.child.grandChild).toEqual(newValue);
 		expect(combined.array).toEqual(baseCopy.array.concat(extension.array));
+		expect(combined.primitiveOverlay).toEqual(0);
 		expect(combined.complexArray).toEqual([
 			baseCopy.complexArray[0],
 			extension.complexArray[0],
 		]);
-	});
-
-	test('combine does not mutate the passed objects', () => {
-		const objOne = clone(nestedObj);
-		const objTwo = clone(nestedObj);
-
-		objTwo.b = { c: 1 };
-
-		const clonedObjTwo = clone(objTwo);
-
-		combine(
-			objOne, objTwo, objOne, objTwo
-		);
-
-		expect(objOne).toEqual(nestedObj);
-		expect(objTwo).toEqual(clonedObjTwo);
 	});
 
 	test('merge and combine work with multiple extensions', () => {
@@ -218,23 +191,6 @@ describe('Collection', () => {
 			a: [1, 2],
 			c: 3,
 		});
-	});
-
-	test('merge nor combine do not mutate extensions', () => {
-		const extensionToTest = { b: [2] };
-		const cloned = clone(extensionToTest);
-
-		merge(
-			{ a: [1] }, extensionToTest, { b: 3 }
-		);
-
-		expect(extensionToTest).toEqual(cloned);
-
-		combine(
-			{ a: [1] }, extensionToTest, { b: 3 }
-		);
-
-		expect(extensionToTest).toEqual(cloned);
 	});
 
 	test('merge and combine work with simple arrays', () => {
@@ -379,10 +335,6 @@ describe('Collection', () => {
 
 		// Verify the presence of missing keys.
 		expect(difference).toHaveProperty('d');
-
-		// Verify the immutability of nested diffs.
-		difference.c.d = 1;
-		expect(comparedObject.c.d).toEqual(3);
 	});
 
 	test('diff and patch are complementary', () => {
