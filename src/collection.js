@@ -72,7 +72,7 @@ const each = collect;
 
 // An Array.filter like function for Objects.
 const filter = (obj, cb) => {
-	const ret = {};
+	const ret = getShell(obj);
 
 	keys(obj).forEach((key) => {
 		if(cb(obj[key], key))

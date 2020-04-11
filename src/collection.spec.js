@@ -14,7 +14,7 @@ describe('Collection', () => {
 		a: 1,
 		b: 2,
 	});
-
+	const simpleArray = [1, 2];
 	const nestedObj = secure({
 		a: 1, b: 2,
 		c: {
@@ -33,7 +33,7 @@ describe('Collection', () => {
 			'escaped\\/child': 'escaped\\/child',
 		},
 		undefinedProp: undefined,
-		array: [1, 2],
+		array: clone(simpleArray),
 		primitiveOverlay: {},
 		complexArray: [
 			{
@@ -91,13 +91,15 @@ describe('Collection', () => {
 		expect(collect([1, 2], stitch)).toEqual(['01', '12']);
 	});
 
-	test('filter filters the properties of the given object using '
+	test('filter filters the properties of the given iterable using '
 	+ ' the passed filter function', () => {
 		const predicate = (val) => val === 1;
 
 		expect(filter(simpleObj, predicate)).toEqual({
 			a: 1,
 		});
+
+		expect(filter(simpleArray, predicate)).toEqual([1]);
 	});
 
 	test('traverse recursively traverses through a given object and '
