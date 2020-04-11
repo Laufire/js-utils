@@ -245,7 +245,7 @@ describe('Collection', () => {
 		expect(fromEntries(entries(simpleObj))).toEqual(simpleObj);
 	});
 
-	test('prop returns an array of values for the given properties '
+	test('props returns an array of values for the given properties '
 	+ 'from the given object', () => {
 		expect(props(simpleObj, ['a', 'b'])).toEqual([1, 2]);
 	});
