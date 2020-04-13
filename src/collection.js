@@ -81,6 +81,10 @@ const filter = (obj, cb) => {
 const traverse = (obj, cb) => map(obj, (value, key) =>
 	(isIterable(value) ? traverse(value, cb) : cb(value, key)));
 
+// Recursively passes all the props to the given callback.
+const walk = (obj, cb) => map(obj, (value, key) =>
+	(isIterable(value) && walk(value, cb), cb(value, key))); // eslint-disable-line no-sequences
+
 const clone = (() => {
 	const cloneObj = (obj) => map(obj, clone);
 	const cloneArray = (arr) => arr.map(clone);
@@ -309,7 +313,7 @@ const equals = (base, compared) =>
 
 export {
 	keys, values, entries, fromEntries, props,
-	each, map, traverse,
+	each, map, traverse, walk,
 	clean, sanitize,
 	filter, omit, select, result,
 	flip, flipMany, translate,
