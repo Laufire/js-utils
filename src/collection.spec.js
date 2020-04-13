@@ -4,11 +4,18 @@
 
 const {
 	clean, clone, compose, combine, map, diff, each, entries, equals,
-	filter, flip, flipMany, fromEntries, gather, merge, patch, pick, omit,
-	props, result, sanitize, secure, select, shell, spread, squash,
+	fill, filter, flip, flipMany, fromEntries, gather, merge, patch, pick,
+	omit,props, result, sanitize, secure, select, shell, spread, squash,
 	translate, traverse,
 } = require('./collection');
 
+const { isDefined } = require('./reflection');
+
+/* Helpers */
+const mockObj = (keys, value) =>
+	fromEntries((map(keys, (key) => [key, isDefined(value) ? value : key])));
+
+/* Spec */
 describe('Collection', () => {
 	/* Mocks and Stubs */
 	const simpleObj = secure({
@@ -239,6 +246,25 @@ describe('Collection', () => {
 	test('merge and combine work with simple arrays', () => {
 		expect(merge([0, 1], [1])).toEqual([1, 1]);
 		expect(combine([0, 1], [1])).toEqual([0, 1, 1]);
+	});
+
+	test('fill fills the missing properties of the given base from those of the extensions', () => {
+		const baseProp = Symbol('baseProp');
+		const underlayProp = Symbol('underlayProp');
+		const overlayProp = Symbol('overlayProp');
+
+		const base = mockObj(['a'], baseProp);
+		const underlay = secure(mockObj(['a', 'b'], underlayProp));
+		const overlay = secure(mockObj(['c'], overlayProp));
+
+		const filled = fill(base, underlay, overlay);
+
+		expect(filled).toEqual(base);
+		expect(base).toEqual({
+			a: baseProp,
+			b: underlayProp,
+			c: overlayProp
+		});
 	});
 
 	test('flip swaps the keys and values of the given object', () => {
