@@ -192,6 +192,17 @@ const merge = (base, ...extensions) =>
 	extensions.forEach((extension) =>
 		extension !== undefined && mergeObjects(base, extension)) || base;
 
+// TODO: Maintain the key order, similar to merge.
+/**
+ * Fills the missing properties of the given base from those of the extensions.
+ * @param {iterable} base The base iterable on which the extensions would be filled.
+ * @param {...iterable} extensions The extensions with properties to fill.
+ */
+const fill = (base, ...extensions) =>
+	merge(base, merge(
+		{}, ...extensions.reverse(), base
+	));
+
 // Merges an array of objects / object-arrays into a single object.
 const squash = (...objects) =>
 	assign({}, ...objects.reduce((aggregate, value) =>
@@ -302,7 +313,7 @@ export {
 	clean, sanitize,
 	filter, omit, select, result,
 	flip, flipMany, translate,
-	shell, assign, clone, squash, combine, merge, compose,
+	shell, assign, clone, squash, combine, merge, compose, fill,
 	patch, diff, secure, equals,
 	gather, pick, spread,
 };
