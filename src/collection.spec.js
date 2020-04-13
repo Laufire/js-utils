@@ -6,7 +6,7 @@ const {
 	clean, clone, compose, combine, map, diff, each, entries, equals,
 	fill, filter, flip, flipMany, fromEntries, gather, merge, patch, pick,
 	omit,props, result, sanitize, secure, select, shell, spread, squash,
-	translate, traverse,
+	translate, traverse, walk,
 } = require('./collection');
 
 const { isDefined } = require('./reflection');
@@ -117,7 +117,7 @@ describe('Collection', () => {
 	});
 
 	test('traverse recursively traverses through a given object and '
-	+ 'builds a new object', () => {
+	+ 'builds a new object from its primitives', () => {
 		expect(traverse(nestedObj, stitch)).toEqual({
 			a: 'a1',
 			b: 'b2',
@@ -126,6 +126,16 @@ describe('Collection', () => {
 					e: 'e5',
 				},
 			},
+		});
+	});
+
+	test('walk recursively walks through a given object and '
+	+ 'builds a new object from its primitives and iterables', () => {
+		const classify = (value) => typeof value;
+		expect(walk(nestedObj, classify)).toEqual({
+			a: 'number',
+			b: 'number',
+			c: 'object',
 		});
 	});
 
