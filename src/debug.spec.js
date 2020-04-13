@@ -23,5 +23,5 @@ test('sleep stalls the flow for 1000ms by default.', async () => {
 	const resumedAt = performance.now();
 
 	expect(resumedAt - startedAt >= 1000).toBe(true);
-	expect(resumedAt - startedAt < 1010).toBe(true);
+	expect(resumedAt - startedAt < 1100).toBe(true);
 });
