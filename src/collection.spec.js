@@ -6,7 +6,7 @@ const {
 	clean, clone, compose, combine, map, diff, each, entries, equals,
 	fill, filter, flip, flipMany, fromEntries, gather, has, merge, patch, pick,
 	omit,props, result, sanitize, secure, select, shell, spread, squash,
-	translate, traverse, walk,
+	rename, traverse, walk,
 } = require('./collection');
 
 const { isDefined } = require('./reflection');
@@ -304,9 +304,12 @@ describe('Collection', () => {
 		expect(flipMany(oneToMany)).toEqual(invertedOneToOne);
 	});
 
-	test('translate gives the translation of the source based '
-	+ 'on the translation map', () => {
-		expect(translate([3, 5], { 1: 'a' })).toEqual({ a: 5 });
+	test('rename gives the renames source based on '
+	+ 'the given rename map', () => {
+		const data = { length: 1, breadth: 2 };
+		const renameMap = { length: "depth" };
+
+		expect(rename(data, renameMap)).toEqual({ "depth": 1 });
 	});
 
 	test('fromEntries builds an object out of entries', () => {
