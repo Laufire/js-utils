@@ -98,6 +98,13 @@ const clone = (() => {
 		);
 })();
 
+/**
+ * Has tells whether the given iterable has the given value.
+ * @param {*} iterable The iterable to collect the values from.
+ * @param {*} value The props to collect from the children of the iterable.
+ */
+const has = (iterable, value) => values(iterable).indexOf(value) > -1;
+
 // NOTE: Clean does not clean recursively to allow for shallow cleaning.
 const clean = (iterable) => {
 	if(isArray(iterable))
@@ -313,7 +320,7 @@ const equals = (base, compared) =>
 
 export {
 	keys, values, entries, fromEntries, props,
-	each, map, traverse, walk,
+	each, map, traverse, walk, has,
 	clean, sanitize,
 	filter, omit, select, result,
 	flip, flipMany, translate,

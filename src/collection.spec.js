@@ -4,7 +4,7 @@
 
 const {
 	clean, clone, compose, combine, map, diff, each, entries, equals,
-	fill, filter, flip, flipMany, fromEntries, gather, merge, patch, pick,
+	fill, filter, flip, flipMany, fromEntries, gather, has, merge, patch, pick,
 	omit,props, result, sanitize, secure, select, shell, spread, squash,
 	translate, traverse, walk,
 } = require('./collection');
@@ -22,7 +22,7 @@ describe('Collection', () => {
 		a: 1,
 		b: 2,
 	});
-	const simpleArray = [1, 2];
+	const simpleArray = secure([1, 2]);
 	const nestedObj = secure({
 		a: 1, b: 2,
 		c: {
@@ -127,6 +127,13 @@ describe('Collection', () => {
 				},
 			},
 		});
+	});
+
+	test('has tells whether the given iterable has the given value', () => {
+		expect(has(simpleObj, 1)).toEqual(true);
+		expect(has(simpleArray, 1)).toEqual(true);
+		expect(has(simpleObj, 0)).toEqual(false);
+		expect(has(simpleArray, 0)).toEqual(false);
 	});
 
 	test('walk recursively walks through a given object and '
@@ -240,7 +247,7 @@ describe('Collection', () => {
 		});
 	});
 
-	test('merge and combine work ignores undefined values', () => {
+	test('merge and combine work ignores undefined values as extensions', () => {
 		expect(merge(
 			{ a: 1 }, undefined, { c: 3 }
 		)).toEqual({
