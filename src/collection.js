@@ -66,11 +66,14 @@ const map = (iterable, cb) => {
 const each = map;
 
 // An Array.filter like function for Objects.
+// #TODO: Try accommodating arrays. The issue is Object.keys works with sparse keys, unlike [].keys, which does with dense.
 const filter = (obj, cb) => {
 	const ret = shell(obj);
 
 	keys(obj).forEach((key) => {
-		if(cb(obj[key], key))
+		if(cb(
+			obj[key], key, obj
+		))
 			ret[key] = obj[key];
 	});
 
