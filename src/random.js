@@ -3,6 +3,8 @@
  */
 
 /* Imports */
+import { values } from './collection';
+
 const { floor, random } = Math; // eslint-disable-line id-match
 
 /* Data */
@@ -50,9 +52,16 @@ const rndOfString = (string) =>
 	Array.from(new Set(rndString(rndBetween(1, string.length), string)
 		.split(''))).join('');
 
+const rndValue = (iterable) => {
+	const items = values(iterable);
+
+	return items[rndBetween(0, items.length - 1)];
+};
+
 export {
 	rndBetween,
 	rndString,
 	rndOfString,
+	rndValue,
 	stringSeeds,
 };

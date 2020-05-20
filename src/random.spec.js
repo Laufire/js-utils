@@ -1,4 +1,7 @@
-import { rndBetween, rndOfString, rndString, stringSeeds } from './random';
+import { fromEntries, pick } from './collection';
+
+/* Tested */
+import { rndBetween, rndOfString, rndString, stringSeeds, rndValue } from './random';
 
 /* Config */
 const defaults = {
@@ -7,9 +10,14 @@ const defaults = {
 
 /* Helpers */
 const retry = (fn, retryCount = defaults.retryCount) => {
-	while(retryCount--) { // eslint-disable-line no-param-reassign
-		fn();
+	const ret = [];
+	let i = 0;
+
+	while(i < retryCount) {
+		ret.push(fn(i++));
 	}
+
+	return ret;
 };
 
 const strSubSet = (superStr, tested) =>
@@ -51,5 +59,16 @@ test('rndOfString returns a random sub-string of the given string.', () => {
 		expect(rnd.length <= seedLength).toBe(true);
 		expect(rnd.length >= 1).toBe(true);
 		expect(strSubSet(seed, rnd)).toBe(true);
+	});
+});
+
+test('rndValue returns a random a value from the iterable.', () => {
+	const seed = retry((i) => [i, rndString()], 10);
+	const array = pick(seed, 1);
+	const object = fromEntries(seed);
+
+	retry(() => {
+		expect(array).toContain(rndValue(array));
+		expect(array).toContain(rndValue(object));
 	});
 });
