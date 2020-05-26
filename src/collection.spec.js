@@ -3,7 +3,7 @@
 // # NOTE: Immutability is tested implicitly, by preventing mutations the mock objects.
 
 const {
-	clean, clone, compose, combine, map, diff, each, entries, equals,
+	clean, clone, compose, combine, contains, map, diff, each, entries, equals,
 	fill, filter, flip, flipMany, fromEntries, gather, has, merge, patch, pick,
 	omit,props, result, sanitize, secure, select, shell, spread, squash,
 	rename, translate, traverse, walk,
@@ -442,12 +442,21 @@ describe('Collection', () => {
 		map(actions, (action) => expect(action).toThrow());
 	});
 
+	test('contains tests the base object contains '
+	+ 'the compared object', () => {
+		expect(contains(1, 1)).toBe(true);
+		expect(contains(1, 0)).toBe(false);
+		expect(contains(complexObject, clone(complexObject))).toBe(true);
+		expect(contains(simpleObj, {})).toBe(false);
+	});
+
 	test('equals tests the equality of primitives and'
 	+ 'complex objects', () => {
 		expect(equals(1, 1)).toBe(true);
 		expect(equals(1, 0)).toBe(false);
 		expect(equals(complexObject, clone(complexObject))).toBe(true);
 		expect(equals(simpleObj, {})).toBe(false);
+		expect(equals({}, simpleObj)).toBe(false);
 	});
 
 	test('gather gathers the given props from the children '
