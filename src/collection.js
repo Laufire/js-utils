@@ -319,10 +319,17 @@ const secure = (object) =>
 	freeze(preventExtensions(seal(map(object, (value) =>
 		(isIterable(value) ? secure(value) : value)))));
 
-const equals = (base, compared) =>
+const contains = (base, compared) =>
 	(isIterable(base) && isIterable(compared)
 		? keys(base)
-			.findIndex((key) => !equals(base[key], compared[key])) === -1 // eslint-disable-line no-magic-numbers
+			.findIndex((key) => !contains(base[key], compared[key])) === -1
+		: base === compared);
+
+const equals = (base, compared) =>
+	(isIterable(base) && isIterable(compared)
+		? keys(base).length === keys(compared).length
+			&& keys(base)
+				.findIndex((key) => !equals(base[key], compared[key])) === -1
 		: base === compared);
 
 export {
@@ -332,6 +339,6 @@ export {
 	filter, omit, select, result,
 	flip, flipMany, rename, translate,
 	shell, assign, clone, squash, combine, merge, compose, fill,
-	patch, diff, secure, equals,
+	patch, diff, secure, equals, contains,
 	gather, pick, spread,
 };
