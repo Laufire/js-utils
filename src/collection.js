@@ -321,7 +321,7 @@ const secure = (object) =>
 
 const contains = (base, compared) =>
 	(isIterable(base) && isIterable(compared)
-		? keys(base)
+		? keys(compared)
 			.findIndex((key) => !contains(base[key], compared[key])) === -1
 		: base === compared);
 
