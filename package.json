@@ -36,10 +36,10 @@
     "acorn": "^6.4.2",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.1.0",
-    "babel-jest": "^24.9.0",
+    "babel-jest": "^26.6.3",
     "eslint": "^5.16.0",
     "fsevents": "^2.3.2",
-    "jest": "^24.9.0",
+    "jest": "^26.6.3",
     "node-pre-gyp": "^0.13.0",
     "regenerator-runtime": "^0.13.7"
   },
@@ -57,6 +57,5 @@
         "statements": 100
       }
     }
-  },
-  "dependencies": {}
+  }
 }
