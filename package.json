@@ -43,6 +43,9 @@
     "node-pre-gyp": "^0.13.0",
     "regenerator-runtime": "^0.13.7"
   },
+  "optionalDependencies": {
+    "fsevents": "*"
+  },
   "jest": {
     "collectCoverage": true,
     "collectCoverageFrom": [
