@@ -13,3 +13,5 @@
 ## ToDo
 
 * Maintain key order in the results.
+
+* Move to Typescript, to allow for better support on IDEs.

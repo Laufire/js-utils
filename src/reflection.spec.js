@@ -2,6 +2,7 @@
 const {
 	constructorName,
 	inferType,
+	isCollection,
 	isIterable,
 	isFunction,
 	isObject,
@@ -26,6 +27,10 @@ describe('Reflection', () => {
 		expect(inferType(1)).toEqual('number');
 		expect(inferType(null)).toEqual('null');
 		expect(inferType(undefined)).toEqual('undefined');
+	});
+
+	test('isCollection is an alias for isIterable', () => {
+		expect(isCollection).toEqual(isIterable);
 	});
 
 	test('isIterable returns true only when the given value '

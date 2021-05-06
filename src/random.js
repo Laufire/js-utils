@@ -52,8 +52,8 @@ const rndOfString = (string) =>
 	Array.from(new Set(rndString(rndBetween(1, string.length), string)
 		.split(''))).join('');
 
-const rndValue = (iterable) => {
-	const items = values(iterable);
+const rndValue = (collection) => {
+	const items = values(collection);
 
 	return items[rndBetween(0, items.length - 1)];
 };

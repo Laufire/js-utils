@@ -1,5 +1,5 @@
 /**
-* Helper functions to deal with collections.
+* Helper functions to deal with collections (collections).
 *
 * # ToDo
 * 	* Complete the doc comments.
@@ -44,10 +44,10 @@ const { freeze, preventExtensions, // eslint-disable-line id-length
 const { assign, entries, keys, values } = Object; // eslint-disable-line id-match
 
 /**
- * Returns an empty container of the same type as the given iterable.
- * @param {*} iterable The iterable to get a shell for.
+ * Returns an empty container of the same type as the given collection.
+ * @param {*} collection The collection to get a shell for.
  */
-const shell = (iterable) => (isArray(iterable) ? [] : {});
+const shell = (collection) => (isArray(collection) ? [] : {});
 
 const fromEntries = (kvPairs) => kvPairs.reduce((agg, pair) => {
 	agg[pair[0]] = pair[1];
@@ -55,10 +55,10 @@ const fromEntries = (kvPairs) => kvPairs.reduce((agg, pair) => {
 }, {});
 
 // An Array.map like function for Iterables.
-const map = (iterable, cb) => {
-	const ret = shell(iterable);
+const map = (collection, cb) => {
+	const ret = shell(collection);
 
-	keys(iterable).forEach((key) => (ret[key] = cb(iterable[key], key)));
+	keys(collection).forEach((key) => (ret[key] = cb(collection[key], key)));
 	return ret;
 };
 
@@ -102,25 +102,25 @@ const clone = (() => {
 })();
 
 /**
- * Has tells whether the given iterable has the given value.
- * @param {*} iterable The iterable to collect the values from.
- * @param {*} value The props to collect from the children of the iterable.
+ * Has tells whether the given collection has the given value.
+ * @param {*} collection The collection to collect the values from.
+ * @param {*} value The props to collect from the children of the collection.
  */
-const has = (iterable, value) => values(iterable).indexOf(value) > -1;
+const has = (collection, value) => values(collection).indexOf(value) > -1;
 
 // NOTE: Clean does not clean recursively to allow for shallow cleaning.
-const clean = (iterable) => {
-	if(isArray(iterable))
-		return iterable.filter((value) => value !== undefined);
+const clean = (collection) => {
+	if(isArray(collection))
+		return collection.filter((value) => value !== undefined);
 
 	const ret = {};
-	const objKeys = keys(iterable);
+	const objKeys = keys(collection);
 	const l = objKeys.length;
 	let i = 0;
 
 	while(i < l) {
 		const key = objKeys[i++];
-		const val = iterable[key];
+		const val = collection[key];
 
 		if(val !== undefined)
 			ret[key] = val;
@@ -130,8 +130,8 @@ const clean = (iterable) => {
 };
 
 /* A recursive clean */
-const sanitize = (iterable) =>
-	clean(map(iterable,
+const sanitize = (collection) =>
+	clean(map(collection,
 		(value) => (isIterable(value) ? sanitize(value) : value)));
 
 const props = (obj, objProps) => objProps.map((prop) => obj[prop]);
@@ -151,18 +151,18 @@ const omit = (obj, selector) => {
 };
 
 /**
- * Gathers the given props from the children of the given iterable, as an iterable.
- * @param {*} iterable The iterable to collect the values from.
- * @param {...any} props The props to collect from the children of the iterable.
+ * Gathers the given props from the children of the given collection, as a collection.
+ * @param {*} collection The collection to collect the values from.
+ * @param {...any} props The props to collect from the children of the collection.
  */
-const gather = (iterable, ...props) => { // eslint-disable-line no-shadow
-	const propShell = shell(iterable);
-	const ret = shell(values(iterable)[0]);
+const gather = (collection, ...props) => { // eslint-disable-line no-shadow
+	const propShell = shell(collection);
+	const ret = shell(values(collection)[0]);
 
 	props.forEach((prop) => {
 		const child = shell(propShell);
 
-		map(iterable, (value, key) =>
+		map(collection, (value, key) =>
 			(value[prop] !== undefined && (child[key] = value[prop])));
 		ret[prop] = child;
 	});
@@ -171,17 +171,17 @@ const gather = (iterable, ...props) => { // eslint-disable-line no-shadow
 };
 
 /**
- * Picks the given prop from the children of the given iterable, as an iterable.
- * @param {*} iterable The iterable to collect the values from.
- * @param {any} props The props to collect from the children of the iterable.
+ * Picks the given prop from the children of the given collection, as a collection.
+ * @param {*} collection The collection to collect the values from.
+ * @param {any} props The props to collect from the children of the collection.
  */
-const pick = (iterable, prop) => // eslint-disable-line no-shadow
-	gather(iterable, prop)[prop];
+const pick = (collection, prop) => // eslint-disable-line no-shadow
+	gather(collection, prop)[prop];
 
 /**
- * Spreads the children of given seeds iterable into the given base iterable.
- * @param {iterable} base The iterable to collect the values from.
- * @param {iterable} seeds The seeds iterable from where the props are spread.
+ * Spreads the children of given seeds collection into the given base collection.
+ * @param {collection} base The collection to collect the values from.
+ * @param {collection} seeds The seeds collection from where the props are spread.
  */
 const spread = (base, seeds) =>
 	map(seeds, (propValues, targetProp) =>
@@ -190,8 +190,8 @@ const spread = (base, seeds) =>
 
 /**
  * Combines multiple objects and their descendants with the given base object. When immutability is required, a shell could be passed as the base object.
- * @param {iterable} base The base iterable on which the extensions would be combined to.
- * @param {...iterable} extensions The extensions to be combined.
+ * @param {collection} base The base collection on which the extensions would be combined to.
+ * @param {...collection} extensions The extensions to be combined.
  */
 const combine = (base, ...extensions) =>
 	extensions.forEach((extension) =>
@@ -199,8 +199,8 @@ const combine = (base, ...extensions) =>
 
 /**
  * Merges multiple objects and their descendants with to the given base object. When immutability is required, a shell could be passed as the base object.
- * @param {iterable} base The base iterable on which the extensions would be merged to.
- * @param {...iterable} extensions The extensions to be merged.
+ * @param {collection} base The base collection on which the extensions would be merged to.
+ * @param {...collection} extensions The extensions to be merged.
  */
 const merge = (base, ...extensions) =>
 	extensions.forEach((extension) =>
@@ -209,8 +209,8 @@ const merge = (base, ...extensions) =>
 // TODO: Maintain the key order, similar to merge.
 /**
  * Fills the missing properties of the given base from those of the extensions.
- * @param {iterable} base The base iterable on which the extensions would be filled.
- * @param {...iterable} extensions The extensions with properties to fill.
+ * @param {collection} base The base collection on which the extensions would be filled.
+ * @param {...collection} extensions The extensions with properties to fill.
  */
 const fill = (base, ...extensions) =>
 	merge(base, merge(
@@ -224,7 +224,7 @@ const squash = (...objects) =>
 
 /**
  * Retrieves the value, notified by a path, from a nested map. Slashes are used as the separator for readability. Starting paths with a slash yields better accuracy.
- * @param {iterable} obj The iterable to look into.
+ * @param {collection} obj The collection to look into.
  * @param {string} path The path to look for. Slash is the separator. And backslash is the escape char.
  * @returns {*} The value from the path or undefined.
  */

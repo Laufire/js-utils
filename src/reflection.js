@@ -30,10 +30,14 @@ const inferType = (value) => {
 			: 'null';
 };
 
+/* Aliases */
+const isCollection = isIterable;
+
 export {
 	constructorName,
 	inferType,
 	isArray,
+	isCollection,
 	isIterable,
 	isFunction,
 	isObject,
