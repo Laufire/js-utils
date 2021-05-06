@@ -3,13 +3,13 @@
 // # NOTE: Immutability is tested implicitly, by preventing mutations the mock objects.
 
 const {
-	clean, clone, compose, combine, contains, map, diff, each, entries, equals,
-	fill, filter, flip, flipMany, fromEntries, gather, has, merge, patch, pick,
-	omit,props, result, sanitize, secure, select, shell, spread, squash,
+	clean, clone, compose, combine, contains, dict, diff, each, entries, equals,
+	fill, filter, flip, flipMany, fromEntries, gather, has, index, map, merge,
+	patch, pick, omit, props, result, sanitize, secure, select, shell, spread, squash,
 	rename, translate, traverse, walk,
-} = require('./collection');
+} = require('./collection.js');
 
-const { isDefined } = require('./reflection');
+const { isDefined } = require('./reflection.js');
 
 /* Helpers */
 const mockObj = (keys, value) =>
@@ -488,7 +488,7 @@ describe('Collection', () => {
 		expect(pick(arrayOfObjects, 'a')).toEqual([1, 2]);
 	});
 
-	test('spread spreads the children of given iterable '
+	test('spread spreads the children of given iterable ' // #TODO: Fix the description.
 	+ 'into the base iterable', () => {
 		const base = { a: {}, b: {} };
 		const seeds = secure({
@@ -503,5 +503,25 @@ describe('Collection', () => {
 			b: { prop1: 2, prop2: 4 },
 		});
 		expect(seeded).toEqual(base);
+	});
+
+	test('dict converts the given collection into a dictionary', () => {
+		expect(dict(simpleArray)).toEqual({0: 1, 1: 2});
+	});
+
+	test('index builds and index the given collections '
+	+ 'on the given keys to help with retrieval', () => {
+
+		const elm1 = secure({a: 1, b: 2});
+		const elm2 = secure({ a: 1, b: 3});
+		const arr = secure([elm1, elm2]);
+		const obj = secure(dict(arr));
+		const expected = { 1: { 2: elm1, 3: elm2 }};
+
+		const indexedFromArr = index(arr, 'a', 'b');
+		const indexedFromObj = index(obj, 'a', 'b');
+
+		expect(indexedFromArr).toEqual(expected);
+		expect(indexedFromObj).toEqual(expected);
 	});
 });

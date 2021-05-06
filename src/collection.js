@@ -8,7 +8,7 @@
 */
 
 /* Helpers */
-import { isArray, isIterable, isObject } from './reflection';
+import { isArray, isIterable, isObject } from './reflection.js';
 const toArray = (value) => (isArray(value) ? value : [value]);
 const keyArray = (object) => (isArray(object) ? object : keys(object)); // eslint-disable-line no-use-before-define
 const mergeObjects = (base, extension) => 	{
@@ -178,6 +178,7 @@ const gather = (collection, ...props) => { // eslint-disable-line no-shadow
 const pick = (collection, prop) => // eslint-disable-line no-shadow
 	gather(collection, prop)[prop];
 
+// #TODO: Fix the description.
 /**
  * Spreads the children of given seeds collection into the given base collection.
  * @param {collection} base The collection to collect the values from.
@@ -332,6 +333,16 @@ const equals = (base, compared) =>
 				.findIndex((key) => !equals(base[key], compared[key])) === -1
 		: base === compared);
 
+const index = (collection, ...indexKeys) => {
+	indexKeys.reverse();
+
+	return merge(...values(map(collection, (item) =>
+		indexKeys.reduce((agg, key) => ({ [item[key]]: agg }), item))));
+};
+
+const dict = (collection) =>
+	fromEntries(map(collection, (value, key) => [key, value]));
+
 export {
 	keys, values, entries, fromEntries, props,
 	each, map, traverse, walk, has,
@@ -340,5 +351,5 @@ export {
 	flip, flipMany, rename, translate,
 	shell, assign, clone, squash, combine, merge, compose, fill,
 	patch, diff, secure, equals, contains,
-	gather, pick, spread,
+	gather, pick, spread, index, dict,
 };
