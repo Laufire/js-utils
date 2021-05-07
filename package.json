@@ -1,6 +1,6 @@
 {
   "name": "@laufire/utils",
-  "version": "2.5.3",
+  "version": "2.5.4",
   "description": "A simple set of utility libraries to ease development.",
   "main": "./index.js",
   "scripts": {
@@ -9,7 +9,6 @@
     "dev": "node -e 'require(\"./dist/index.js\").main()'",
     "test": "jest --no-cache",
     "lint": "eslint .",
-    "prepublishOnly": "echo \"Error: Don't run 'npm publish' in root. Use 'npm run dist' instead.\" && exit 1",
     "prepareDist": "npm run lint && npm test && rm -rf ./dist && npm run build",
     "dist": "npm run prepareDist && cd dist && npm publish --ignore-scripts"
   },
