@@ -508,20 +508,4 @@ describe('Collection', () => {
 	test('dict converts the given collection into a dictionary', () => {
 		expect(dict(simpleArray)).toEqual({0: 1, 1: 2});
 	});
-
-	test('index builds and index the given collections '
-	+ 'on the given keys to help with retrieval', () => {
-
-		const elm1 = secure({a: 1, b: 2});
-		const elm2 = secure({ a: 1, b: 3});
-		const arr = secure([elm1, elm2]);
-		const obj = secure(dict(arr));
-		const expected = { 1: { 2: elm1, 3: elm2 }};
-
-		const indexedFromArr = index(arr, 'a', 'b');
-		const indexedFromObj = index(obj, 'a', 'b');
-
-		expect(indexedFromArr).toEqual(expected);
-		expect(indexedFromObj).toEqual(expected);
-	});
 });

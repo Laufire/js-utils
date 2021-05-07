@@ -333,13 +333,6 @@ const equals = (base, compared) =>
 				.findIndex((key) => !equals(base[key], compared[key])) === -1
 		: base === compared);
 
-const index = (collection, ...indexKeys) => {
-	indexKeys.reverse();
-
-	return merge(...values(map(collection, (item) =>
-		indexKeys.reduce((agg, key) => ({ [item[key]]: agg }), item))));
-};
-
 const dict = (collection) =>
 	fromEntries(map(collection, (value, key) => [key, value]));
 
@@ -351,5 +344,5 @@ export {
 	flip, flipMany, rename, translate,
 	shell, assign, clone, squash, combine, merge, compose, fill,
 	patch, diff, secure, equals, contains,
-	gather, pick, spread, index, dict,
+	gather, pick, spread, dict,
 };
