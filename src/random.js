@@ -3,7 +3,7 @@
  */
 
 /* Imports */
-import { values } from './collection';
+import { keys, map, values } from './collection';
 
 const { floor, random } = Math; // eslint-disable-line id-match
 
@@ -58,10 +58,29 @@ const rndValue = (collection) => {
 	return items[rndBetween(0, items.length - 1)];
 };
 
+const rndValueWeighted = (weights) => {
+	const candidates = keys(weights);
+	const boundaries = values(map(weights, (value, key) => value
+		+ candidates.slice(0, candidates.indexOf(key))
+			.reduce((t, c) => t + weights[c], 0)));
+	const start = 0;
+	const end = (boundaries.slice(-1)[0] || 1) - 1;
+
+	return () => {
+		const marker = rndBetween(start, end);
+
+		return candidates[
+			boundaries.findIndex((boundary) => boundary > marker)
+		];
+	};
+}
+;
+
 export {
 	rndBetween,
 	rndString,
 	rndOfString,
 	rndValue,
+	rndValueWeighted,
 	stringSeeds,
 };
