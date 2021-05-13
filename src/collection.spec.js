@@ -247,7 +247,7 @@ describe('Collection', () => {
 		});
 	});
 
-	test('merge and combine work ignores undefined values as extensions', () => {
+	test('merge and combine ignore undefined values as extensions', () => {
 		expect(merge(
 			{ a: 1 }, undefined, { c: 3 }
 		)).toEqual({
@@ -312,7 +312,7 @@ describe('Collection', () => {
 		expect(translate(data, translationMap)).toEqual({ "hola" : "hello" });
 	});
 
-	test('rename gives the renames source based on '
+	test('rename renames the source keys based on '
 	+ 'the given rename map', () => {
 		const data = { length: 1, breadth: 2 };
 		const renameMap = { length: "depth" };

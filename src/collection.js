@@ -16,9 +16,11 @@ const mergeObjects = (base, extension) => 	{
 		const child = base[key];
 		const childExtension = extension[key];
 
-		base[key] = isIterable(childExtension) && isIterable(child)
-			? mergeObjects(child, childExtension)
-			: clone(childExtension); // eslint-disable-line no-use-before-define
+		base[key] = isIterable(childExtension)
+			? isIterable(child)
+				? mergeObjects(child, childExtension)
+				: clone(childExtension) // eslint-disable-line no-use-before-define
+			: childExtension;
 	});
 
 	return base;
@@ -31,9 +33,11 @@ const combineObjects = (base, extension) =>
 			const child = base[key];
 			const childExtension = extension[key];
 
-			base[key] = isIterable(child) && isIterable(childExtension)
-				? combineObjects(child, childExtension)
-				: clone(childExtension); // eslint-disable-line no-use-before-define
+			base[key] = isIterable(childExtension)
+				? isIterable(child)
+					? combineObjects(child, childExtension)
+					: clone(childExtension) // eslint-disable-line no-use-before-define
+				: childExtension;
 		}), base)
 	);
 
