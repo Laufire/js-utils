@@ -5,11 +5,11 @@
   "main": "./index.js",
   "scripts": {
     "copy": "cp ./package.json ./ReadMe.md ./LICENSE ./dist/",
-    "build": "babel --ignore '**/*.spec.js' -d ./dist ./src && npm run copy",
-    "dev": "node -e 'require(\"./dist/index.js\").main()'",
+    "build": "rm -rf ./dist && babel --ignore '**/*.spec.js' -d ./dist ./src && npm run copy",
+    "dev": "npm run build && cd ./dist && npm link && cd ..",
     "test": "jest --no-cache",
     "lint": "eslint .",
-    "prepareDist": "npm run lint && npm test && rm -rf ./dist && npm run build",
+    "prepareDist": "npm run lint && npm test && npm run build",
     "dist": "npm run prepareDist && cd dist && npm publish --ignore-scripts"
   },
   "repository": {
