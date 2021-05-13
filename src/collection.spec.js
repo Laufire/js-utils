@@ -3,8 +3,8 @@
 // # NOTE: Immutability is tested implicitly, by preventing mutations the mock objects.
 
 const {
-	clean, clone, compose, combine, contains, dict, diff, each, entries, equals,
-	fill, filter, flip, flipMany, fromEntries, gather, has, index, map, overlay, merge,
+	adopt, clean, clone, compose, combine, contains, dict, diff, each, entries, equals,
+	fill, filter, flip, flipMany, fromEntries, gather, has, index, map, merge, overlay,
 	patch, pick, omit, props, result, sanitize, secure, select, shell, spread, squash,
 	rename, translate, traverse, walk,
 } = require('./collection.js');
@@ -165,37 +165,6 @@ describe('Collection', () => {
 		});
 	});
 
-	test('overlay overlays multiple objects into one', () => {
-		const base = clone(complexObject);
-		const bottomLevelBase = clone(complexObject);
-		const topLevelBase = clone(complexObject);
-		const propToDelete = 'single';
-		const newValue = 'new value';
-
-		bottomLevelBase.primitiveOverlay = 0;
-		bottomLevelBase.iterableOverlay = {};
-		const bottomLevel = secure(bottomLevelBase);
-
-		delete topLevelBase[propToDelete];
-		topLevelBase.newProperty = newValue;
-		topLevelBase.parent.child.grandChild = newValue;
-		topLevelBase.complexArray.innerArray = [0];
-		topLevelBase.primitiveOverlay = simpleObj;
-		topLevelBase.iterableOverlay = simpleObj;
-		const topLevel = secure(topLevelBase);
-
-		const overlaid = overlay(base, bottomLevel, topLevel);
-
-		expect(base).not.toEqual(complexObject);
-		expect(overlaid).toHaveProperty(propToDelete);
-		expect(overlaid.newProperty).toEqual(newValue);
-		expect(overlaid.parent.child.grandChild).toEqual(newValue);
-		expect(overlaid.primitiveOverlay).toEqual(simpleObj);
-		expect(topLevelBase.iterableOverlay).toEqual(simpleObj);
-		expect(overlaid.complexArray !== topLevel.complexArray).toEqual(true);
-		expect(overlaid.complexArray.innerArray[0]).toEqual(0);
-	});
-
 	test('merge merges multiple objects into one', () => {
 		const base = clone(complexObject);
 		const bottomLevelBase = clone(complexObject);
@@ -223,8 +192,39 @@ describe('Collection', () => {
 		expect(merged.parent.child.grandChild).toEqual(newValue);
 		expect(merged.primitiveOverlay).toEqual(simpleObj);
 		expect(topLevelBase.iterableOverlay).toEqual(simpleObj);
-		expect(merged.complexArray === topLevel.complexArray).toEqual(true);
-		expect(merged.complexArray.innerArray === topLevel.complexArray.innerArray).toEqual(true);
+		expect(merged.complexArray !== topLevel.complexArray).toEqual(true);
+		expect(merged.complexArray.innerArray[0]).toEqual(0);
+	});
+
+	test('overlay overlays multiple objects into one', () => {
+		const base = clone(complexObject);
+		const bottomLevelBase = clone(complexObject);
+		const topLevelBase = clone(complexObject);
+		const propToDelete = 'single';
+		const newValue = 'new value';
+
+		bottomLevelBase.primitiveOverlay = 0;
+		bottomLevelBase.iterableOverlay = {};
+		const bottomLevel = secure(bottomLevelBase);
+
+		delete topLevelBase[propToDelete];
+		topLevelBase.newProperty = newValue;
+		topLevelBase.parent.child.grandChild = newValue;
+		topLevelBase.complexArray.innerArray = [0];
+		topLevelBase.primitiveOverlay = simpleObj;
+		topLevelBase.iterableOverlay = simpleObj;
+		const topLevel = secure(topLevelBase);
+
+		const overlaid = overlay(base, bottomLevel, topLevel);
+
+		expect(base).not.toEqual(complexObject);
+		expect(overlaid).toHaveProperty(propToDelete);
+		expect(overlaid.newProperty).toEqual(newValue);
+		expect(overlaid.parent.child.grandChild).toEqual(newValue);
+		expect(overlaid.primitiveOverlay).toEqual(simpleObj);
+		expect(topLevelBase.iterableOverlay).toEqual(simpleObj);
+		expect(overlaid.complexArray === topLevel.complexArray).toEqual(true);
+		expect(overlaid.complexArray.innerArray === topLevel.complexArray.innerArray).toEqual(true);
 	});
 
 	test('combine combines multiple objects into one', () => {
@@ -264,8 +264,8 @@ describe('Collection', () => {
 		]);
 	});
 
-	test('overlay and combine work with multiple extensions', () => {
-		expect(overlay(
+	test('merge and combine work with multiple extensions', () => {
+		expect(merge(
 			{ a: 1 }, { b: 2 }, { c: 3 }
 		)).toEqual({
 			a: 1,
@@ -279,8 +279,8 @@ describe('Collection', () => {
 		});
 	});
 
-	test('overlay and combine ignore undefined values as extensions', () => {
-		expect(overlay(
+	test('merge and combine ignore undefined values as extensions', () => {
+		expect(merge(
 			{ a: 1 }, undefined, { c: 3 }
 		)).toEqual({
 			a: 1,
@@ -292,8 +292,8 @@ describe('Collection', () => {
 		});
 	});
 
-	test('overlay and combine work with simple arrays', () => {
-		expect(overlay([0, 1], [1])).toEqual([1, 1]);
+	test('merge and combine work with simple arrays', () => {
+		expect(merge([0, 1], [1])).toEqual([1, 1]);
 		expect(combine([0, 1], [1])).toEqual([0, 1, 1]);
 	});
 
@@ -539,5 +539,15 @@ describe('Collection', () => {
 
 	test('dict converts the given collection into a dictionary', () => {
 		expect(dict(simpleArray)).toEqual({0: 1, 1: 2});
+	});
+
+	test('adopt copies values from extensions into the base', () => {
+		const base = {};
+
+		adopt(base, complexObject);
+
+		each(base, (value, key) => {
+			expect(value === complexObject[key]).toEqual(true);
+		});
 	});
 });
