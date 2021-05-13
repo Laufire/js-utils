@@ -11,6 +11,21 @@
 import { isArray, isIterable, isObject } from './reflection.js';
 const toArray = (value) => (isArray(value) ? value : [value]);
 const keyArray = (object) => (isArray(object) ? object : keys(object)); // eslint-disable-line no-use-before-define
+const combineObjects = (base, extension) =>
+	(isArray(base) && isArray(extension)
+		? (base.push(...extension), base)
+		: (keys(extension).forEach((key) => { // eslint-disable-line no-use-before-define
+			const child = base[key];
+			const childExtension = extension[key];
+
+			base[key] = isIterable(childExtension)
+				? isIterable(child)
+					? combineObjects(child, childExtension)
+					: clone(childExtension) // eslint-disable-line no-use-before-define
+				: childExtension;
+		}), base)
+	);
+
 const overlayObjects = (base, extension) => 	{
 	keys(extension).forEach((key) => { // eslint-disable-line no-use-before-define
 		const child = base[key];
@@ -26,20 +41,20 @@ const overlayObjects = (base, extension) => 	{
 	return base;
 };
 
-const combineObjects = (base, extension) =>
-	(isArray(base) && isArray(extension)
-		? (base.push(...extension), base)
-		: (keys(extension).forEach((key) => { // eslint-disable-line no-use-before-define
-			const child = base[key];
-			const childExtension = extension[key];
+const mergeObjects = (base, extension) => 	{
+	keys(extension).forEach((key) => { // eslint-disable-line no-use-before-define
+		const child = base[key];
+		const childExtension = extension[key];
 
-			base[key] = isIterable(childExtension)
-				? isIterable(child)
-					? combineObjects(child, childExtension)
-					: clone(childExtension) // eslint-disable-line no-use-before-define
-				: childExtension;
-		}), base)
-	);
+		base[key] = isObject(childExtension)
+			? isObject(child)
+				? mergeObjects(child, childExtension)
+				: clone(childExtension) // eslint-disable-line no-use-before-define
+			: childExtension;
+	});
+
+	return base;
+};
 
 const { freeze, preventExtensions, // eslint-disable-line id-length
 	seal } = Object; // eslint-disable-line id-match
@@ -211,6 +226,15 @@ const overlay = (base, ...extensions) =>
 	extensions.forEach((extension) =>
 		extension !== undefined && overlayObjects(base, extension)) || base;
 
+/**
+ * Merges multiple objects and their descendants with to the given base object. When immutability is required, a shell could be passed as the base object.
+ * @param {collection} base The base collection on which the extensions would be merged to.
+ * @param {...collection} extensions The extensions to be merged.
+ */
+const merge = (base, ...extensions) =>
+	extensions.forEach((extension) =>
+		extension !== undefined && mergeObjects(base, extension)) || base;
+
 // TODO: Maintain the key order, similar to merge.
 /**
  * Fills the missing properties of the given base from those of the extensions.
@@ -218,7 +242,7 @@ const overlay = (base, ...extensions) =>
  * @param {...collection} extensions The extensions with properties to fill.
  */
 const fill = (base, ...extensions) =>
-	overlay(base, overlay(
+	merge(base, merge(
 		{}, ...extensions.reverse(), base
 	));
 
@@ -346,7 +370,7 @@ export {
 	clean, sanitize,
 	filter, omit, select, result,
 	flip, flipMany, rename, translate,
-	shell, assign, clone, squash, combine, overlay, compose, fill,
+	shell, assign, clone, squash, combine, overlay, merge, compose, fill,
 	patch, diff, secure, equals, contains,
 	gather, pick, spread, dict,
 };
