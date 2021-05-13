@@ -1,7 +1,7 @@
-import { fromEntries, pick } from './collection';
+import { fromEntries, map, pick } from './collection';
 
 /* Tested */
-import { rndBetween, rndOfString, rndString, stringSeeds, rndValue } from './random';
+import { rndBetween, rndOfString, rndString, stringSeeds, rndValue, rndValueWeighted } from './random';
 
 /* Config */
 const defaults = {
@@ -80,5 +80,27 @@ describe('rndValue returns a random a value from the given iterable.', () => {
 	test('returns undefined when the iterable is empty', () => {
 		expect(rndValue([])).toBeUndefined();
 		expect(rndValue({})).toBeUndefined();
+	});
+});
+
+describe('rndValueWeighted returns a random a value from the given weight table '
+	+ 'according to the given weights.', () => {
+	test('returns a value when the iterable is not empty', () => {
+		const weights = { a: 1, b: 2 };
+		const getRnd = rndValueWeighted(weights);
+		const results = [];
+
+		retry(() => results.push(getRnd()), 1000);
+
+		const counts = map(weights, (dummy, key) => results.filter((v) => v === key).length);
+
+		expect(counts.a > 250).toEqual(true);
+		expect(counts.b > 500).toEqual(true);
+
+		expect(rndValue({})).toBeUndefined();
+	});
+
+	test('returns undefined when the iterable is empty', () => {
+		expect(rndValueWeighted({})()).toBeUndefined();
 	});
 });
