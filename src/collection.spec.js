@@ -4,7 +4,7 @@
 
 const {
 	clean, clone, compose, combine, contains, dict, diff, each, entries, equals,
-	fill, filter, flip, flipMany, fromEntries, gather, has, index, map, overlay,
+	fill, filter, flip, flipMany, fromEntries, gather, has, index, map, overlay, merge,
 	patch, pick, omit, props, result, sanitize, secure, select, shell, spread, squash,
 	rename, translate, traverse, walk,
 } = require('./collection.js');
@@ -167,22 +167,22 @@ describe('Collection', () => {
 
 	test('overlay overlays multiple objects into one', () => {
 		const base = clone(complexObject);
-		const underlayBase = clone(complexObject);
-		const overlayBase = clone(complexObject);
+		const bottomLevelBase = clone(complexObject);
+		const topLevelBase = clone(complexObject);
 		const propToDelete = 'single';
 		const newValue = 'new value';
 
-		underlayBase.primitiveOverlay = 0;
-		underlayBase.iterableOverlay = {};
-		const bottomLevel = secure(underlayBase);
+		bottomLevelBase.primitiveOverlay = 0;
+		bottomLevelBase.iterableOverlay = {};
+		const bottomLevel = secure(bottomLevelBase);
 
-		delete overlayBase[propToDelete];
-		overlayBase.newProperty = newValue;
-		overlayBase.parent.child.grandChild = newValue;
-		overlayBase.complexArray.innerArray = [0];
-		overlayBase.primitiveOverlay = simpleObj;
-		overlayBase.iterableOverlay = simpleObj;
-		const topLevel = secure(overlayBase);
+		delete topLevelBase[propToDelete];
+		topLevelBase.newProperty = newValue;
+		topLevelBase.parent.child.grandChild = newValue;
+		topLevelBase.complexArray.innerArray = [0];
+		topLevelBase.primitiveOverlay = simpleObj;
+		topLevelBase.iterableOverlay = simpleObj;
+		const topLevel = secure(topLevelBase);
 
 		const overlaid = overlay(base, bottomLevel, topLevel);
 
@@ -191,8 +191,40 @@ describe('Collection', () => {
 		expect(overlaid.newProperty).toEqual(newValue);
 		expect(overlaid.parent.child.grandChild).toEqual(newValue);
 		expect(overlaid.primitiveOverlay).toEqual(simpleObj);
-		expect(overlayBase.iterableOverlay).toEqual(simpleObj);
+		expect(topLevelBase.iterableOverlay).toEqual(simpleObj);
+		expect(overlaid.complexArray !== topLevel.complexArray).toEqual(true);
 		expect(overlaid.complexArray.innerArray[0]).toEqual(0);
+	});
+
+	test('merge merges multiple objects into one', () => {
+		const base = clone(complexObject);
+		const bottomLevelBase = clone(complexObject);
+		const topLevelBase = clone(complexObject);
+		const propToDelete = 'single';
+		const newValue = 'new value';
+
+		bottomLevelBase.primitiveOverlay = 0;
+		bottomLevelBase.iterableOverlay = {};
+		const bottomLevel = secure(bottomLevelBase);
+
+		delete topLevelBase[propToDelete];
+		topLevelBase.newProperty = newValue;
+		topLevelBase.parent.child.grandChild = newValue;
+		topLevelBase.complexArray.innerArray = [0];
+		topLevelBase.primitiveOverlay = simpleObj;
+		topLevelBase.iterableOverlay = simpleObj;
+		const topLevel = secure(topLevelBase);
+
+		const merged = merge(base, bottomLevel, topLevel);
+
+		expect(base).not.toEqual(complexObject);
+		expect(merged).toHaveProperty(propToDelete);
+		expect(merged.newProperty).toEqual(newValue);
+		expect(merged.parent.child.grandChild).toEqual(newValue);
+		expect(merged.primitiveOverlay).toEqual(simpleObj);
+		expect(topLevelBase.iterableOverlay).toEqual(simpleObj);
+		expect(merged.complexArray === topLevel.complexArray).toEqual(true);
+		expect(merged.complexArray.innerArray === topLevel.complexArray.innerArray).toEqual(true);
 	});
 
 	test('combine combines multiple objects into one', () => {
