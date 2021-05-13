@@ -11,14 +11,14 @@
 import { isArray, isIterable, isObject } from './reflection.js';
 const toArray = (value) => (isArray(value) ? value : [value]);
 const keyArray = (object) => (isArray(object) ? object : keys(object)); // eslint-disable-line no-use-before-define
-const mergeObjects = (base, extension) => 	{
+const overlayObjects = (base, extension) => 	{
 	keys(extension).forEach((key) => { // eslint-disable-line no-use-before-define
 		const child = base[key];
 		const childExtension = extension[key];
 
 		base[key] = isIterable(childExtension)
 			? isIterable(child)
-				? mergeObjects(child, childExtension)
+				? overlayObjects(child, childExtension)
 				: clone(childExtension) // eslint-disable-line no-use-before-define
 			: childExtension;
 	});
@@ -203,13 +203,13 @@ const combine = (base, ...extensions) =>
 		extension !== undefined && combineObjects(base, extension)) || base;
 
 /**
- * Merges multiple objects and their descendants with to the given base object. When immutability is required, a shell could be passed as the base object.
- * @param {collection} base The base collection on which the extensions would be merged to.
- * @param {...collection} extensions The extensions to be merged.
+ * Overlays multiple objects and their descendants with to the given base object. When immutability is required, a shell could be passed as the base object.
+ * @param {collection} base The base collection on which the extensions would be overlaid to.
+ * @param {...collection} extensions The extensions to be overlaid.
  */
-const merge = (base, ...extensions) =>
+const overlay = (base, ...extensions) =>
 	extensions.forEach((extension) =>
-		extension !== undefined && mergeObjects(base, extension)) || base;
+		extension !== undefined && overlayObjects(base, extension)) || base;
 
 // TODO: Maintain the key order, similar to merge.
 /**
@@ -218,7 +218,7 @@ const merge = (base, ...extensions) =>
  * @param {...collection} extensions The extensions with properties to fill.
  */
 const fill = (base, ...extensions) =>
-	merge(base, merge(
+	overlay(base, overlay(
 		{}, ...extensions.reverse(), base
 	));
 
@@ -298,7 +298,7 @@ const compose = (...objects) => {
 };
 
 const patch = (base, extension) =>
-	sanitize(merge(clone(base), extension));
+	sanitize(overlay(clone(base), extension));
 
 const diff = (base, compared) => {
 	const difference = shell(base);
@@ -346,7 +346,7 @@ export {
 	clean, sanitize,
 	filter, omit, select, result,
 	flip, flipMany, rename, translate,
-	shell, assign, clone, squash, combine, merge, compose, fill,
+	shell, assign, clone, squash, combine, overlay, compose, fill,
 	patch, diff, secure, equals, contains,
 	gather, pick, spread, dict,
 };
