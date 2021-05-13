@@ -4,7 +4,7 @@
 
 const {
 	clean, clone, compose, combine, contains, dict, diff, each, entries, equals,
-	fill, filter, flip, flipMany, fromEntries, gather, has, index, map, merge,
+	fill, filter, flip, flipMany, fromEntries, gather, has, index, map, overlay,
 	patch, pick, omit, props, result, sanitize, secure, select, shell, spread, squash,
 	rename, translate, traverse, walk,
 } = require('./collection.js');
@@ -165,7 +165,7 @@ describe('Collection', () => {
 		});
 	});
 
-	test('merge merges multiple objects into one', () => {
+	test('overlay overlays multiple objects into one', () => {
 		const base = clone(complexObject);
 		const underlayBase = clone(complexObject);
 		const overlayBase = clone(complexObject);
@@ -174,7 +174,7 @@ describe('Collection', () => {
 
 		underlayBase.primitiveOverlay = 0;
 		underlayBase.iterableOverlay = {};
-		const underlay = secure(underlayBase);
+		const bottomLevel = secure(underlayBase);
 
 		delete overlayBase[propToDelete];
 		overlayBase.newProperty = newValue;
@@ -182,17 +182,17 @@ describe('Collection', () => {
 		overlayBase.complexArray.innerArray = [0];
 		overlayBase.primitiveOverlay = simpleObj;
 		overlayBase.iterableOverlay = simpleObj;
-		const overlay = secure(overlayBase);
+		const topLevel = secure(overlayBase);
 
-		const merged = merge(base, underlay, overlay);
+		const overlaid = overlay(base, bottomLevel, topLevel);
 
 		expect(base).not.toEqual(complexObject);
-		expect(merged).toHaveProperty(propToDelete);
-		expect(merged.newProperty).toEqual(newValue);
-		expect(merged.parent.child.grandChild).toEqual(newValue);
-		expect(merged.primitiveOverlay).toEqual(simpleObj);
+		expect(overlaid).toHaveProperty(propToDelete);
+		expect(overlaid.newProperty).toEqual(newValue);
+		expect(overlaid.parent.child.grandChild).toEqual(newValue);
+		expect(overlaid.primitiveOverlay).toEqual(simpleObj);
 		expect(overlayBase.iterableOverlay).toEqual(simpleObj);
-		expect(merged.complexArray.innerArray[0]).toEqual(0);
+		expect(overlaid.complexArray.innerArray[0]).toEqual(0);
 	});
 
 	test('combine combines multiple objects into one', () => {
@@ -232,8 +232,8 @@ describe('Collection', () => {
 		]);
 	});
 
-	test('merge and combine work with multiple extensions', () => {
-		expect(merge(
+	test('overlay and combine work with multiple extensions', () => {
+		expect(overlay(
 			{ a: 1 }, { b: 2 }, { c: 3 }
 		)).toEqual({
 			a: 1,
@@ -247,8 +247,8 @@ describe('Collection', () => {
 		});
 	});
 
-	test('merge and combine ignore undefined values as extensions', () => {
-		expect(merge(
+	test('overlay and combine ignore undefined values as extensions', () => {
+		expect(overlay(
 			{ a: 1 }, undefined, { c: 3 }
 		)).toEqual({
 			a: 1,
@@ -260,8 +260,8 @@ describe('Collection', () => {
 		});
 	});
 
-	test('merge and combine work with simple arrays', () => {
-		expect(merge([0, 1], [1])).toEqual([1, 1]);
+	test('overlay and combine work with simple arrays', () => {
+		expect(overlay([0, 1], [1])).toEqual([1, 1]);
 		expect(combine([0, 1], [1])).toEqual([0, 1, 1]);
 	});
 
