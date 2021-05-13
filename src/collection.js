@@ -26,14 +26,14 @@ const combineObjects = (base, extension) =>
 		}), base)
 	);
 
-const overlayObjects = (base, extension) => 	{
+const mergeObjects = (base, extension) => 	{
 	keys(extension).forEach((key) => { // eslint-disable-line no-use-before-define
 		const child = base[key];
 		const childExtension = extension[key];
 
 		base[key] = isIterable(childExtension)
 			? isIterable(child)
-				? overlayObjects(child, childExtension)
+				? mergeObjects(child, childExtension)
 				: clone(childExtension) // eslint-disable-line no-use-before-define
 			: childExtension;
 	});
@@ -41,14 +41,14 @@ const overlayObjects = (base, extension) => 	{
 	return base;
 };
 
-const mergeObjects = (base, extension) => 	{
+const overlayObjects = (base, extension) => 	{
 	keys(extension).forEach((key) => { // eslint-disable-line no-use-before-define
 		const child = base[key];
 		const childExtension = extension[key];
 
 		base[key] = isObject(childExtension)
 			? isObject(child)
-				? mergeObjects(child, childExtension)
+				? overlayObjects(child, childExtension)
 				: clone(childExtension) // eslint-disable-line no-use-before-define
 			: childExtension;
 	});
@@ -218,22 +218,22 @@ const combine = (base, ...extensions) =>
 		extension !== undefined && combineObjects(base, extension)) || base;
 
 /**
- * Overlays multiple objects and their descendants with to the given base object. When immutability is required, a shell could be passed as the base object.
+ * Merges multiple objects and their descendants with to the given base object. When immutability is required, a shell could be passed as the base object.
  * @param {collection} base The base collection on which the extensions would be overlaid to.
  * @param {...collection} extensions The extensions to be overlaid.
- */
-const overlay = (base, ...extensions) =>
-	extensions.forEach((extension) =>
-		extension !== undefined && overlayObjects(base, extension)) || base;
-
-/**
- * Merges multiple objects and their descendants with to the given base object. When immutability is required, a shell could be passed as the base object.
- * @param {collection} base The base collection on which the extensions would be merged to.
- * @param {...collection} extensions The extensions to be merged.
  */
 const merge = (base, ...extensions) =>
 	extensions.forEach((extension) =>
 		extension !== undefined && mergeObjects(base, extension)) || base;
+
+/**
+ * Overlays multiple objects and their descendants with to the given base object. When immutability is required, a shell could be passed as the base object.
+ * @param {collection} base The base collection on which the extensions would be merged to.
+ * @param {...collection} extensions The extensions to be merged.
+ */
+const overlay = (base, ...extensions) =>
+	extensions.forEach((extension) =>
+		extension !== undefined && overlayObjects(base, extension)) || base;
 
 // TODO: Maintain the key order, similar to merge.
 /**
@@ -322,7 +322,7 @@ const compose = (...objects) => {
 };
 
 const patch = (base, extension) =>
-	sanitize(overlay(clone(base), extension));
+	sanitize(merge(clone(base), extension));
 
 const diff = (base, compared) => {
 	const difference = shell(base);
@@ -364,13 +364,17 @@ const equals = (base, compared) =>
 const dict = (collection) =>
 	fromEntries(map(collection, (value, key) => [key, value]));
 
+const adopt = (base, ...extensions) =>
+	each(extensions, (extension) =>
+		each(extension, (value, key) => (base[key] = value)));
+
 export {
 	keys, values, entries, fromEntries, props,
 	each, map, traverse, walk, has,
 	clean, sanitize,
 	filter, omit, select, result,
 	flip, flipMany, rename, translate,
-	shell, assign, clone, squash, combine, overlay, merge, compose, fill,
+	shell, assign, clone, squash, combine, merge, overlay, compose, fill,
 	patch, diff, secure, equals, contains,
-	gather, pick, spread, dict,
+	gather, pick, spread, dict, adopt,
 };
