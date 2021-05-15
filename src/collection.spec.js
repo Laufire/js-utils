@@ -4,8 +4,9 @@
 
 const {
 	adopt, clean, clone, compose, combine, contains, dict, diff, each, entries, equals,
-	fill, filter, flip, flipMany, fromEntries, gather, has, index, map, merge, overlay,
-	patch, pick, omit, props, result, sanitize, secure, select, shell, spread, squash,
+	find, findIndex, findKey, fill, filter, flip, flipMany, fromEntries, gather, has,
+	index, map, merge, overlay, patch, pick, omit, props, result,
+	sanitize, secure, select, shell, spread, squash,
 	rename, translate, traverse, walk,
 } = require('./collection.js');
 
@@ -14,6 +15,8 @@ const { isDefined } = require('./reflection.js');
 /* Helpers */
 const mockObj = (keys, value) =>
 	fromEntries((map(keys, (key) => [key, isDefined(value) ? value : key])));
+
+const getPredicate = (check) => (val) => val === check;
 
 /* Spec */
 describe('Collection', () => {
@@ -107,13 +110,11 @@ describe('Collection', () => {
 
 	test('filter filters the properties of the given iterable using '
 	+ ' the passed filter function', () => {
-		const predicate = (val) => val === 1;
-
-		expect(filter(simpleObj, predicate)).toEqual({
+		expect(filter(simpleObj, getPredicate(1))).toEqual({
 			a: 1,
 		});
 
-		expect(filter(simpleArray, predicate)).toEqual([1]);
+		expect(filter(simpleArray, getPredicate(1))).toEqual([1]);
 	});
 
 	test('traverse recursively traverses through a given object and '
@@ -549,5 +550,23 @@ describe('Collection', () => {
 		each(base, (value, key) => {
 			expect(value === complexObject[key]).toEqual(true);
 		});
+	});
+
+	test('find finds the first element from the collection chose by the predicate', () => {
+		expect(find(simpleObj, getPredicate(2))).toBe(2);
+		expect(find(simpleObj, getPredicate(3))).toBeUndefined();
+		expect(find(simpleArray, getPredicate(2))).toBe(2);
+		expect(find(simpleArray, getPredicate(3))).toBeUndefined();
+	});
+
+	test('findKey finds the key of first element from the collection chose by the predicate', () => {
+		expect(findKey(simpleObj, getPredicate(2))).toBe('b');
+		expect(findKey(simpleObj, getPredicate(3))).toBeUndefined();
+		expect(findKey(simpleArray, getPredicate(2))).toBe('1');
+		expect(findKey(simpleArray, getPredicate(3))).toBeUndefined();
+	});
+
+	test('findIndex is an alias for findIndex', () => {
+		expect(findIndex).toBe(findKey);
 	});
 });

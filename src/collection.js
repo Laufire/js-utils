@@ -62,6 +62,8 @@ const { freeze, preventExtensions, // eslint-disable-line id-length
 /* Exports */
 const { assign, entries, keys, values } = Object; // eslint-disable-line id-match
 
+// TODO: Decide whether keys on arrays should return numbers instead of strings.
+
 /**
  * Returns an empty container of the same type as the given collection.
  * @param {*} collection The collection to get a shell for.
@@ -98,6 +100,17 @@ const filter = (obj, cb) => {
 
 	return ret;
 };
+
+const find = (collection, predicate) =>
+	collection[keys(collection).find((key) => predicate(collection[key], key))];
+
+const findKey = (collection, predicate) => {
+	const colKeys = keys(collection);
+
+	return colKeys[colKeys.findIndex((key) => predicate(collection[key], key))];
+};
+
+const findIndex = findKey;
 
 // Recursively passes all the primitives to the given callback.
 const traverse = (obj, cb) => map(obj, (value, key) =>
@@ -377,4 +390,5 @@ export {
 	shell, assign, clone, squash, combine, merge, overlay, compose, fill,
 	patch, diff, secure, equals, contains,
 	gather, pick, spread, dict, adopt,
+	find, findKey, findIndex,
 };
