@@ -1,18 +1,18 @@
-/* Tested */
 // # NOTE: The reason for importing the modules, the old-school way is to ensure that, the downstream dependencies aren't affected.
 // # NOTE: Immutability is tested implicitly, by preventing mutations the mock objects.
 
+/* Tested */
 const {
 	adopt, clean, clone, compose, combine, contains, dict, diff, each, entries, equals,
 	find, findIndex, findKey, fill, filter, flip, flipMany, fromEntries, gather, has,
-	index, map, merge, overlay, patch, pick, omit, props, result,
-	sanitize, secure, select, shell, spread, squash,
-	rename, translate, traverse, walk,
+	index, map, merge, overlay, patch, pick, omit, props, range, result, rename,
+	sanitize, secure, select, shell, spread, squash, translate, traverse, walk,
 } = require('./collection.js');
 
-const { isDefined } = require('./reflection.js');
-
 /* Helpers */
+const { isDefined } = require('./reflection.js');
+const { rndBetween } = require('./random.js');
+
 const mockObj = (keys, value) =>
 	fromEntries((map(keys, (key) => [key, isDefined(value) ? value : key])));
 
@@ -568,5 +568,31 @@ describe('Collection', () => {
 
 	test('findIndex is an alias for findIndex', () => {
 		expect(findIndex).toBe(findKey);
+	});
+
+	test('range returns an array with the given start end and the step values', () => {
+		const start = rndBetween(5, 9);
+		const end = rndBetween(5, 9) + start;
+		const step = rndBetween(1, 3);
+		const length = Math.floor((end - start + 1) / step);
+
+		const result = range(start, end, step);
+
+		expect(result.length).toBe(length);
+		expect(result[0]).toBe(start);
+		expect(result[length - 1]).toBe(start + (length - 1) * step);
+	});
+
+	test('range has default values for all parameters', () => {
+		const start = 0;
+		const end = 9;
+		const step = 1;
+		const length = Math.floor((end - start + 1) / step);
+
+		const result = range();
+
+		expect(result.length).toBe(length);
+		expect(result[0]).toBe(start);
+		expect(result[length - 1]).toBe(start + (length - 1) * step);
 	});
 });
