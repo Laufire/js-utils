@@ -381,6 +381,12 @@ const adopt = (base, ...extensions) =>
 	each(extensions, (extension) =>
 		each(extension, (value, key) => (base[key] = value)));
 
+const range = (
+	start = 0, end = 9, step = 1 // eslint-disable-line no-magic-numbers
+) =>
+	Array.from({ length: (end - start + 1) / step },
+		(dummy, i) => (i * step) + start);
+
 export {
 	keys, values, entries, fromEntries, props,
 	each, map, traverse, walk, has,
@@ -390,5 +396,5 @@ export {
 	shell, assign, clone, squash, combine, merge, overlay, compose, fill,
 	patch, diff, secure, equals, contains,
 	gather, pick, spread, dict, adopt,
-	find, findKey, findIndex,
+	find, findKey, findIndex, range,
 };
