@@ -58,6 +58,8 @@
         "lines": 100,
         "statements": 100
       }
-    }
+    },
+    "modulePathIgnorePatterns": ["<rootDir>/dist/"],
+    "testRegex": "src/.*\\.spec\\.js$"
   }
 }
