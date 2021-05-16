@@ -374,6 +374,11 @@ const equals = (base, compared) =>
 				.findIndex((key) => !equals(base[key], compared[key])) === -1
 		: base === compared);
 
+/* Tests the collections to have same children. */
+const hasSame = (base, compared) =>
+	keys(base).length === keys(compared).length
+	&& findKey(base, (value, key) => value !== compared[key]) === undefined;
+
 const dict = (collection) =>
 	fromEntries(map(collection, (value, key) => [key, value]));
 
@@ -396,5 +401,5 @@ export {
 	shell, assign, clone, squash, combine, merge, overlay, compose, fill,
 	patch, diff, secure, equals, contains,
 	gather, pick, spread, dict, adopt,
-	find, findKey, findIndex, range,
+	find, findKey, findIndex, range, hasSame,
 };

@@ -4,7 +4,7 @@
 /* Tested */
 const {
 	adopt, clean, clone, compose, combine, contains, dict, diff, each, entries, equals,
-	find, findIndex, findKey, fill, filter, flip, flipMany, fromEntries, gather, has,
+	find, findIndex, findKey, fill, filter, flip, flipMany, fromEntries, gather, has, hasSame,
 	index, map, merge, overlay, patch, pick, omit, props, range, result, rename,
 	sanitize, secure, select, shell, spread, squash, translate, traverse, walk,
 } = require('./collection.js');
@@ -34,6 +34,12 @@ describe('Collection', () => {
 			},
 		},
 	});
+	const complexArray = [
+		{
+			innerArray: [1, 3],
+			dirtyArray: [undefined, 1],
+		},
+	];
 	const complexObject = secure({
 		single: 'single',
 		parent: {
@@ -47,12 +53,7 @@ describe('Collection', () => {
 		array: clone(simpleArray),
 		primitiveOverlay: null,
 		iterableOverlay: null,
-		complexArray: [
-			{
-				innerArray: [1, 3],
-				dirtyArray: [undefined, 1],
-			},
-		],
+		complexArray: complexArray,
 	});
 	const baseObject = secure({
 		a: 1,
@@ -484,13 +485,20 @@ describe('Collection', () => {
 		expect(equals({}, simpleObj)).toBe(false);
 	});
 
-	test('equals tests the equality of primitives and'
+	test('equals tests the value equality of primitives and'
 	+ 'complex objects', () => {
 		expect(equals(1, 1)).toBe(true);
 		expect(equals(1, 0)).toBe(false);
 		expect(equals(complexObject, clone(complexObject))).toBe(true);
 		expect(equals(simpleObj, {})).toBe(false);
 		expect(equals({}, simpleObj)).toBe(false);
+	});
+
+	test('hasSame tests the given collections for having the same children', () => {
+		expect(hasSame(complexArray, [...complexArray])).toBe(true);
+		expect(hasSame(complexObject, {...complexObject})).toBe(true);
+		expect(hasSame(complexArray, clone(complexArray))).toBe(false);
+		expect(hasSame(complexObject, clone(complexObject))).toBe(false);
 	});
 
 	test('gather gathers the given props from the children '
