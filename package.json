@@ -59,7 +59,9 @@
         "statements": 100
       }
     },
-    "modulePathIgnorePatterns": ["<rootDir>/dist/"],
+    "modulePathIgnorePatterns": [
+      "<rootDir>/dist/"
+    ],
     "testRegex": "src/.*\\.spec\\.js$"
   }
 }
