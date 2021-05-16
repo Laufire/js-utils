@@ -20,3 +20,13 @@
 * Maintain key order in the results.
 
 * Move to Typescript, to allow for better support on IDEs.
+
+* Write test cases for default parameters.
+
+* Lint the tests.
+
+* Fix grammar.
+
+* Improve the API documentation.
+
+* Test the index file for the integrity of imports.
