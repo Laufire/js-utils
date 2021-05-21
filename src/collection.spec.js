@@ -611,6 +611,6 @@ describe('Collection', () => {
 	});
 
 	test('shares uses \'id\' as the default property compare', () => {
-		expect(shares({ id: 1 }, { id : 1 }, 'id')).toBe(true);
+		expect(shares({ id: 1 }, { id : 1 })).toBe(true);
 	});
 });

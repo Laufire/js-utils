@@ -21,8 +21,6 @@
 
 * Move to Typescript, to allow for better support on IDEs.
 
-* Write test cases for default parameters.
-
 * Lint the tests.
 
 * Fix grammar.
