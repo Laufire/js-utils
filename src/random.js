@@ -73,8 +73,15 @@ const rndValueWeighted = (weights) => {
 			boundaries.findIndex((boundary) => boundary > marker)
 		];
 	};
-}
-;
+};
+
+const withProb = (prob) => {
+	// #NOTE: Precision is not dynamic to avoid js floating point arithmetic.
+	const precision = 1000;
+	const inverse = (1 / prob * precision) - 1;
+
+	return () => rndBetween(0, inverse) < precision;
+};
 
 export {
 	rndBetween,
@@ -83,4 +90,5 @@ export {
 	rndValue,
 	rndValueWeighted,
 	stringSeeds,
+	withProb,
 };
