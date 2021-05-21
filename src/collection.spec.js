@@ -3,7 +3,7 @@
 
 /* Tested */
 const {
-	adopt, clean, clone, compose, combine, contains, dict, diff, each, entries, equals,
+	adopt, shares, clean, clone, compose, combine, contains, dict, diff, each, entries, equals,
 	find, findIndex, findKey, fill, filter, flip, flipMany, fromEntries, gather, has, hasSame,
 	index, map, merge, overlay, patch, pick, omit, props, range, result, rename,
 	sanitize, secure, select, shell, spread, squash, translate, traverse, walk,
@@ -602,5 +602,15 @@ describe('Collection', () => {
 		expect(result.length).toBe(length);
 		expect(result[0]).toBe(start);
 		expect(result[length - 1]).toBe(start + (length - 1) * step);
+	});
+
+	test('shares tests whether the given objects share the same value '
+	+ 'on a given property', () => {
+		expect(shares(simpleObj, nestedObj, 'a')).toBe(true);
+		expect(shares(simpleObj, complexObject, 'a')).toBe(false);
+	});
+
+	test('shares uses \'id\' as the default property compare', () => {
+		expect(shares({ id: 1 }, { id : 1 }, 'id')).toBe(true);
 	});
 });

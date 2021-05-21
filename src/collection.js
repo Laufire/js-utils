@@ -62,7 +62,7 @@ const { freeze, preventExtensions, // eslint-disable-line id-length
 /* Exports */
 const { assign, entries, keys, values } = Object; // eslint-disable-line id-match
 
-// TODO: Decide whether keys on arrays should return numbers instead of strings.
+// #TODO: Decide whether keys on arrays should return numbers instead of strings.
 
 /**
  * Returns an empty container of the same type as the given collection.
@@ -248,7 +248,7 @@ const overlay = (base, ...extensions) =>
 	extensions.forEach((extension) =>
 		extension !== undefined && overlayObjects(base, extension)) || base;
 
-// TODO: Maintain the key order, similar to merge.
+// #TODO: Maintain the key order, similar to merge.
 /**
  * Fills the missing properties of the given base from those of the extensions.
  * @param {collection} base The base collection on which the extensions would be filled.
@@ -392,6 +392,11 @@ const range = (
 	Array.from({ length: (end - start + 1) / step },
 		(dummy, i) => (i * step) + start);
 
+const shares = (
+	left, right, prop = 'id'
+) =>
+	left[prop] === right[prop];
+
 export {
 	keys, values, entries, fromEntries, props,
 	each, map, traverse, walk, has,
@@ -401,5 +406,5 @@ export {
 	shell, assign, clone, squash, combine, merge, overlay, compose, fill,
 	patch, diff, secure, equals, contains,
 	gather, pick, spread, dict, adopt,
-	find, findKey, findIndex, range, hasSame,
+	find, findKey, findIndex, range, hasSame, shares,
 };
