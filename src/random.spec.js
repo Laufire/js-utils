@@ -1,7 +1,11 @@
 import { fromEntries, map, pick } from './collection';
 
 /* Tested */
-import { rndBetween, rndOfString, rndString, stringSeeds, rndValue, rndValueWeighted } from './random';
+import {
+	rndBetween, rndOfString, rndString,
+	rndValue, rndValueWeighted,
+	stringSeeds, withProb,
+} from './random';
 
 /* Config */
 const defaults = {
@@ -88,9 +92,7 @@ describe('rndValueWeighted returns a random a value from the given weight table 
 	test('returns a value when the iterable is not empty', () => {
 		const weights = { a: 1, b: 2 };
 		const getRnd = rndValueWeighted(weights);
-		const results = [];
-
-		retry(() => results.push(getRnd()), 1000);
+		const results = retry(getRnd, 1000);
 
 		const counts = map(weights, (dummy, key) => results.filter((v) => v === key).length);
 
@@ -102,5 +104,23 @@ describe('rndValueWeighted returns a random a value from the given weight table 
 
 	test('returns undefined when the iterable is empty', () => {
 		expect(rndValueWeighted({})()).toBeUndefined();
+	});
+});
+
+describe('withProb returns a function which returns true once in a while '
+	+ 'based on the given probability value.', () => {
+	test('returns true based on the given probability.', () => {
+		const probability = 0.3;
+		const acceptableDeviation = 0.2;
+		const retryCount = 10000;
+		const isProbable = withProb(probability);
+
+		const results = retry(isProbable, retryCount);
+
+		const counts = results.filter((result) => result === true).length;
+		const prevalence = counts / retryCount;
+
+		expect(prevalence > probability * (1 - acceptableDeviation)).toEqual(true);
+		expect(prevalence < probability * (1 + acceptableDeviation)).toEqual(true);
 	});
 });
