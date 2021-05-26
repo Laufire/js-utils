@@ -15,6 +15,8 @@ const doesShare = isPart;
 
 const not = (fn) => (right) => !fn(right);
 
+const onProp = (prop, predicate) => (right) => predicate(right[prop]);
+
 const truthy = (right) => !!right;
 
 const falsy = (right) => !right;
@@ -24,6 +26,6 @@ const everything = () => true;
 const nothing = () => false;
 
 export {
-	isEqual, isSame, isPart, doesShare, not,
+	isEqual, isSame, isPart, doesShare, not, onProp,
 	truthy, falsy, everything, nothing,
 };
