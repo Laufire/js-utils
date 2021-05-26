@@ -7,25 +7,8 @@ import {
 	stringSeeds, withProb,
 } from './random';
 
-/* Config */
-const defaults = {
-	retryCount: 1000,
-};
-
 /* Helpers */
-const retry = (fn, retryCount = defaults.retryCount) => {
-	const ret = [];
-	let i = 0;
-
-	while(i < retryCount) {
-		ret.push(fn(i++));
-	}
-
-	return ret;
-};
-
-const strSubSet = (superStr, tested) =>
-	tested.split('').findIndex((char) => !(superStr.indexOf(char) > -1)) === -1;
+import { retry, strSubSet } from "../test/helpers";
 
 /* Tests */
 test('rndBetween returns a random number between two integers,'
