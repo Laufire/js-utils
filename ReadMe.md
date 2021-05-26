@@ -32,3 +32,9 @@
 * Test the index file for the integrity of imports.
 
 * Coverage might not cover all paths. Especially those of shared functions, as they might be partially covered by multiple functions, yet report full coverage. Find a fix for this.
+
+* Introduce collection.sort, a non-mutating one.
+
+## Gotchas
+
+* Object keys maintain a chronological order, unless they are integers. In which case they are added to the beginning in an ascending order.
