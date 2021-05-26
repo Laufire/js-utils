@@ -3,7 +3,8 @@
  *
  */
 
-import { equals, shares } from './collection';
+import { equals, find, shares } from './collection';
+import { isDefined } from './reflection';
 
 const isEqual = (left) => (right) => equals(left, right);
 
@@ -14,6 +15,12 @@ const isPart = (left) => (right) => shares(left, right);
 const doesShare = isPart;
 
 const not = (fn) => (right) => !fn(right);
+
+const and = (...predicates) => (right) =>
+	!isDefined(find(predicates, (predicate) => !predicate(right)));
+
+const or = (...predicates) => (right) =>
+	isDefined(find(predicates, (predicate) => predicate(right)));
 
 const onProp = (prop, predicate) => (right) => predicate(right[prop]);
 
@@ -26,6 +33,7 @@ const everything = () => true;
 const nothing = () => false;
 
 export {
-	isEqual, isSame, isPart, doesShare, not, onProp,
+	isEqual, isSame, isPart, doesShare,
+	not, and, or, onProp,
 	truthy, falsy, everything, nothing,
 };
