@@ -2,12 +2,12 @@
 // # NOTE: Immutability is tested implicitly, by preventing mutations the mock objects.
 
 /* Tested */
-const {
+import {
 	adopt, shares, clean, clone, compose, combine, contains, dict, diff, each, entries, equals,
 	find, findIndex, findKey, fill, filter, flip, flipMany, fromEntries, gather, has, hasSame,
 	index, map, merge, overlay, patch, pick, omit, props, range, result, rename,
 	sanitize, secure, select, shell, shuffle, spread, squash, translate, traverse, walk, values,
-} = require('./collection.js');
+} from './collection';
 
 /* Helpers */
 import { sortArray, getPredicate } from "../test/helpers";

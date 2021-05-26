@@ -1,5 +1,5 @@
 /* Tested */
-const {
+import  {
 	constructorName,
 	inferType,
 	isCollection,
@@ -7,7 +7,7 @@ const {
 	isFunction,
 	isObject,
 	isDefined,
-} = require('./reflection');
+} from './reflection';
 
 describe('Reflection', () => {
 	/* Mocks and Stubs */

@@ -1,8 +1,8 @@
 /* Tested */
-const { descend, index, summarize } = require('./crunch');
+import { descend, index, summarize } from './crunch';
 
 /* Helpers */
-const { dict, secure, values } = require('./collection');
+import { dict, secure, values }  from './collection';
 
 const sum = (...numbers) => numbers.reduce((t, c) => t + c, 0);
 
