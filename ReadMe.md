@@ -19,6 +19,8 @@
 
 * Maintain key order in the results.
 
+* Thinks of the right way to standardize collection.keys. It gives string keys for array, which might or might not be preferable.
+
 * Move to Typescript, to allow for better support on IDEs.
 
 * Lint the tests.
@@ -28,3 +30,5 @@
 * Improve the API documentation.
 
 * Test the index file for the integrity of imports.
+
+* Coverage might not cover all paths. Especially those of shared functions, as they might be partially covered by multiple functions, yet report full coverage. Find a fix for this.

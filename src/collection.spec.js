@@ -368,7 +368,7 @@ describe('Collection', () => {
 		expect(select(simpleObj, ['a'])).toEqual({ a: 1 });
 	});
 
-	test('select returns a sub-object of the given object, '
+	test('select returns a sub-object of the given object, ' // #BREAKING: Treat objects and arrays similarly.
 	+ 'with the properties in the given selector object', () => {
 		expect(select(simpleObj, {
 			a: 'some-thing',
@@ -376,14 +376,24 @@ describe('Collection', () => {
 		})).toEqual({ a: 1 });
 	});
 
+	test('select returns a sub-array of the given array, '
+	+ 'with the given array of properties', () => {
+		expect(select(simpleArray, [0])).toEqual([1]);
+	});
+
 	test('omit returns a sub-object of the given object, '
 	+ 'without the given array of properties', () => {
 		expect(omit(simpleObj, ['a'])).toEqual({ b: 2 });
 	});
 
-	test('omit returns a sub-object of the given object, '
+	test('omit returns a sub-object of the given object, ' // #BREAKING: Treat objects and arrays similarly.
 	+ 'without the properties in the given selector object', () => {
 		expect(omit(simpleObj, { a: 'some-thing' })).toEqual({ b: 2 });
+	});
+
+	test('omit returns a sub-array of the given array, '
+	+ 'without the given array of properties', () => {
+		expect(clean(omit(simpleArray, [0]))).toEqual([2]);
 	});
 
 	test('result returns the value for the given simple path '

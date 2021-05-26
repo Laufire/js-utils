@@ -10,7 +10,9 @@
 /* Helpers */
 import { isArray, isIterable, isObject } from './reflection.js';
 const toArray = (value) => (isArray(value) ? value : [value]);
-const keyArray = (object) => (isArray(object) ? object : keys(object)); // eslint-disable-line no-use-before-define
+const keyArray = (object) => (isArray(object)
+	? object.map(String)
+	: keys(object)); // eslint-disable-line no-use-before-define
 const combineObjects = (base, extension) =>
 	(isArray(base) && isArray(extension)
 		? (base.push(...extension), base)
@@ -168,18 +170,21 @@ const sanitize = (collection) =>
 
 const props = (obj, objProps) => objProps.map((prop) => obj[prop]);
 
-const select = (obj, selector) => keyArray(selector)
-	.reduce((aggregate, prop) => // eslint-disable-line no-return-assign
-		(obj[prop] !== undefined && (aggregate[prop] = obj[prop]), aggregate), // eslint-disable-line no-sequences
-	{});
+// #TODO: select uses key from objects and values from arrays streamline this. This would be a #BREAKING change. keyArray is the source for this confusion.
+const select = (collection, selector) => keyArray(selector)
+	.reduce((aggregate, prop) =>
+		(collection[prop] !== undefined
+			&& (aggregate[prop] = collection[prop]), aggregate), // eslint-disable-line no-sequences
+	shell(collection));
 
+// #TODO: omit uses key from objects and values from arrays streamline this. This would be a #BREAKING change. keyArray is the source for this confusion.
 const omit = (obj, selector) => {
 	const propsToOmit = keyArray(selector);
 
 	return keys(obj).filter((prop) => !propsToOmit.includes(prop))
 		.reduce((aggregate, prop) => // eslint-disable-line no-return-assign
 			(aggregate[prop] = obj[prop], aggregate) // eslint-disable-line no-sequences
-		, {});
+		, shell(obj));
 };
 
 /**
