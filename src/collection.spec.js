@@ -6,12 +6,13 @@ const {
 	adopt, shares, clean, clone, compose, combine, contains, dict, diff, each, entries, equals,
 	find, findIndex, findKey, fill, filter, flip, flipMany, fromEntries, gather, has, hasSame,
 	index, map, merge, overlay, patch, pick, omit, props, range, result, rename,
-	sanitize, secure, select, shell, spread, squash, translate, traverse, walk,
+	sanitize, secure, select, shell, shuffle, spread, squash, translate, traverse, walk, values,
 } = require('./collection.js');
 
 /* Helpers */
 const { isDefined } = require('./reflection.js');
 const { rndBetween } = require('./random.js');
+const sortArray = (arr) => arr.slice().sort();
 
 const mockObj = (keys, value) =>
 	fromEntries((map(keys, (key) => [key, isDefined(value) ? value : key])));
@@ -622,5 +623,27 @@ describe('Collection', () => {
 
 	test('shares uses \'id\' as the default property compare', () => {
 		expect(shares({ id: 1 }, { id : 1 })).toBe(true);
+	});
+
+	describe('shuffle shuffles the given collection.', () => {
+		test('shuffle can shuffle arrays.', () => {
+			const array = range(1, 100);
+
+			const shuffled = shuffle(array);
+
+			expect(shuffled).not.toEqual(array);
+			expect(sortArray(shuffled)).toEqual(sortArray(array));
+		});
+
+		test('shuffle can shuffle objects.', () => {
+			const obj = mockObj(range(1, 100).map((i) => '0' + i));
+
+			const shuffled = shuffle(obj);
+			const shuffledValues = values(shuffled);
+			const objValues = values(obj);
+
+			expect(shuffledValues).not.toEqual(objValues);
+			expect(sortArray(shuffledValues)).toEqual(sortArray(objValues));
+		});
 	});
 });

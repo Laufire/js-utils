@@ -4,10 +4,7 @@
 
 /* Imports */
 import { keys, map, values } from './collection';
-
-const { floor, random } = Math; // eslint-disable-line id-match
-
-/* Data */
+import { rndBetween as rb } from './lib';
 
 /* Exports */
 const stringSeeds = {
@@ -22,8 +19,7 @@ const stringSeeds = {
  * @param {Integer} [1] to - The end of the range.
  * @returns {integer} A random number between from and to.
  */
-const rndBetween = (from = 0, to = 9) => // eslint-disable-line no-magic-numbers
-	floor(random() * (to - from + 1)) + from;
+const rndBetween = rb;
 
 /**
  * Get a random string from the pre-defined seed / custom string.

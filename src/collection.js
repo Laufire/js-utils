@@ -9,6 +9,8 @@
 
 /* Helpers */
 import { isArray, isIterable, isObject } from './reflection.js';
+import { rndBetween } from './lib';
+
 const toArray = (value) => (isArray(value) ? value : [value]);
 const keyArray = (object) => (isArray(object)
 	? object.map(String)
@@ -402,6 +404,22 @@ const shares = (
 ) =>
 	left[prop] === right[prop];
 
+const shuffle = (collection) => {
+	const ixs = keys(collection);
+	const newIxs = [];
+
+	while(ixs.length)
+		newIxs.push(ixs.splice(rndBetween(0, ixs.length - 1), 1)[0]);
+
+	return newIxs.reduce(isArray(collection)
+		? ( // eslint-disable-line no-return-assign
+			t, c, i
+		) => (t[i] = collection[c], t) // eslint-disable-line no-sequences
+		: (t, c) => // eslint-disable-line no-return-assign
+			(t[c] = collection[c], t), // eslint-disable-line no-sequences
+	shell(collection));
+};
+
 export {
 	keys, values, entries, fromEntries, props,
 	each, map, traverse, walk, has,
@@ -411,5 +429,5 @@ export {
 	shell, assign, clone, squash, combine, merge, overlay, compose, fill,
 	patch, diff, secure, equals, contains,
 	gather, pick, spread, dict, adopt,
-	find, findKey, findIndex, range, hasSame, shares,
+	find, findKey, findIndex, range, hasSame, shares, shuffle,
 };
