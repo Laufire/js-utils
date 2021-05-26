@@ -10,14 +10,12 @@ const {
 } = require('./collection.js');
 
 /* Helpers */
-const { isDefined } = require('./reflection.js');
-const { rndBetween } = require('./random.js');
-const sortArray = (arr) => arr.slice().sort();
+import { sortArray, getPredicate } from "../test/helpers";
+import { rndBetween } from "./lib";
+import { isDefined } from "./reflection";
 
 const mockObj = (keys, value) =>
-	fromEntries((map(keys, (key) => [key, isDefined(value) ? value : key])));
-
-const getPredicate = (check) => (val) => val === check;
+	fromEntries(map(keys, (key) => [key, isDefined(value) ? value : key]));
 
 /* Spec */
 describe('Collection', () => {
