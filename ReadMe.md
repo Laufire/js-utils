@@ -35,6 +35,20 @@
 
 * Introduce collection.sort, a non-mutating one.
 
+* Functionalities:
+
+	* collection
+
+		* reduce.
+
+		* sort.
+
+	* Simple functions.
+
+		* identity.
+
+		* void.
+
 ## Gotchas
 
 * Object keys maintain a chronological order, unless they are integers. In which case they are added to the beginning in an ascending order.

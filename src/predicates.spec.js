@@ -1,6 +1,6 @@
 /* Tested */
 import { isEqual, isSame, isPart, doesShare, not,
-	truthy, falsy, everything, nothing, onProp } from './predicates';
+	truthy, falsy, everything, nothing, onProp, or, and } from './predicates';
 
 /* Helpers */
 import { clone, filter, secure, shuffle } from './collection';
@@ -62,6 +62,18 @@ describe('Predicates', () => {
 		expect(sortArray(array.filter(not(falsy)))).toEqual(sortArray(truthies));
 		expect(sortArray(array.filter(not(everything)))).toEqual([]);
 		expect(sortArray(array.filter(not(nothing)))).toEqual(sortArray(array));
+	});
+
+	test('and returns a function to test the candidates to pass '
+	+ 'all the given predicates.', () => {
+		expect(filter(collection, and(isSame(obj), isSame(cloned)))).toEqual({});
+		expect(filter(collection, and(isSame(obj), isEqual(cloned)))).toEqual({ obj });
+	});
+
+	test('or returns a function to test the candidates to pass '
+	+ 'at least one among multiple predicates.', () => {
+		expect(filter(collection, or(isSame(obj), isSame(cloned)))).toEqual(collection);
+		expect(filter(collection, or(isSame(extended), isEqual(extended)))).toEqual({});
 	});
 
 	test('onProp returns a function to test the given prop across candidates '
