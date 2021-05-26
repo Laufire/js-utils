@@ -13,6 +13,8 @@ const isPart = (left) => (right) => shares(left, right);
 
 const doesShare = isPart;
 
+const not = (fn) => (right) => !fn(right);
+
 const truthy = (right) => !!right;
 
 const falsy = (right) => !right;
@@ -22,6 +24,6 @@ const everything = () => true;
 const nothing = () => false;
 
 export {
-	isEqual, isSame, isPart, doesShare,
+	isEqual, isSame, isPart, doesShare, not,
 	truthy, falsy, everything, nothing,
 };

@@ -1,5 +1,5 @@
 /* Tested */
-import { isEqual, isSame, isPart, doesShare,
+import { isEqual, isSame, isPart, doesShare, not,
 	truthy, falsy, everything, nothing } from './predicates';
 
 /* Helpers */
@@ -37,26 +37,29 @@ describe('Predicates', () => {
 	});
 
 	test('truthy tests for truthy values', () => {
-		const filtered = array.filter(truthy);
-
-		expect(sortArray(filtered)).toEqual(sortArray(truthies));
+		expect(sortArray(array.filter(truthy))).toEqual(sortArray(truthies));
 	});
 
 	test('falsy tests for falsy values', () => {
-		const filtered = array.filter(falsy);
-
-		expect(sortArray(filtered)).toEqual(sortArray(falsies));
+		expect(sortArray(array.filter(falsy))).toEqual(sortArray(falsies));
 	});
 
 	test('everything allows everything through the filter.', () => {
-		const filtered = array.filter(everything);
-
-		expect(sortArray(filtered)).toEqual(sortArray(array));
+		expect(sortArray(array.filter(everything))).toEqual(sortArray(array));
 	});
 
 	test('nothing allows nothing through the filter.', () => {
-		const filtered = array.filter(nothing);
+		expect(sortArray(array.filter(nothing))).toEqual([]);
+	});
 
-		expect(sortArray(filtered)).toEqual([]);
+	test.only('not returns the negated version of the given predicate.', () => {
+		expect(filter(collection, not(isEqual(obj)))).not.toEqual(collection);
+		expect(filter(collection, not(isSame(obj))).obj).not.toBe(obj);
+		expect(filter(collection, not(isPart(extended))).obj).not.toBe(obj);
+
+		expect(sortArray(array.filter(not(truthy)))).toEqual(sortArray(falsies));
+		expect(sortArray(array.filter(not(falsy)))).toEqual(sortArray(truthies));
+		expect(sortArray(array.filter(not(everything)))).toEqual([]);
+		expect(sortArray(array.filter(not(nothing)))).toEqual(sortArray(array));
 	});
 });
