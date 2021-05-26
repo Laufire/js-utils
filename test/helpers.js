@@ -5,7 +5,7 @@ const defaults = {
 
 /* Exports */
 /* Data */
-const truthies = [1, '1', true, [], {}];
+const truthies = [1, '2', true, [], {}];
 const falsies = [0, '', false, undefined, null];
 
 /* Functions */
