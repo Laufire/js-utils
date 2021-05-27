@@ -6,13 +6,15 @@ import {
 	adopt, shares, clean, clone, compose, combine, contains, dict, diff, each, entries, equals,
 	find, findIndex, findKey, fill, filter, flip, flipMany, fromEntries, gather, has, hasSame,
 	index, map, merge, overlay, patch, pick, omit, props, range, result, rename,
-	sanitize, secure, select, shell, shuffle, spread, squash, translate, traverse, walk, values,
+	sanitize, secure, select, shell, shuffle, spread, sort, squash, translate, traverse,
+	walk, values,
 } from './collection';
 
 /* Helpers */
 import { sortArray, getPredicate } from "../test/helpers";
 import { rndBetween } from "./lib";
 import { isDefined } from "./reflection";
+import { ascending, descending } from './sorters';
 
 const mockObj = (keys, value) =>
 	fromEntries(map(keys, (key) => [key, isDefined(value) ? value : key]));
@@ -624,7 +626,7 @@ describe('Collection', () => {
 	});
 
 	describe('shuffle shuffles the given collection.', () => {
-		test('shuffle can shuffle arrays.', () => {
+		test('shuffle shuffles arrays.', () => {
 			const array = range(1, 100);
 
 			const shuffled = shuffle(array);
@@ -633,7 +635,7 @@ describe('Collection', () => {
 			expect(sortArray(shuffled)).toEqual(sortArray(array));
 		});
 
-		test('shuffle can shuffle objects.', () => {
+		test('shuffle shuffles objects.', () => {
 			const obj = mockObj(range(1, 100).map((i) => '0' + i));
 
 			const shuffled = shuffle(obj);
@@ -642,6 +644,41 @@ describe('Collection', () => {
 
 			expect(shuffledValues).not.toEqual(objValues);
 			expect(sortArray(shuffledValues)).toEqual(sortArray(objValues));
+		});
+	});
+
+	describe('sort sorts the given collection.', () => {
+		test('sort sorts arrays.', () => {
+			const array = range(1, 100);
+			const reversed = array.slice().reverse();
+
+			const shuffled = shuffle(array);
+			const sorted = sort(shuffled, descending);
+
+			expect(sorted).toEqual(reversed);
+			expect(sorted).not.toBe(array);
+		});
+
+		test('sort sorts objects.', () => {
+			const obj = mockObj(range(1, 100).map((i) => '0' + i));
+			const shuffled = shuffle(obj);
+
+			const sorted = sort(shuffled, ascending);
+
+			const sortedValues = values(sorted);
+			const objValues = values(obj);
+
+			expect(sortArray(sortedValues)).toEqual(sortArray(objValues));
+		});
+
+		test('sort uses ascending as the default sorter.', () => {
+			const array = range(1, 100);
+
+			const shuffled = shuffle(array);
+			const sorted = sort(shuffled);
+
+			expect(sorted).toEqual(array);
+			expect(sorted).not.toBe(array);
 		});
 	});
 });
