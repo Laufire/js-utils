@@ -103,6 +103,21 @@ const filter = (obj, cb) => {
 	return ret;
 };
 
+// An Array.reduce like function for Objects.
+const reduce = (
+	obj, reducer, initial
+) => {
+	let acc = initial;
+
+	keys(obj).forEach((key) => {
+		acc = reducer(
+			acc, obj[key], key, obj
+		);
+	});
+
+	return acc;
+};
+
 const find = (collection, predicate) =>
 	collection[keys(collection).find((key) => predicate(collection[key], key))];
 
@@ -424,9 +439,9 @@ const sort = (collection, sorter = ascending) => (isArray(collection)
 
 export {
 	keys, values, entries, fromEntries, props,
-	each, map, traverse, walk, has,
-	clean, sanitize,
-	filter, omit, select, result,
+	each, map, filter, reduce,
+	traverse, walk, has,
+	clean, sanitize, omit, select, result,
 	flip, flipMany, rename, translate,
 	shell, assign, clone, squash, combine, merge, overlay, compose, fill,
 	patch, diff, secure, equals, contains,
