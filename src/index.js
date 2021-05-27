@@ -9,6 +9,7 @@ import * as fn from './fn';
 import * as partials from './partials';
 import * as predicates from './predicates';
 import * as random from './random';
+import * as reducers from './reducers';
 import * as reflection from './reflection';
 import * as sorters from './sorters';
 
@@ -20,6 +21,7 @@ export {
 	partials,
 	predicates,
 	random,
+	reducers,
 	reflection,
 	sorters,
 };
