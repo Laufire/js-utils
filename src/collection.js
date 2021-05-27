@@ -10,6 +10,7 @@
 /* Helpers */
 import { isArray, isIterable, isObject } from './reflection.js';
 import { rndBetween } from './lib';
+import { ascending } from './sorters.js';
 
 const toArray = (value) => (isArray(value) ? value : [value]);
 const keyArray = (object) => (isArray(object)
@@ -420,6 +421,10 @@ const shuffle = (collection) => {
 	shell(collection));
 };
 
+const sort = (collection, sorter = ascending) => (isArray(collection)
+	? collection.slice().sort(sorter)
+	: fromEntries(entries(collection).sort((a, b) => sorter(a[1], b[1]))));
+
 export {
 	keys, values, entries, fromEntries, props,
 	each, map, traverse, walk, has,
@@ -429,5 +434,5 @@ export {
 	shell, assign, clone, squash, combine, merge, overlay, compose, fill,
 	patch, diff, secure, equals, contains,
 	gather, pick, spread, dict, adopt,
-	find, findKey, findIndex, range, hasSame, shares, shuffle,
+	find, findKey, findIndex, range, hasSame, shares, shuffle, sort,
 };
