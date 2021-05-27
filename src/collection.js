@@ -7,10 +7,9 @@
 * 	* Keys with undefined values are treated as non-existent, so to allow for simplicity.
 */
 
-/* Helpers */
-import { isArray, isIterable, isObject } from './reflection.js';
-import { rndBetween } from './lib';
-import { ascending } from './sorters.js';
+import { isArray, isIterable, isObject } from './reflection';
+import { assign, entries, keys, values, rndBetween } from './lib';
+import { ascending } from './sorters';
 
 const toArray = (value) => (isArray(value) ? value : [value]);
 const keyArray = (object) => (isArray(object)
@@ -65,8 +64,6 @@ const { freeze, preventExtensions, // eslint-disable-line id-length
 	seal } = Object; // eslint-disable-line id-match
 
 /* Exports */
-const { assign, entries, keys, values } = Object; // eslint-disable-line id-match
-
 // #TODO: Decide whether keys on arrays should return numbers instead of strings.
 
 /**
