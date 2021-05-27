@@ -5,7 +5,7 @@
 import {
 	adopt, shares, clean, clone, compose, combine, contains, dict, diff, each, entries, equals,
 	find, findIndex, findKey, fill, filter, flip, flipMany, fromEntries, gather, has, hasSame,
-	index, map, merge, overlay, patch, pick, omit, props, range, result, rename,
+	index, map, merge, overlay, patch, pick, omit, props, range, reduce, rename,  result,
 	sanitize, secure, select, shell, shuffle, spread, sort, squash, translate, traverse,
 	walk, values,
 } from './collection';
@@ -117,6 +117,13 @@ describe('Collection', () => {
 		});
 
 		expect(filter(simpleArray, getPredicate(1))).toEqual([1]);
+	});
+
+	test('reduce reduces the given collection.', () => {
+		const sum = (t, c) => t + c;
+
+		expect(reduce(simpleObj, sum, 0)).toEqual(3);
+		expect(reduce(simpleArray, sum, 1)).toEqual(4);
 	});
 
 	test('traverse recursively traverses through a given object and '
