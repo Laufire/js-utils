@@ -1,8 +1,9 @@
 /* Tested */
-import { ascending, configured, descending, existing, onProp, reverse } from './sorters';
+import { ascending, compile, descending, existing, onProp, reverse } from './sorters';
 
 /* Helpers */
-import { range, secure, shuffle, sort, translate } from './collection';
+import { map, range, secure, shuffle, sort, translate } from './collection';
+import { values } from './lib';
 
 /* Spec */
 describe('Sorters', () => {
@@ -36,7 +37,7 @@ describe('Sorters', () => {
 			.toEqual(objArray);
 	});
 
-	describe('configured helps in sorting collection of collections.', () => {
+	describe('compile helps in sorting collection of collections.', () => {
 		const data = [
 			{ a: 1, b: 2},
 			{ a: 1, b: 1},
@@ -44,21 +45,31 @@ describe('Sorters', () => {
 			{ a: 1, b: 1},
 		];
 
-		test('configured works with multiple props, with descending priority.', () => {
+		test('compile works with multiple props, with descending priority.', () => {
 			const config = { a: 'ascending', b: 'descending' };
 			const expected = translate([2, 0, 1, 3], data);
 
-			const sorted = sort(data, configured(config));
+			const sorted = sort(data, compile(config));
 
 			expect(sorted).toEqual(expected);
 		});
 
-		test('configured supports custom grammars.', () => {
+		test('compile supports custom grammars.', () => {
 			const grammar = { descending: ascending };
 			const config = { a: 'ascending', b: 'descending' };
 			const expected = translate([2, 1, 3, 0], data);
 
-			const sorted = sort(data, configured(config, grammar));
+			const sorted = sort(data, compile(config, grammar));
+
+			expect(sorted).toEqual(expected);
+		});
+
+		test('compile works with two dimensional arrays.', () => {
+			const config = ['ascending', 'descending'];
+			const arrData = map(data, values);
+			const expected = translate([2, 0, 1, 3], arrData);
+
+			const sorted = sort(arrData, compile(config));
 
 			expect(sorted).toEqual(expected);
 		});
