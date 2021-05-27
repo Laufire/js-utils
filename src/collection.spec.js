@@ -15,6 +15,7 @@ import { sortArray, getPredicate } from "../test/helpers";
 import { rndBetween } from "./lib";
 import { isDefined } from "./reflection";
 import { ascending, descending } from './sorters';
+import { product, sum } from './reducers';
 
 const mockObj = (keys, value) =>
 	fromEntries(map(keys, (key) => [key, isDefined(value) ? value : key]));
@@ -120,10 +121,8 @@ describe('Collection', () => {
 	});
 
 	test('reduce reduces the given collection.', () => {
-		const sum = (t, c) => t + c;
-
 		expect(reduce(simpleObj, sum, 0)).toEqual(3);
-		expect(reduce(simpleArray, sum, 1)).toEqual(4);
+		expect(reduce(simpleArray, product, 1)).toEqual(2);
 	});
 
 	test('traverse recursively traverses through a given object and '
