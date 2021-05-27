@@ -24,20 +24,17 @@ const defaultGrammar = {
 	reverse,
 };
 
-const configured = (config, grammarExt) => {
+const compile = (config, grammarExt) => {
 	const grammar = { ...defaultGrammar, ...grammarExt };
 	const props = keys(config);
 
 	return (a, b) => {
-		for(let i = 0; i < props.length; ++i) {
-			const prop = props[i];
-			const result = grammar[config[prop]](a[prop], b[prop]);
+		let result = 0;
 
-			if(result !== 0)
-				return result;
-		}
+		props.find((prop) =>
+			(result = grammar[config[prop]](a[prop], b[prop])) !== 0);
 
-		return 0;
+		return result;
 	};
 };
 
@@ -47,5 +44,5 @@ export {
 	existing,
 	reverse,
 	onProp,
-	configured,
+	compile,
 };
