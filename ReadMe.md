@@ -49,6 +49,10 @@
 
 		* void.
 
+## Later
+
+* Test for and improve performance.
+
 ## Gotchas
 
 * Object keys maintain a chronological order, unless they are integers. In which case they are added to the beginning in an ascending order.

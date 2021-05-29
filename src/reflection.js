@@ -3,13 +3,17 @@
  */
 
 /* Helpers */
-const { isArray } = Array; // eslint-disable-line id-match
+// eslint-disable-next-line id-match
+const { isArray } = Array;
 
 const constructorName = (value) =>
 	value !== null && value !== undefined
 		&& value.constructor && value.constructor.name;
 
-// # NOTE: Unlike inferType, this function doesn't differentiate between functions and async functions.
+/*
+NOTE: Unlike inferType, this function doesn't differentiate between
+	functions and async functions.
+*/
 const isFunction = (value) =>
 	typeof value === 'function';
 

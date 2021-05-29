@@ -5,7 +5,8 @@ beforeEach(() => {
 });
 
 describe('peek - a drop in console.log replacement with better devEx', () => {
-	console.log = jest.fn(); // eslint-disable-line no-console
+	// eslint-disable-next-line no-console
+	console.log = jest.fn();
 
 	test('peek logs a value to the console and returns the same value.', () => {
 		const val = 1;
@@ -13,7 +14,8 @@ describe('peek - a drop in console.log replacement with better devEx', () => {
 		const ret = peek(val);
 
 		expect(ret).toBe(val);
-		expect(console.log).toHaveBeenCalledWith(val); // eslint-disable-line no-console
+		// eslint-disable-next-line no-console
+		expect(console.log).toHaveBeenCalledWith(val);
 	});
 
 	test('peek supports an optional label.', () => {
@@ -22,7 +24,8 @@ describe('peek - a drop in console.log replacement with better devEx', () => {
 
 		const ret = peek(val, label);
 
-		expect(console.log).toHaveBeenCalledWith(label, val); // eslint-disable-line no-console
+		// eslint-disable-next-line no-console
+		expect(console.log).toHaveBeenCalledWith(label, val);
 	});
 });
 

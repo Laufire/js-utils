@@ -14,8 +14,8 @@ describe('Crunch', () => {
 	const arr = secure([elm1, elm2]);
 	const obj = secure(dict(arr));
 
-	test('index builds and index the given collection '
-	+ 'on the given keys of the children to help with retrieval', () => {
+	test('index builds and index the given collection'
+	+ ' on the given keys of the children to help with retrieval', () => {
 		const expected = { 1: { 2: elm1, 3: elm2 }};
 
 		const indexedFromArr = index(arr, 'a', 'b');
@@ -25,8 +25,8 @@ describe('Crunch', () => {
 		expect(indexedFromObj).toEqual(expected);
 	});
 
-	test('summarize summarizes the given collection '
-	+ 'and builds an index on the given keys', () => {
+	test('summarize summarizes the given collection'
+	+ ' and builds an index on the given keys', () => {
 		const summarizer = (item) => sum(...values(item));
 		const expected = { 1: { 2: 3, 3: 4 }};
 
@@ -37,9 +37,9 @@ describe('Crunch', () => {
 		expect(summarizedFromObj).toEqual(expected);
 	});
 
-	test('descend descends into the given collection '
-	+ 'upto the given level and executes the given process'
-	+ 'and returns a new collection', () => {
+	test('descend descends into the given collection'
+	+ ' upto the given level and executes the given process'
+	+ ' and returns a new collection', () => {
 		const process = (num) => num + 1;
 		const expectedFromArr = [{ a: 2, b: 3}, { a: 2, b: 4}];
 		const expectedFromObj = dict(expectedFromArr);

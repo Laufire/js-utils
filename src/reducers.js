@@ -1,6 +1,8 @@
 /**
  * A set of functions and partials to be used with reducers.
  *
+ * NOTE: Some collection functions like merge, compose, squash,
+ * adopt, etc work well with reducers.
  */
 
 import { keys } from './lib';
