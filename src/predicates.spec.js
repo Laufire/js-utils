@@ -3,7 +3,7 @@ import { isEqual, isSame, isPart, doesShare, not,
 	truthy, falsy, everything, nothing, onProp, or, and } from './predicates';
 
 /* Helpers */
-import { clone, filter, secure, shuffle } from './collection';
+import { clone, filter, keys, secure, shuffle } from './collection';
 import { truthies, falsies, sortArray } from "../test/helpers";
 
 /* Spec */
@@ -84,5 +84,30 @@ describe('Predicates', () => {
 		expect(filter(collection, onProp('a', isEqual(1)))).toEqual(collection);
 		expect(filter(extendedCollection,
 			onProp('b', isEqual(2)))).toEqual({ extended });
+	});
+
+	describe('Generators pass all available arguments to the given predicates.', () => {
+		const generators = {
+			and, or, not
+		};
+
+		test.each(keys(generators))('Testing the generator: %s.', (key) => {
+			const predicate = jest.fn();
+			const args = [obj.a, 'a', obj];
+
+			filter(obj, generators[key](predicate));
+
+			expect(predicate).toHaveBeenCalledWith(...args);
+		});
+
+		test('Testing the generator: onProp.', () => {
+			const predicate = jest.fn();
+			const collection = { obj };
+			const prop = 'a';
+
+			filter(collection, onProp(prop, predicate));
+
+			expect(predicate).toHaveBeenCalledWith(obj[prop], 'obj', collection);
+		});
 	});
 });
