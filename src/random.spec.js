@@ -70,14 +70,15 @@ describe('rndValue returns a random a value from the given iterable.', () => {
 	});
 });
 
-describe('rndValueWeighted returns a random a value from the given weight table '
-	+ 'according to the given weights.', () => {
+describe('rndValueWeighted returns a random a value from'
+	+ ' the given weight table according to the given weights.', () => {
 	test('returns a value when the iterable is not empty', () => {
 		const weights = { a: 1, b: 2 };
 		const getRnd = rndValueWeighted(weights);
 		const results = retry(getRnd, 1000);
 
-		const counts = map(weights, (dummy, key) => results.filter((v) => v === key).length);
+		const counts = map(weights, (dummy, key) =>
+			results.filter((v) => v === key).length);
 
 		expect(counts.a > 250).toEqual(true);
 		expect(counts.b > 500).toEqual(true);
@@ -90,8 +91,8 @@ describe('rndValueWeighted returns a random a value from the given weight table 
 	});
 });
 
-describe('withProb returns a function which returns true once in a while '
-	+ 'based on the given probability value.', () => {
+describe('withProb returns a function which returns true once in a while'
+	+ ' based on the given probability value.', () => {
 	test('returns true based on the given probability.', () => {
 		const probability = 0.3;
 		const acceptableDeviation = 0.2;

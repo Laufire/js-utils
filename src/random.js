@@ -21,19 +21,24 @@ const stringSeeds = {
  */
 const rndBetween = rb;
 
+/*
+	NOTE: To by-pass seed matching of predefined names, use them twice.
+	IE: 'charchar' instead of 'char'.
+*/
 /**
  * Get a random string from the pre-defined seed / custom string.
  * @param {integer} [8] length
  * @param {string} [char] seed
  * @returns { string} A random string.
  */
-const rndString = (length = 8, seed = 'char') => { // eslint-disable-line no-magic-numbers
-	// # NOTE: To by-pass seed matching of predefined names, use them twice. IE: 'charchar' instead of 'char'.
+// eslint-disable-next-line no-magic-numbers
+const rndString = (length = 8, seed = 'char') => {
 	const seedString = stringSeeds[seed] || seed;
 	const seedCharCount = seedString.length - 1;
 	let ret = '';
 
-	while(length--) // eslint-disable-line no-param-reassign
+	// eslint-disable-next-line no-param-reassign
+	while(length--)
 		ret += seedString.substr(rndBetween(0, seedCharCount), 1);
 
 	return ret;
@@ -72,7 +77,7 @@ const rndValueWeighted = (weights) => {
 };
 
 const withProb = (prob) => {
-	// #NOTE: Precision is not dynamic to avoid js floating point arithmetic.
+	// NOTE: Precision is not dynamic to avoid js floating point arithmetic.
 	const precision = 1000;
 	const inverse = (1 / prob * precision) - 1;
 

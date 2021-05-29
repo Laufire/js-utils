@@ -16,8 +16,8 @@ describe('Reflection', () => {
 	const fn = () => {};
 
 	/* Tests */
-	test('constructorName returns the constructor name '
-		+ 'of the given value', () => {
+	test('constructorName returns the constructor name'
+		+ ' of the given value', () => {
 		expect(constructorName(obj)).toEqual('Object');
 		expect(constructorName(arr)).toEqual('Array');
 	});
@@ -33,27 +33,27 @@ describe('Reflection', () => {
 		expect(isCollection).toEqual(isIterable);
 	});
 
-	test('isIterable returns true only when the given value '
-		+ 'is an Array or an Object', () => {
+	test('isIterable returns true only when the given value'
+		+ ' is an Array or an Object', () => {
 		expect(isIterable(obj)).toEqual(true);
 		expect(isIterable(arr)).toEqual(true);
 		expect(isIterable(fn)).toEqual(false);
 	});
 
-	test('isFunction returns true only when the given value '
-		+ 'is a Function', () => {
+	test('isFunction returns true only when the given value'
+		+ ' is a Function', () => {
 		expect(isFunction(obj)).toEqual(false);
 		expect(isFunction(fn)).toEqual(true);
 	});
 
-	test('isObject returns true only when the given value '
-		+ 'is an Object', () => {
+	test('isObject returns true only when the given value'
+		+ ' is an Object', () => {
 		expect(isObject(obj)).toEqual(true);
 		expect(isObject(arr)).toEqual(false);
 	});
 
-	test('isDefined returns false only when the given value '
-		+ 'is undefined', () => {
+	test('isDefined returns false only when the given value'
+		+ ' is undefined', () => {
 		expect(isDefined(undefined)).toEqual(false);
 		expect(isDefined(obj)).toEqual(true);
 	});

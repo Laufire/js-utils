@@ -18,18 +18,18 @@ describe('Predicates', () => {
 	const extendedCollection = { obj, cloned, extended };
 	const array = secure(shuffle(truthies.concat(falsies)));
 
-	test('isEqual returns a function to test value equality '
-		+ 'between the candidates.', () => {
+	test('isEqual returns a function to test value equality'
+		+ ' between the candidates.', () => {
 		expect(filter(collection, isEqual(obj))).toEqual(collection);
 	});
 
-	test('isSame returns a function to test referential equality '
-		+ 'between the candidates', () => {
+	test('isSame returns a function to test referential equality'
+		+ ' between the candidates', () => {
 		expect(filter(collection, isSame(obj)).obj).toBe(obj);
 	});
 
-	test('isPart returns a function to test the  '
-		+ 'between the candidates', () => {
+	test('isPart returns a function to test the '
+		+ ' between the candidates', () => {
 		expect(filter(collection, isPart(extended)).obj).toBe(obj);
 	});
 
@@ -64,20 +64,23 @@ describe('Predicates', () => {
 		expect(sortArray(array.filter(not(nothing)))).toEqual(sortArray(array));
 	});
 
-	test('and returns a function to test the candidates to pass '
-	+ 'all the given predicates.', () => {
+	test('and returns a function to test the candidates to pass'
+	+ ' all the given predicates.', () => {
 		expect(filter(collection, and(isSame(obj), isSame(cloned)))).toEqual({});
-		expect(filter(collection, and(isSame(obj), isEqual(cloned)))).toEqual({ obj });
+		expect(filter(collection, and(isSame(obj), isEqual(cloned))))
+			.toEqual({ obj });
 	});
 
-	test('or returns a function to test the candidates to pass '
-	+ 'at least one among multiple predicates.', () => {
-		expect(filter(collection, or(isSame(obj), isSame(cloned)))).toEqual(collection);
-		expect(filter(collection, or(isSame(extended), isEqual(extended)))).toEqual({});
+	test('or returns a function to test the candidates to pass'
+	+ ' at least one among multiple predicates.', () => {
+		expect(filter(collection, or(isSame(obj), isSame(cloned))))
+			.toEqual(collection);
+		expect(filter(collection, or(isSame(extended), isEqual(extended))))
+			.toEqual({});
 	});
 
-	test('onProp returns a function to test the given prop across candidates '
-	+ 'of a collection.', () => {
+	test('onProp returns a function to test the given prop across candidates'
+	+ ' of a collection.', () => {
 		expect(filter(collection, onProp('a', isEqual(1)))).toEqual(collection);
 		expect(filter(extendedCollection,
 			onProp('b', isEqual(2)))).toEqual({ extended });

@@ -5,9 +5,11 @@
 import { isDefined } from './reflection';
 
 const peek = (value, label) =>
-	(console.log(...isDefined(label) ? [label] : [], value), value); // eslint-disable-line no-console, no-sequences
+	// eslint-disable-next-line no-console, no-sequences
+	(console.log(...isDefined(label) ? [label] : [], value), value);
 
-const sleep = (ms = 1000) => // eslint-disable-line no-magic-numbers
+// eslint-disable-next-line no-magic-numbers
+const sleep = (ms = 1000) =>
 	new Promise((resolve) => setTimeout(resolve, ms));
 
 export {

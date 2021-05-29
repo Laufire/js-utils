@@ -1,10 +1,13 @@
 /**
 * Helper functions to deal with collections (collections).
 *
-* # ToDo
-* 	* Complete the doc comments.
-* # Notes
-* 	* Keys with undefined values are treated as non-existent, so to allow for simplicity.
+* Notes:
+* 	* Keys with undefined values are treated as non-existent,
+* 		so to allow for simplicity.
+*/
+
+/*
+TODO: Complete the doc comments.
 */
 
 import { isArray, isIterable, isObject } from './reflection';
@@ -14,31 +17,33 @@ import { ascending } from './sorters';
 const toArray = (value) => (isArray(value) ? value : [value]);
 const keyArray = (object) => (isArray(object)
 	? object.map(String)
-	: keys(object)); // eslint-disable-line no-use-before-define
+	: keys(object));
 const combineObjects = (base, extension) =>
 	(isArray(base) && isArray(extension)
 		? (base.push(...extension), base)
-		: (keys(extension).forEach((key) => { // eslint-disable-line no-use-before-define
+		: (keys(extension).forEach((key) => {
 			const child = base[key];
 			const childExtension = extension[key];
 
 			base[key] = isIterable(childExtension)
 				? isIterable(child)
 					? combineObjects(child, childExtension)
-					: clone(childExtension) // eslint-disable-line no-use-before-define
+					// eslint-disable-next-line no-use-before-define
+					: clone(childExtension)
 				: childExtension;
 		}), base)
 	);
 
 const mergeObjects = (base, extension) => 	{
-	keys(extension).forEach((key) => { // eslint-disable-line no-use-before-define
+	keys(extension).forEach((key) => {
 		const child = base[key];
 		const childExtension = extension[key];
 
 		base[key] = isIterable(childExtension)
 			? isIterable(child)
 				? mergeObjects(child, childExtension)
-				: clone(childExtension) // eslint-disable-line no-use-before-define
+				// eslint-disable-next-line no-use-before-define
+				: clone(childExtension)
 			: childExtension;
 	});
 
@@ -46,25 +51,31 @@ const mergeObjects = (base, extension) => 	{
 };
 
 const overlayObjects = (base, extension) => 	{
-	keys(extension).forEach((key) => { // eslint-disable-line no-use-before-define
+	keys(extension).forEach((key) => {
 		const child = base[key];
 		const childExtension = extension[key];
 
 		base[key] = isObject(childExtension)
 			? isObject(child)
 				? overlayObjects(child, childExtension)
-				: clone(childExtension) // eslint-disable-line no-use-before-define
+				// eslint-disable-next-line no-use-before-define
+				: clone(childExtension)
 			: childExtension;
 	});
 
 	return base;
 };
 
-const { freeze, preventExtensions, // eslint-disable-line id-length
-	seal } = Object; // eslint-disable-line id-match
+// eslint-disable-next-line id-length
+const { freeze, preventExtensions,
+	// eslint-disable-next-line id-match
+	seal } = Object;
 
 /* Exports */
-// #TODO: Decide whether keys on arrays should return numbers instead of strings.
+/*
+TODO: Decide whether keys on arrays should return numbers,
+	instead of strings.
+*/
 
 /**
  * Returns an empty container of the same type as the given collection.
@@ -85,11 +96,17 @@ const map = (collection, cb) => {
 	return ret;
 };
 
-// NOTE: The standard each implementation is avoided, it doesn't align with the principle of having a return value.
+/*
+NOTE: The standard each implementation is avoided, as it doesn't align -
+	with the principle of having a return value.
+*/
 const each = map;
 
 // An Array.filter like function for Objects.
-// #TODO: Try accommodating arrays. The issue is Object.keys works with sparse keys, unlike [].keys, which does with dense.
+/*
+TODO: Try accommodating arrays. The issue is that Object.keys works with
+	sparse keys, unlike [].keys, which does with dense.
+*/
 const filter = (obj, cb) => {
 	const ret = shell(obj);
 
@@ -129,13 +146,20 @@ const findKey = (collection, predicate) => {
 
 const findIndex = findKey;
 
-// Recursively passes all the primitives to the given callback.
+/*
+* Recursively passes all the primitives in the given collection
+* to the given callback.
+*/
 const traverse = (obj, cb) => map(obj, (value, key) =>
 	(isIterable(value) ? traverse(value, cb) : cb(value, key)));
 
-// Recursively passes all the props to the given callback.
+/*
+* Recursively passes all the props of the given collections
+* to the given callback.
+*/
 const walk = (obj, cb) => map(obj, (value, key) =>
-	(isIterable(value) && walk(value, cb), cb(value, key))); // eslint-disable-line no-sequences
+	// eslint-disable-next-line no-sequences
+	(isIterable(value) && walk(value, cb), cb(value, key)));
 
 const clone = (() => {
 	const cloneObj = (obj) => map(obj, clone);
@@ -185,29 +209,41 @@ const sanitize = (collection) =>
 
 const props = (obj, objProps) => objProps.map((prop) => obj[prop]);
 
-// #TODO: select uses key from objects and values from arrays streamline this. This would be a #BREAKING change. keyArray is the source for this confusion.
+/*
+TODO: select uses key from objects and values from arrays streamline this.
+	This would be a #BREAKING change. keyArray is the source for this confusion.
+*/
 const select = (collection, selector) => keyArray(selector)
 	.reduce((aggregate, prop) =>
 		(collection[prop] !== undefined
-			&& (aggregate[prop] = collection[prop]), aggregate), // eslint-disable-line no-sequences
+			// eslint-disable-next-line no-sequences
+			&& (aggregate[prop] = collection[prop]), aggregate),
 	shell(collection));
 
-// #TODO: omit uses key from objects and values from arrays streamline this. This would be a #BREAKING change. keyArray is the source for this confusion.
+/*
+TODO: omit uses key from objects and values from arrays streamline this.
+	This would be a #BREAKING change. keyArray is the source for this confusion.
+*/
 const omit = (obj, selector) => {
 	const propsToOmit = keyArray(selector);
 
 	return keys(obj).filter((prop) => !propsToOmit.includes(prop))
-		.reduce((aggregate, prop) => // eslint-disable-line no-return-assign
-			(aggregate[prop] = obj[prop], aggregate) // eslint-disable-line no-sequences
+		// eslint-disable-next-line no-return-assign
+		.reduce((aggregate, prop) =>
+			// eslint-disable-next-line no-sequences
+			(aggregate[prop] = obj[prop], aggregate)
 		, shell(obj));
 };
 
 /**
- * Gathers the given props from the children of the given collection, as a collection.
+ * Gathers the given props from the children of the given collection,
+ * as a collection.
  * @param {*} collection The collection to collect the values from.
- * @param {...any} props The props to collect from the children of the collection.
+ * @param {...any} props The props to collect from the children
+ * of the collection.
  */
-const gather = (collection, ...props) => { // eslint-disable-line no-shadow
+// eslint-disable-next-line no-shadow
+const gather = (collection, ...props) => {
 	const propShell = shell(collection);
 	const ret = shell(values(collection)[0]);
 
@@ -223,18 +259,21 @@ const gather = (collection, ...props) => { // eslint-disable-line no-shadow
 };
 
 /**
- * Picks the given prop from the children of the given collection, as a collection.
+ * Picks the given prop from the children of the given collection,
+ * as a collection.
  * @param {*} collection The collection to collect the values from.
  * @param {any} props The props to collect from the children of the collection.
  */
-const pick = (collection, prop) => // eslint-disable-line no-shadow
+const pick = (collection, prop) =>
 	gather(collection, prop)[prop];
 
-// #TODO: Fix the description.
+// TODO: Fix the description.
 /**
- * Spreads the children of given seeds collection into the given base collection.
+ * Spreads the children of given seeds collection into
+ * the given base collection.
  * @param {collection} base The collection to collect the values from.
- * @param {collection} seeds The seeds collection from where the props are spread.
+ * @param {collection} seeds The seeds collection from where
+ * the props are spread.
  */
 const spread = (base, seeds) =>
 	map(seeds, (propValues, targetProp) =>
@@ -242,8 +281,10 @@ const spread = (base, seeds) =>
 			(base[targetKey][targetProp] = value))) && base;
 
 /**
- * Combines multiple objects and their descendants with the given base object. When immutability is required, a shell could be passed as the base object.
- * @param {collection} base The base collection on which the extensions would be combined to.
+ * Combines multiple objects and their descendants with the given base object.
+ * When immutability is required, a shell could be passed as the base object.
+ * @param {collection} base The base collection on which
+ * the extensions would be combined to.
  * @param {...collection} extensions The extensions to be combined.
  */
 const combine = (base, ...extensions) =>
@@ -251,27 +292,32 @@ const combine = (base, ...extensions) =>
 		extension !== undefined && combineObjects(base, extension)) || base;
 
 /**
- * Merges multiple objects and their descendants with to the given base object. When immutability is required, a shell could be passed as the base object.
- * @param {collection} base The base collection on which the extensions would be overlaid to.
- * @param {...collection} extensions The extensions to be overlaid.
+ * Merges multiple objects and their descendants with to the given base object.
+ * When immutability is required, a shell could be passed as the base object.
+ * @param {collection} base The base collection on which
+ * the extensions would be merged to.
+ * @param {...collection} extensions The extensions to be merged.
  */
 const merge = (base, ...extensions) =>
 	extensions.forEach((extension) =>
 		extension !== undefined && mergeObjects(base, extension)) || base;
 
 /**
- * Overlays multiple objects and their descendants with to the given base object. When immutability is required, a shell could be passed as the base object.
- * @param {collection} base The base collection on which the extensions would be merged to.
- * @param {...collection} extensions The extensions to be merged.
+ * Overlays multiple objects and their descendants with the given base object.
+ * When immutability is required, a shell could be passed as the base object.
+ * @param {collection} base The base collection on which
+ * the extensions would be overlaid to.
+ * @param {...collection} extensions The extensions to be overlaid.
  */
 const overlay = (base, ...extensions) =>
 	extensions.forEach((extension) =>
 		extension !== undefined && overlayObjects(base, extension)) || base;
 
-// #TODO: Maintain the key order, similar to merge.
+// TODO: Maintain the key order, similar to merge.
 /**
  * Fills the missing properties of the given base from those of the extensions.
- * @param {collection} base The base collection on which the extensions would be filled.
+ * @param {collection} base The base collection on which
+ * the extensions would be filled.
  * @param {...collection} extensions The extensions with properties to fill.
  */
 const fill = (base, ...extensions) =>
@@ -285,9 +331,12 @@ const squash = (...objects) =>
 		[...aggregate, ...toArray(value)], []));
 
 /**
- * Retrieves the value, notified by a path, from a nested map. Slashes are used as the separator for readability. Starting paths with a slash yields better accuracy.
+ * Retrieves the value, notified by a path, from a nested map.
+ * Slashes are used as the separator for readability.
+ * Starting paths with a slash yields better accuracy.
  * @param {collection} obj The collection to look into.
- * @param {string} path The path to look for. Slash is the separator. And backslash is the escape char.
+ * @param {string} path The path to look for. Slash is the separator.
+ * And backslash is the escape char.
  * @returns {*} The value from the path or undefined.
  */
 const result = (() => {
@@ -318,7 +367,11 @@ const flip = (obj) => {
 	return ret;
 };
 
-// Converts a one-to-many map (an object of array values) as an one-to-one inverted map, to ease reverse lookups. IE: {'a': ['b', 'c']} => {'b': 'a', 'c': 'a'}.
+/*
+Converts a one-to-many map (an object of array values)
+as an one-to-one inverted map, to ease reverse lookups.
+IE: {'a': ['b', 'c']} => {'b': 'a', 'c': 'a'}.
+*/
 const flipMany = (obj) => {
 	const ret = {};
 
@@ -407,7 +460,8 @@ const adopt = (base, ...extensions) =>
 		each(extension, (value, key) => (base[key] = value)));
 
 const range = (
-	start = 0, end = 9, step = 1 // eslint-disable-line no-magic-numbers
+	// eslint-disable-next-line no-magic-numbers
+	start = 0, end = 9, step = 1
 ) =>
 	Array.from({ length: (end - start + 1) / step },
 		(dummy, i) => (i * step) + start);
@@ -425,11 +479,15 @@ const shuffle = (collection) => {
 		newIxs.push(ixs.splice(rndBetween(0, ixs.length - 1), 1)[0]);
 
 	return newIxs.reduce(isArray(collection)
-		? ( // eslint-disable-line no-return-assign
+		// eslint-disable-next-line no-return-assign
+		? (
 			t, c, i
-		) => (t[i] = collection[c], t) // eslint-disable-line no-sequences
-		: (t, c) => // eslint-disable-line no-return-assign
-			(t[c] = collection[c], t), // eslint-disable-line no-sequences
+		// eslint-disable-next-line no-sequences
+		) => (t[i] = collection[c], t)
+		// eslint-disable-next-line no-return-assign
+		: (t, c) =>
+			// eslint-disable-next-line no-sequences
+			(t[c] = collection[c], t),
 	shell(collection));
 };
 

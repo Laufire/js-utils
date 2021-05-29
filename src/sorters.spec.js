@@ -1,5 +1,6 @@
 /* Tested */
-import { ascending, compile, descending, existing, onProp, reverse } from './sorters';
+import { ascending, compile, descending, existing,
+	onProp, reverse } from './sorters';
 
 /* Helpers */
 import { map, range, secure, shuffle, sort, translate } from './collection';
@@ -31,8 +32,8 @@ describe('Sorters', () => {
 		expect(sort(shuffled, reverse)).toEqual(shuffled.slice().reverse());
 	});
 
-	test('onProp sorts the given collection with the given sorter '
-	+ 'on a given property.', () => {
+	test('onProp sorts the given collection with the given sorter'
+	+ ' on a given property.', () => {
 		expect(sort(objArrayShuffled, onProp('prop', ascending)))
 			.toEqual(objArray);
 	});

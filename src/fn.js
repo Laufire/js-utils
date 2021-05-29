@@ -6,10 +6,12 @@
 import { hasSame } from './collection';
 
 const cache = (fn, qualifier = hasSame) => {
-	let result; // eslint-disable-line init-declarations
+	// eslint-disable-next-line init-declarations
+	let result;
 	let prevArgs = [];
 
-	return (...args) => // eslint-disable-line no-return-assign
+	// eslint-disable-next-line no-return-assign
+	return (...args) =>
 		(qualifier(args, prevArgs) && result !== undefined
 			? result
 			: (prevArgs = args, result = fn(...args)));

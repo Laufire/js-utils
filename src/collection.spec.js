@@ -1,13 +1,16 @@
-// # NOTE: The reason for importing the modules, the old-school way is to ensure that, the downstream dependencies aren't affected.
-// # NOTE: Immutability is tested implicitly, by preventing mutations the mock objects.
+// NOTE: The reason for importing the modules, the old-school way
+//	is to ensure that, the downstream dependencies aren't affected.
+// NOTE: Immutability is tested implicitly, by preventing
+//	mutations the mock objects.
 
 /* Tested */
 import {
-	adopt, shares, clean, clone, compose, combine, contains, dict, diff, each, entries, equals,
-	find, findIndex, findKey, fill, filter, flip, flipMany, fromEntries, gather, has, hasSame,
-	index, map, merge, overlay, patch, pick, omit, props, range, reduce, rename,  result,
-	sanitize, secure, select, shell, shuffle, spread, sort, squash, translate, traverse,
-	walk, values,
+	adopt, shares, clean, clone, compose, combine, contains, dict, diff,
+	each, entries, equals, find, findIndex, findKey, fill, filter, flip,
+	flipMany, fromEntries, gather, has, hasSame, index, map, merge, overlay,
+	patch, pick, omit, props, range, reduce, rename,  result,
+	sanitize, secure, select, shell, shuffle, spread, sort, squash,
+	translate, traverse, walk, values,
 } from './collection';
 
 /* Helpers */
@@ -78,7 +81,8 @@ describe('Collection', () => {
 	const stitch = (val, key) => key + val;
 
 	/* Tests */
-	test('shell returns an empty container of the same type as the given iterable', () => {
+	test('shell returns an empty container of the same type'
+	+ ' as the given iterable', () => {
 		expect(shell(simpleObj)).toEqual({});
 		expect(shell(simpleArray)).toEqual([]);
 	});
@@ -99,8 +103,8 @@ describe('Collection', () => {
 		expect(map).toEqual(each);
 	});
 
-	test('map works with all the properties of the object '
-	+ 'and builds a new object', () => {
+	test('map works with all the properties of the object'
+	+ ' and builds a new object', () => {
 		expect(map(simpleObj, stitch)).toEqual({
 			a: 'a1',
 			b: 'b2',
@@ -111,7 +115,7 @@ describe('Collection', () => {
 		expect(map([1, 2], stitch)).toEqual(['01', '12']);
 	});
 
-	test('filter filters the properties of the given iterable using '
+	test('filter filters the properties of the given iterable using'
 	+ ' the passed filter function', () => {
 		expect(filter(simpleObj, getPredicate(1))).toEqual({
 			a: 1,
@@ -125,8 +129,8 @@ describe('Collection', () => {
 		expect(reduce(simpleArray, product, 1)).toEqual(2);
 	});
 
-	test('traverse recursively traverses through a given object and '
-	+ 'builds a new object from its primitives', () => {
+	test('traverse recursively traverses through a given object and'
+	+ ' builds a new object from its primitives', () => {
 		expect(traverse(nestedObj, stitch)).toEqual({
 			a: 'a1',
 			b: 'b2',
@@ -145,8 +149,8 @@ describe('Collection', () => {
 		expect(has(simpleArray, 0)).toEqual(false);
 	});
 
-	test('walk recursively walks through a given object and '
-	+ 'builds a new object from its primitives and iterables', () => {
+	test('walk recursively walks through a given object and'
+	+ ' builds a new object from its primitives and iterables', () => {
 		const classify = (value) => typeof value;
 		expect(walk(nestedObj, classify)).toEqual({
 			a: 'number',
@@ -161,8 +165,8 @@ describe('Collection', () => {
 		expect(cloned).toEqual(complexObject);
 	});
 
-	test('squash squashes objects and object lists '
-	+ 'to a single object', () => {
+	test('squash squashes objects and object lists'
+	+ ' to a single object', () => {
 		const squashed = squash(
 			{ a: 1 }, [{ b: 2 }], { c: 3 }
 		);
@@ -233,7 +237,8 @@ describe('Collection', () => {
 		expect(overlaid.primitiveOverlay).toEqual(simpleObj);
 		expect(topLevelBase.iterableOverlay).toEqual(simpleObj);
 		expect(overlaid.complexArray === topLevel.complexArray).toEqual(true);
-		expect(overlaid.complexArray.innerArray === topLevel.complexArray.innerArray).toEqual(true);
+		expect(overlaid.complexArray.innerArray ===
+			topLevel.complexArray.innerArray).toEqual(true);
 	});
 
 	test('combine combines multiple objects into one', () => {
@@ -306,7 +311,8 @@ describe('Collection', () => {
 		expect(combine([0, 1], [1])).toEqual([0, 1, 1]);
 	});
 
-	test('fill fills the missing properties of the given base from those of the extensions', () => {
+	test('fill fills the missing properties of the given base'
+	+ ' from those of the extensions', () => {
 		const baseProp = Symbol('baseProp');
 		const underlayProp = Symbol('underlayProp');
 		const overlayProp = Symbol('overlayProp');
@@ -332,8 +338,8 @@ describe('Collection', () => {
 		});
 	});
 
-	test('flipMany builds an one-to-one inverted mapping of '
-	+ 'a many to one object', () => {
+	test('flipMany builds an one-to-one inverted mapping of'
+	+ ' a many to one object', () => {
 		const oneToMany = {
 			a: [1, 2],
 		};
@@ -345,16 +351,16 @@ describe('Collection', () => {
 		expect(flipMany(oneToMany)).toEqual(invertedOneToOne);
 	});
 
-	test('translate gives the translation of the source based '
-	+ 'on a translation map', () => {
+	test('translate gives the translation of the source based'
+	+ ' on a translation map', () => {
 		const translationMap = { welcome: "hello", farewell: "bye" };
 		const data = { hola: "welcome" };
 
 		expect(translate(data, translationMap)).toEqual({ "hola" : "hello" });
 	});
 
-	test('rename renames the source keys based on '
-	+ 'the given rename map', () => {
+	test('rename renames the source keys based on'
+	+ ' the given rename map', () => {
 		const data = { length: 1, breadth: 2 };
 		const renameMap = { length: "depth" };
 
@@ -365,46 +371,48 @@ describe('Collection', () => {
 		expect(fromEntries(entries(simpleObj))).toEqual(simpleObj);
 	});
 
-	test('props returns an array of values for the given properties '
-	+ 'from the given object', () => {
+	test('props returns an array of values for the given properties'
+	+ ' from the given object', () => {
 		expect(props(simpleObj, ['a', 'b'])).toEqual([1, 2]);
 	});
 
-	test('select returns a sub-object of the given object, '
-	+ 'with the given array of properties', () => {
+	test('select returns a sub-object of the given object,'
+	+ ' with the given array of properties', () => {
 		expect(select(simpleObj, ['a'])).toEqual({ a: 1 });
 	});
 
-	test('select returns a sub-object of the given object, ' // #BREAKING: Treat objects and arrays similarly.
-	+ 'with the properties in the given selector object', () => {
+	// #BREAKING: Treat objects and arrays similarly.
+	test('select returns a sub-object of the given object,'
+	+ ' with the properties in the given selector object', () => {
 		expect(select(simpleObj, {
 			a: 'some-thing',
 			keyNotInSource: 'some value',
 		})).toEqual({ a: 1 });
 	});
 
-	test('select returns a sub-array of the given array, '
-	+ 'with the given array of properties', () => {
+	test('select returns a sub-array of the given array,'
+	+ ' with the given array of properties', () => {
 		expect(select(simpleArray, [0])).toEqual([1]);
 	});
 
-	test('omit returns a sub-object of the given object, '
-	+ 'without the given array of properties', () => {
+	test('omit returns a sub-object of the given object,'
+	+ ' without the given array of properties', () => {
 		expect(omit(simpleObj, ['a'])).toEqual({ b: 2 });
 	});
 
-	test('omit returns a sub-object of the given object, ' // #BREAKING: Treat objects and arrays similarly.
-	+ 'without the properties in the given selector object', () => {
+	// #BREAKING: Treat objects and arrays similarly.
+	test('omit returns a sub-object of the given object,'
+	+ ' without the properties in the given selector object', () => {
 		expect(omit(simpleObj, { a: 'some-thing' })).toEqual({ b: 2 });
 	});
 
-	test('omit returns a sub-array of the given array, '
-	+ 'without the given array of properties', () => {
+	test('omit returns a sub-array of the given array,'
+	+ ' without the given array of properties', () => {
 		expect(clean(omit(simpleArray, [0]))).toEqual([2]);
 	});
 
-	test('result returns the value for the given simple path '
-	+ 'or escaped path', () => {
+	test('result returns the value for the given simple path'
+	+ ' or escaped path', () => {
 		expect(result(complexObject, 'single')).toEqual(complexObject.single);
 		expect(result(complexObject, '/single')).toEqual(complexObject.single);
 		expect(result(complexObject, 'parent/child'))
@@ -419,9 +427,9 @@ describe('Collection', () => {
 		expect(result(complexObject, '')).toEqual(complexObject);
 	});
 
-	test('compose returns an object from a list of objects, '
-	+ 'with only keys from the first object and the values from '
-	+ 'the objects , with a ascending priority', () => {
+	test('compose returns an object from a list of objects,'
+	+ ' with only keys from the first object and the values from'
+	+ ' the objects , with a ascending priority', () => {
 		expect(compose(
 			{ a: 1, b: 2, c: 3 },
 			{ a: 2, b: 3 },
@@ -433,8 +441,8 @@ describe('Collection', () => {
 		});
 	});
 
-	test('patch creates a new variation of a baseObject based on '
-	+ 'the given extension, while preserving them both', () => {
+	test('patch creates a new variation of a baseObject based on'
+	+ ' the given extension, while preserving them both', () => {
 		const extension = { b: 3 };
 
 		expect(patch(simpleObj, extension)).toEqual({
@@ -446,8 +454,8 @@ describe('Collection', () => {
 		expect(extension).toEqual({ b: 3 });
 	});
 
-	test('diff returns the difference between a baseObject '
-	+ 'and a comparedObject', () => {
+	test('diff returns the difference between a baseObject'
+	+ ' and a comparedObject', () => {
 		const difference = diff(baseObject, comparedObject);
 
 		expect(difference).toEqual({
@@ -493,8 +501,8 @@ describe('Collection', () => {
 		map(actions, (action) => expect(action).toThrow());
 	});
 
-	test('contains tests the base object contains '
-	+ 'the compared object', () => {
+	test('contains tests the base object contains'
+	+ ' the compared object', () => {
 		expect(contains(1, 1)).toBe(true);
 		expect(contains(1, 0)).toBe(false);
 		expect(contains(complexObject, clone(complexObject))).toBe(true);
@@ -503,7 +511,7 @@ describe('Collection', () => {
 	});
 
 	test('equals tests the value equality of primitives and'
-	+ 'complex objects', () => {
+	+ ' complex objects', () => {
 		expect(equals(1, 1)).toBe(true);
 		expect(equals(1, 0)).toBe(false);
 		expect(equals(complexObject, clone(complexObject))).toBe(true);
@@ -511,15 +519,16 @@ describe('Collection', () => {
 		expect(equals({}, simpleObj)).toBe(false);
 	});
 
-	test('hasSame tests the given collections for having the same children', () => {
+	test('hasSame tests the given collections for having'
+	+ ' the same children', () => {
 		expect(hasSame(complexArray, [...complexArray])).toBe(true);
 		expect(hasSame(complexObject, {...complexObject})).toBe(true);
 		expect(hasSame(complexArray, clone(complexArray))).toBe(false);
 		expect(hasSame(complexObject, clone(complexObject))).toBe(false);
 	});
 
-	test('gather gathers the given props from the children '
-	+ 'of the given iterable, as an iterable', () => {
+	test('gather gathers the given props from the children'
+	+ ' of the given iterable, as an iterable', () => {
 		const arrayOfObjects = secure([
 			{ a: 1, b: 2 },
 			{ a: 2, b: 1 },
@@ -528,15 +537,16 @@ describe('Collection', () => {
 		const objectOfArrays = secure({
 			a: [1, 2],
 			b: [2, 1],
-			c: [undefined, undefined, 3], // Arrays do hold references to undefined values, to preserve indices.
+			c: [undefined, undefined, 3],
+			// Arrays do hold references to undefined values, to preserve indices.
 		});
 
 		expect(gather(arrayOfObjects, 'a', 'b', 'c')).toEqual(objectOfArrays);
 		expect(gather(objectOfArrays, 0, 1, 2)).toEqual(arrayOfObjects);
 	});
 
-	test('pick picks the given prop from the children of the given iterable, '
-	+ 'as an iterable', () => {
+	test('pick picks the given prop from the children of the given iterable,'
+	+ ' as an iterable', () => {
 		const arrayOfObjects = secure([
 			{ a: 1 },
 			{ a: 2, b: 3 },
@@ -546,8 +556,8 @@ describe('Collection', () => {
 		expect(pick(arrayOfObjects, 'a')).toEqual([1, 2]);
 	});
 
-	test('spread spreads the children of given iterable ' // #TODO: Fix the description.
-	+ 'into the base iterable', () => {
+	test('spread spreads the children of given iterables'
+	+ ' into the base iterable', () => {
 		const base = { a: {}, b: {} };
 		const seeds = secure({
 			prop1: { a: 1, b: 2 },
@@ -577,14 +587,16 @@ describe('Collection', () => {
 		});
 	});
 
-	test('find finds the first element from the collection chose by the predicate', () => {
+	test('find finds the first element from the collection chose '
+	+ ' by the predicate', () => {
 		expect(find(simpleObj, getPredicate(2))).toBe(2);
 		expect(find(simpleObj, getPredicate(3))).toBeUndefined();
 		expect(find(simpleArray, getPredicate(2))).toBe(2);
 		expect(find(simpleArray, getPredicate(3))).toBeUndefined();
 	});
 
-	test('findKey finds the key of first element from the collection chose by the predicate', () => {
+	test('findKey finds the key of first element from the collection chosen'
+	+ ' by the predicate', () => {
 		expect(findKey(simpleObj, getPredicate(2))).toBe('b');
 		expect(findKey(simpleObj, getPredicate(3))).toBeUndefined();
 		expect(findKey(simpleArray, getPredicate(2))).toBe('1');
@@ -595,7 +607,8 @@ describe('Collection', () => {
 		expect(findIndex).toBe(findKey);
 	});
 
-	test('range returns an array with the given start end and the step values', () => {
+	test('range returns an array of numbers with the given start, end'
+	+ ' and step values', () => {
 		const start = rndBetween(5, 9);
 		const end = rndBetween(5, 9) + start;
 		const step = rndBetween(1, 3);
@@ -621,8 +634,8 @@ describe('Collection', () => {
 		expect(result[length - 1]).toBe(start + (length - 1) * step);
 	});
 
-	test('shares tests whether the given objects share the same value '
-	+ 'on a given property', () => {
+	test('shares tests whether the given objects share the same value'
+	+ ' on a given property', () => {
 		expect(shares(simpleObj, nestedObj, 'a')).toBe(true);
 		expect(shares(simpleObj, complexObject, 'a')).toBe(false);
 	});
