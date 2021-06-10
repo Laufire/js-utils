@@ -6,20 +6,13 @@ import { isEqual, isSame, isPart, doesShare,
 } from './predicates';
 
 /* Helpers */
-import { clone, filter, keys, secure, shuffle } from './collection';
-import { truthies, falsies, sortArray } from "../test/helpers";
+import { filter, keys } from './collection';
+import { truthies, falsies, array, obj, cloned, extended, collection, extendedCollection, sortArray } from "../test/helpers";
 
 /* Spec */
 describe('Predicates', () => {
 	/* Mocks and Stubs */
-	const obj = secure({
-		a: 1,
-	});
-	const cloned = secure(clone(obj));
-	const collection = { obj, cloned };
-	const extended = secure({ ...obj, b: 2 });
-	const extendedCollection = { obj, cloned, extended };
-	const array = secure(shuffle(truthies.concat(falsies)));
+
 
 	test('isEqual returns a function to test value equality'
 		+ ' between the candidates.', () => {
@@ -28,12 +21,12 @@ describe('Predicates', () => {
 
 	test('isSame returns a function to test referential equality'
 		+ ' between the candidates', () => {
-		expect(filter(collection, isSame(obj)).obj).toBe(obj);
+		expect(filter(collection, isSame(collection.obj)).obj).toBe(collection.obj);
 	});
 
 	test('isPart returns a function to test the '
 		+ ' between the candidates', () => {
-		expect(filter(collection, isPart(extended)).obj).toBe(obj);
+		expect(filter(collection, isPart(extended)).obj).toBe(collection.obj);
 	});
 
 	test('isPart is an alias for doesShare', () => {
@@ -97,7 +90,7 @@ describe('Predicates', () => {
 	+ ' of a collection.', () => {
 		expect(filter(collection, onProp('a', isEqual(1)))).toEqual(collection);
 		expect(filter(extendedCollection,
-			onProp('b', isEqual(2)))).toEqual({ extended });
+			onProp('d', isEqual(4)))).toEqual({ extended });
 	});
 
 	describe('Generators pass all available arguments to the given predicates.', () => {

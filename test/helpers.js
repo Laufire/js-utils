@@ -1,3 +1,5 @@
+import { clone, secure, shuffle } from '../src/collection';
+
 /* Config */
 const defaults = {
 	retryCount: 1000,
@@ -7,6 +9,13 @@ const defaults = {
 /* Data */
 const truthies = [1, '2', true, [], {}];
 const falsies = [0, '', false, undefined, null];
+const obj = secure({ a: 1, b: 2, c: 3 });
+const cloned = secure(clone(obj));
+const extension = secure({ d: 4 });
+const collection = { obj, cloned };
+const extended = secure({ ...obj, ...extension });
+const extendedCollection = { obj, cloned, extended };
+const array = secure(shuffle(truthies.concat(falsies)));
 
 /* Functions */
 const sortArray = (arr) => arr.slice().sort();
@@ -27,7 +36,8 @@ const strSubSet = (superStr, tested) =>
 	tested.split('').findIndex((char) => !(superStr.indexOf(char) > -1)) === -1;
 
 export {
-	truthies, falsies,
+	truthies, falsies, array,
+	obj, cloned, extension, extended, collection, extendedCollection,
 	sortArray, getPredicate,
 	retry, strSubSet,
 };
