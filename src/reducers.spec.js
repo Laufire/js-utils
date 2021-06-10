@@ -1,14 +1,14 @@
 /* Tested */
-import { avg, count, len, max, min, product, sum } from './reducers';
+import { avg, count, len, max, min, product, reducer, sum } from './reducers';
 
 /* Helpers */
-import { reduce, secure } from './collection';
+import { merge, reduce, secure } from './collection';
 import { values } from './lib';
+import { obj, extension, extended } from "../test/helpers";
 
 /* Spec */
 describe('Reducers', () => {
 	/* Mocks and Stubs */
-	const obj = secure({ a: 1, b: 2, c: 3 });
 	const array = secure(values(obj));
 
 	test('sum sums the given candidates.', () => {
@@ -45,5 +45,9 @@ describe('Reducers', () => {
 	test('max finds the largest of the given candidates.', () => {
 		expect(reduce(obj, max, 100)).toEqual(100);
 		expect(reduce(array, max)).toEqual(3);
+	});
+
+	test('reducer derives reducers from relevant collection  functions.', () => {
+		expect(reduce([obj, extension], reducer(merge), {})).toEqual(extended);
 	});
 });
