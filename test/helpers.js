@@ -14,6 +14,7 @@ const cloned = secure(clone(obj));
 const extension = secure({ d: 4 });
 const collection = { obj, cloned };
 const extended = secure({ ...obj, ...extension });
+const isolated = secure({ z: 26 });
 const extendedCollection = { obj, cloned, extended };
 const array = secure(shuffle(truthies.concat(falsies)));
 
@@ -37,7 +38,7 @@ const strSubSet = (superStr, tested) =>
 
 export {
 	truthies, falsies, array,
-	obj, cloned, extension, extended, collection, extendedCollection,
+	obj, cloned, extension, extended, isolated, collection, extendedCollection,
 	sortArray, getPredicate,
 	retry, strSubSet,
 };
