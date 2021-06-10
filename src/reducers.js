@@ -22,6 +22,13 @@ const min = (t, c) => (t < c ? t : c);
 
 const max = (t, c) => (t > c ? t : c);
 
+/**
+ * A function to derive reducers from collection functions like merge,
+ * compose, squash and adopt.
+ */
+// LATER: Rename the function to highlight the use of underlying collection.
+const reducer = (fn) => (t, c) => fn(t, c);
+
 export {
 	sum,
 	product,
@@ -30,4 +37,5 @@ export {
 	count,
 	min,
 	max,
+	reducer,
 };

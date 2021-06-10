@@ -53,6 +53,8 @@
 
 * Test for and improve performance.
 
+* Rename the functions for readability, ease of recollection and to be semantic.
+
 ## Gotchas
 
 * Object keys maintain a chronological order, unless they are integers. In which case they are added to the beginning in an ascending order.
