@@ -42,9 +42,20 @@ const or = (...predicates) => (right, ...rest) =>
 const onProp = (prop, predicate) =>
 	(right, ...rest) => predicate(right[prop], ...rest);
 
+/**
+ * A function to derive predicates from collection functions like equals,
+ * contains, has, shares, etc.
+ */
+const predicate = (
+	fn, left, ...rest
+) => (right) => fn(
+	right, left, ...rest
+);
+
 export {
 	isEqual, isSame, isPart, doesContain,
 	truthy, falsy, everything, nothing,
 	first, unique,
 	not, and, or, onProp,
+	predicate,
 };
