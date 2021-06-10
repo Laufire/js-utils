@@ -3,11 +3,13 @@ import { isEqual, isSame, isPart, doesContain,
 	truthy, falsy, everything, nothing,
 	first, unique,
 	not, or, and, onProp,
+	predicate,
 } from './predicates';
 
 /* Helpers */
-import { filter, keys } from './collection';
-import { truthies, falsies, array, obj, cloned, extended, isolated,
+import { contains, equals, filter, keys, shares } from './collection';
+import { truthies, falsies, array,
+	obj, cloned, extension, extended, isolated,
 	collection, extendedCollection, sortArray } from "../test/helpers";
 
 /* Spec */
@@ -59,7 +61,7 @@ describe('Predicates', () => {
 		expect(unique).toBe(first);
 	});
 
-	test('not returns the negated version of the given predicate.', () => {
+	test('not returns the inverse of the given predicate.', () => {
 		expect(filter(collection, not(isEqual(obj)))).not.toEqual(collection);
 		expect(filter(collection, not(isSame(obj))).obj).not.toBe(obj);
 		expect(filter(collection, not(isPart(extended))).obj).not.toBe(obj);
@@ -115,5 +117,17 @@ describe('Predicates', () => {
 
 			expect(predicate).toHaveBeenCalledWith(obj[prop], 'obj', collection);
 		});
+	});
+
+	test('predicate derives predicates from relevant '
+	+ 'collection functions.', () => {
+		expect(filter(extendedCollection, predicate(equals, extended)))
+			.toEqual({ extended });
+
+		expect(filter(extendedCollection, predicate(contains, extension)))
+			.toEqual({ extended });
+
+		expect(filter(extendedCollection, predicate(shares, extension, 'd')))
+			.toEqual({ extended });
 	});
 });
