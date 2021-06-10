@@ -55,6 +55,10 @@
 
 * Rename the functions for readability, ease of recollection and to be semantic.
 
+* Try avoiding duplicate names across modules.
+
+* Try to build synthesis with al-js.
+
 ## Gotchas
 
 * Object keys maintain a chronological order, unless they are integers. In which case they are added to the beginning in an ascending order.
