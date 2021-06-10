@@ -1,6 +1,9 @@
 /* Tested */
-import { isEqual, isSame, isPart, doesShare, not,
-	truthy, falsy, everything, nothing, onProp, or, and } from './predicates';
+import { isEqual, isSame, isPart, doesShare,
+	truthy, falsy, everything, nothing,
+	first, unique,
+	not, or, and, onProp,
+} from './predicates';
 
 /* Helpers */
 import { clone, filter, keys, secure, shuffle } from './collection';
@@ -39,10 +42,12 @@ describe('Predicates', () => {
 
 	test('truthy tests for truthy values', () => {
 		expect(sortArray(array.filter(truthy))).toEqual(sortArray(truthies));
+		expect(sortArray(falsies.filter(truthy))).toEqual([]);
 	});
 
 	test('falsy tests for falsy values', () => {
 		expect(sortArray(array.filter(falsy))).toEqual(sortArray(falsies));
+		expect(sortArray(truthies.filter(falsy))).toEqual([]);
 	});
 
 	test('everything allows everything through the filter.', () => {
@@ -51,6 +56,15 @@ describe('Predicates', () => {
 
 	test('nothing allows nothing through the filter.', () => {
 		expect(sortArray(array.filter(nothing))).toEqual([]);
+	});
+
+	test('first tests for the first occurrence of the element in '
+	+ 'the collection.', () => {
+		expect(truthies.concat(truthies).filter(first)).toEqual(truthies);
+	});
+
+	test('unique is an alias of first.', () => {
+		expect(unique).toBe(first);
 	});
 
 	test('not returns the negated version of the given predicate.', () => {
