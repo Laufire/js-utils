@@ -1,5 +1,5 @@
 /* Tested */
-import { avg, count, max, min, product, sum } from './reducers';
+import { avg, count, len, max, min, product, sum } from './reducers';
 
 /* Helpers */
 import { reduce, secure } from './collection';
@@ -26,9 +26,15 @@ describe('Reducers', () => {
 		expect(reduce(array, avg, 0)).toEqual(2);
 	});
 
-	test('count counts the given candidates.', () => {
-		expect(reduce(obj, count, 0)).toEqual(3);
-		expect(reduce(array, count, 0)).toEqual(3);
+	test('length returns the length of the given collection.', () => {
+		expect(reduce(obj, len, 0)).toEqual(3);
+		expect(reduce(array, len, 0)).toEqual(3);
+	});
+
+	test('count returns the number of occurrences of the given counted'
+	+ 'among the  given candidates.', () => {
+		expect(reduce(obj, count(1), 0)).toEqual(1);
+		expect(reduce(array, count(0), 0)).toEqual(0);
 	});
 
 	test('min finds the smallest of the given candidates.', () => {

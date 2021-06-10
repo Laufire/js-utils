@@ -1,8 +1,5 @@
 /**
  * A set of functions and partials to be used with reducers.
- *
- * NOTE: Some collection functions like merge, compose, squash,
- * adopt, etc work well with reducers.
  */
 
 import { keys } from './lib';
@@ -16,7 +13,10 @@ const avg = (
 ) =>
 	t + (c / keys(collection).length);
 
-const count = (t) => t + 1;
+const len = (t) => t + 1;
+
+const count = (value) =>
+	(t, c) => t + (c === value ? 1 : 0);
 
 const min = (t, c) => (t < c ? t : c);
 
@@ -26,6 +26,7 @@ export {
 	sum,
 	product,
 	avg,
+	len,
 	count,
 	min,
 	max,
