@@ -1,5 +1,5 @@
 /* Tested */
-import { isEqual, isSame, isPart, doesShare,
+import { isEqual, isSame, isPart, doesContain,
 	truthy, falsy, everything, nothing,
 	first, unique,
 	not, or, and, onProp,
@@ -29,7 +29,7 @@ describe('Predicates', () => {
 	});
 
 	test('isPart is an alias for doesShare', () => {
-		expect(isPart).toBe(doesShare);
+		expect(isPart).toBe(doesContain);
 	});
 
 	test('truthy tests for truthy values', () => {
