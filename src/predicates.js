@@ -4,6 +4,7 @@
  */
 
 import { equals, find, shares } from './collection';
+import { values } from './lib';
 import { isDefined } from './reflection';
 
 /* Exports */
@@ -23,6 +24,12 @@ const everything = () => true;
 
 const nothing = () => false;
 
+const first = (
+	value, i, collection
+) => values(collection).indexOf(value) === i;
+
+const unique = first;
+
 /* Generators */
 const not = (predicate) => (right, ...rest) => !predicate(right, ...rest);
 
@@ -37,6 +44,7 @@ const onProp = (prop, predicate) =>
 
 export {
 	isEqual, isSame, isPart, doesShare,
-	not, and, or, onProp,
 	truthy, falsy, everything, nothing,
+	first, unique,
+	not, and, or, onProp,
 };
