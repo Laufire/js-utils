@@ -7,13 +7,11 @@ import { isEqual, isSame, isPart, doesShare,
 
 /* Helpers */
 import { filter, keys } from './collection';
-import { truthies, falsies, array, obj, cloned, extended, collection, extendedCollection, sortArray } from "../test/helpers";
+import { truthies, falsies, array, obj, cloned, extended, isolated,
+	collection, extendedCollection, sortArray } from "../test/helpers";
 
 /* Spec */
 describe('Predicates', () => {
-	/* Mocks and Stubs */
-
-
 	test('isEqual returns a function to test value equality'
 		+ ' between the candidates.', () => {
 		expect(filter(collection, isEqual(obj))).toEqual(collection);
@@ -24,9 +22,10 @@ describe('Predicates', () => {
 		expect(filter(collection, isSame(collection.obj)).obj).toBe(collection.obj);
 	});
 
-	test('isPart returns a function to test the '
-		+ ' between the candidates', () => {
+	test('isPart returns a function to test whether the tested object is'
+		+ ' wholly contained in any of the elements', () => {
 		expect(filter(collection, isPart(extended)).obj).toBe(collection.obj);
+		expect(filter(collection, isPart(isolated))).toEqual({});
 	});
 
 	test('isPart is an alias for doesShare', () => {

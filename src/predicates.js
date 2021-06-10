@@ -3,7 +3,7 @@
  *
  */
 
-import { equals, find, shares } from './collection';
+import { equals, find, contains } from './collection';
 import { values } from './lib';
 import { isDefined } from './reflection';
 
@@ -12,7 +12,7 @@ const isEqual = (left) => (right) => equals(left, right);
 
 const isSame = (left) => (right) => left === right;
 
-const isPart = (left) => (right) => shares(left, right);
+const isPart = (left) => (right) => contains(left, right);
 
 const doesShare = isPart;
 
