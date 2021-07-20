@@ -1,5 +1,5 @@
 /* Tested */
-import { cache } from './fn';
+import { cache, value } from './fn';
 
 /* Helpers */
 import { equals } from './collection';
@@ -23,4 +23,11 @@ test('cache caches the given function based on parameters till the next call'
 
 	testCache(undefined, 3);
 	testCache(equals, 2);
+});
+
+test('value extracts the value from the given function or variable', () => {
+	const val = Symbol();
+
+	expect(value(val)).toBe(val);
+	expect(value(() => val)).toBe(val);
 });

@@ -4,6 +4,7 @@
  */
 
 import { hasSame } from './collection';
+import { isFunction } from './reflection';
 
 const cache = (fn, qualifier = hasSame) => {
 	// eslint-disable-next-line init-declarations
@@ -17,6 +18,9 @@ const cache = (fn, qualifier = hasSame) => {
 			: (prevArgs = args, result = fn(...args)));
 };
 
+const value = (x) => (isFunction(x) ? x() : x);
+
 export {
 	cache,
+	value,
 };
