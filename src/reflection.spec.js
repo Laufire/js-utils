@@ -1,4 +1,5 @@
 /* Tested */
+import { map } from './collection';
 import  {
 	constructorName,
 	inferType,
@@ -13,13 +14,26 @@ describe('Reflection', () => {
 	/* Mocks and Stubs */
 	const obj = {};
 	const arr = [];
-	const fn = () => {};
+	const fn = function(){};
 
 	/* Tests */
 	test('constructorName returns the constructor name'
-		+ ' of the given value', () => {
-		expect(constructorName(obj)).toEqual('Object');
-		expect(constructorName(arr)).toEqual('Array');
+	+ ' of the given value', () => {
+		const expectations = {
+			Object: obj,
+			Array: arr,
+			Function: fn,
+			String: '',
+			Number: 1,
+			Date: new Date(),
+			fn: new fn(),
+		};
+
+		map(expectations, (value, expectation) =>
+			expect(constructorName(value)).toEqual(expectation));
+
+		[null, undefined].forEach((value) =>
+			expect(constructorName(value)).toEqual(undefined));
 	});
 
 	test('inferType infers the type of the given value', () => {
@@ -47,8 +61,9 @@ describe('Reflection', () => {
 	});
 
 	test('isObject returns true only when the given value'
-		+ ' is an Object', () => {
+	+ ' is an Object', () => {
 		expect(isObject(obj)).toEqual(true);
+		expect(isObject(new fn())).toEqual(true);
 		expect(isObject(arr)).toEqual(false);
 	});
 
