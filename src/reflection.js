@@ -7,8 +7,7 @@
 const { isArray } = Array;
 
 const constructorName = (value) =>
-	value !== null && value !== undefined
-		&& value.constructor && value.constructor.name;
+	value?.constructor.name || undefined;
 
 /*
 NOTE: Unlike inferType, this function doesn't differentiate between
@@ -18,7 +17,8 @@ const isFunction = (value) =>
 	typeof value === 'function';
 
 const isObject = (value) =>
-	constructorName(value) === 'Object';
+	typeof value === 'object'
+		&& ![undefined, 'Array'].includes(constructorName(value));
 
 const isIterable = (value) => isArray(value) || isObject(value);
 
