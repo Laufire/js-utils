@@ -59,6 +59,19 @@ const rndValue = (collection) => {
 	return items[rndBetween(0, items.length - 1)];
 };
 
+const rndValues = (() => {
+	// eslint-disable-next-line no-magic-numbers
+	const skip = (array, i) => [...array.slice(0, i), ...array.slice(i + 1)];
+
+	return (iterable, count = 1) => {
+		const array = values(iterable);
+
+		return array.reduce((t) => (t.length > count
+			? skip(t, rndBetween(0, t.length - 1))
+			: t), array);
+	};
+})();
+
 const rndValueWeighted = (weights) => {
 	const candidates = keys(weights);
 	const boundaries = values(map(weights, (value, key) => value
@@ -89,6 +102,7 @@ export {
 	rndString,
 	rndOfString,
 	rndValue,
+	rndValues,
 	rndValueWeighted,
 	stringSeeds,
 	withProb,

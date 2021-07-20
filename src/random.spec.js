@@ -3,12 +3,13 @@ import { fromEntries, map, pick } from './collection';
 /* Tested */
 import {
 	rndBetween, rndOfString, rndString,
-	rndValue, rndValueWeighted,
+	rndValue, rndValues, rndValueWeighted,
 	stringSeeds, withProb,
 } from './random';
 
 /* Helpers */
 import { retry, strSubSet } from "../test/helpers";
+import { values } from './lib';
 
 /* Tests */
 test('rndBetween returns a random number between two integers,'
@@ -60,13 +61,36 @@ describe('rndValue returns a random a value from the given iterable.', () => {
 			expect(array).toContain(rndValue(object));
 		});
 
-	expect(rndValue([])).toBeUndefined();
-	expect(rndValue({})).toBeUndefined();
+		expect(rndValue([])).toBeUndefined();
+		expect(rndValue({})).toBeUndefined();
 	});
 
 	test('returns undefined when the iterable is empty', () => {
 		expect(rndValue([])).toBeUndefined();
 		expect(rndValue({})).toBeUndefined();
+	});
+});
+
+describe('rndValues returns the given count of random a values'
++ 'from the given iterable.', () => {
+	const seed = retry((i) => [i, rndString()], 10);
+	const array = pick(seed, 1);
+	const object = fromEntries(seed);
+	const { length } = seed;
+
+	test('returns a values when the iterable is not empty', () => {
+		const test = (iterable) => {
+			const count = rndBetween(0, length - 1);
+			const result = rndValues(iterable, count);
+			expect(result.length).toEqual(count);
+			result.forEach((item) => expect(values(iterable)).toContain(item));
+		};
+
+		retry(() => [array, object].forEach(test));
+	});
+
+	test('count defaults to 1', () => {
+		expect(rndValues(array).length).toEqual(1);
 	});
 });
 
