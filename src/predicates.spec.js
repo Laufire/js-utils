@@ -94,12 +94,12 @@ describe('Predicates', () => {
 			onProp('d', isEqual(4)))).toEqual({ extended });
 	});
 
-	describe('Generators pass all available arguments to the given predicates.', () => {
+	describe('generators pass all available arguments to the given predicates.', () => {
 		const generators = {
 			and, or, not
 		};
 
-		test.each(keys(generators))('Testing the generator: %s.', (key) => {
+		test.each(keys(generators))('testing the generator: %s', (key) => {
 			const predicate = jest.fn();
 			const args = [obj.a, 'a', obj];
 
@@ -108,7 +108,7 @@ describe('Predicates', () => {
 			expect(predicate).toHaveBeenCalledWith(...args);
 		});
 
-		test('Testing the generator: onProp.', () => {
+		test('testing the generator: onProp.', () => {
 			const predicate = jest.fn();
 			const collection = { obj };
 			const prop = 'a';
@@ -120,7 +120,7 @@ describe('Predicates', () => {
 	});
 
 	test('predicate derives predicates from relevant '
-	+ 'collection functions.', () => {
+	+ 'collection functions', () => {
 		expect(filter(extendedCollection, predicate(equals, extended)))
 			.toEqual({ extended });
 

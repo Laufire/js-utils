@@ -376,39 +376,43 @@ describe('Collection', () => {
 		expect(props(simpleObj, ['a', 'b'])).toEqual([1, 2]);
 	});
 
-	test('select returns a sub-object of the given object,'
-	+ ' with the given array of properties', () => {
-		expect(select(simpleObj, ['a'])).toEqual({ a: 1 });
+	describe('select helps building sub-objects with selectors', () => {
+		test('select returns a sub-object of the given object,'
+		+ ' with the given array of properties', () => {
+			expect(select(simpleObj, ['a'])).toEqual({ a: 1 });
+		});
+
+		// #BREAKING: Treat objects and arrays similarly.
+		test('select returns a sub-object of the given object,'
+		+ ' with the properties in the given selector object', () => {
+			expect(select(simpleObj, {
+				a: 'some-thing',
+				keyNotInSource: 'some value',
+			})).toEqual({ a: 1 });
+		});
+
+		test('select returns a sub-array of the given array,'
+		+ ' with the given array of properties', () => {
+			expect(select(simpleArray, [0])).toEqual([1]);
+		});
 	});
 
-	// #BREAKING: Treat objects and arrays similarly.
-	test('select returns a sub-object of the given object,'
-	+ ' with the properties in the given selector object', () => {
-		expect(select(simpleObj, {
-			a: 'some-thing',
-			keyNotInSource: 'some value',
-		})).toEqual({ a: 1 });
-	});
+	describe('omit helps building sub-objects through omitters', () => {
+		test('omit returns a sub-object of the given object,'
+		+ ' without the given array of properties', () => {
+			expect(omit(simpleObj, ['a'])).toEqual({ b: 2 });
+		});
 
-	test('select returns a sub-array of the given array,'
-	+ ' with the given array of properties', () => {
-		expect(select(simpleArray, [0])).toEqual([1]);
-	});
+		// #BREAKING: Treat objects and arrays similarly.
+		test('omit returns a sub-object of the given object,'
+		+ ' without the properties in the given selector object', () => {
+			expect(omit(simpleObj, { a: 'some-thing' })).toEqual({ b: 2 });
+		});
 
-	test('omit returns a sub-object of the given object,'
-	+ ' without the given array of properties', () => {
-		expect(omit(simpleObj, ['a'])).toEqual({ b: 2 });
-	});
-
-	// #BREAKING: Treat objects and arrays similarly.
-	test('omit returns a sub-object of the given object,'
-	+ ' without the properties in the given selector object', () => {
-		expect(omit(simpleObj, { a: 'some-thing' })).toEqual({ b: 2 });
-	});
-
-	test('omit returns a sub-array of the given array,'
-	+ ' without the given array of properties', () => {
-		expect(clean(omit(simpleArray, [0]))).toEqual([2]);
+		test('omit returns a sub-array of the given array,'
+		+ ' without the given array of properties', () => {
+			expect(clean(omit(simpleArray, [0]))).toEqual([2]);
+		});
 	});
 
 	test('result returns the value for the given simple path'
@@ -607,31 +611,33 @@ describe('Collection', () => {
 		expect(findIndex).toBe(findKey);
 	});
 
-	test('range returns an array of numbers with the given start, end'
-	+ ' and step values', () => {
-		const start = rndBetween(5, 9);
-		const end = rndBetween(5, 9) + start;
-		const step = rndBetween(1, 3);
-		const length = Math.floor((end - start + 1) / step);
+	describe('range helps building number-series arrays', () => {
+		test('range returns an array of numbers with the given start, end'
+		+ ' and step values', () => {
+			const start = rndBetween(5, 9);
+			const end = rndBetween(5, 9) + start;
+			const step = rndBetween(1, 3);
+			const length = Math.floor((end - start + 1) / step);
 
-		const result = range(start, end, step);
+			const result = range(start, end, step);
 
-		expect(result.length).toBe(length);
-		expect(result[0]).toBe(start);
-		expect(result[length - 1]).toBe(start + (length - 1) * step);
-	});
+			expect(result.length).toBe(length);
+			expect(result[0]).toBe(start);
+			expect(result[length - 1]).toBe(start + (length - 1) * step);
+		});
 
-	test('range has default values for all parameters', () => {
-		const start = 0;
-		const end = 9;
-		const step = 1;
-		const length = Math.floor((end - start + 1) / step);
+		test('range has default values for all parameters', () => {
+			const start = 0;
+			const end = 9;
+			const step = 1;
+			const length = Math.floor((end - start + 1) / step);
 
-		const result = range();
+			const result = range();
 
-		expect(result.length).toBe(length);
-		expect(result[0]).toBe(start);
-		expect(result[length - 1]).toBe(start + (length - 1) * step);
+			expect(result.length).toBe(length);
+			expect(result[0]).toBe(start);
+			expect(result[length - 1]).toBe(start + (length - 1) * step);
+		});
 	});
 
 	test('shares tests whether the given objects share the same value'
@@ -644,8 +650,8 @@ describe('Collection', () => {
 		expect(shares({ id: 1 }, { id : 1 })).toBe(true);
 	});
 
-	describe('shuffle shuffles the given collection.', () => {
-		test('shuffle shuffles arrays.', () => {
+	describe('shuffle shuffles the given collection', () => {
+		test('shuffle shuffles arrays', () => {
 			const array = range(1, 100);
 
 			const shuffled = shuffle(array);
@@ -654,7 +660,7 @@ describe('Collection', () => {
 			expect(sortArray(shuffled)).toEqual(sortArray(array));
 		});
 
-		test('shuffle shuffles objects.', () => {
+		test('shuffle shuffles objects', () => {
 			const obj = mockObj(range(1, 100).map((i) => '0' + i));
 
 			const shuffled = shuffle(obj);
@@ -666,8 +672,8 @@ describe('Collection', () => {
 		});
 	});
 
-	describe('sort sorts the given collection.', () => {
-		test('sort sorts arrays.', () => {
+	describe('sort sorts the given collection', () => {
+		test('sort sorts arrays', () => {
 			const array = range(1, 100);
 			const reversed = array.slice().reverse();
 
@@ -678,7 +684,7 @@ describe('Collection', () => {
 			expect(sorted).not.toBe(array);
 		});
 
-		test('sort sorts objects.', () => {
+		test('sort sorts objects', () => {
 			const obj = mockObj(range(1, 100).map((i) => '0' + i));
 			const shuffled = shuffle(obj);
 
@@ -690,7 +696,7 @@ describe('Collection', () => {
 			expect(sortArray(sortedValues)).toEqual(sortArray(objValues));
 		});
 
-		test('sort uses ascending as the default sorter.', () => {
+		test('sort uses ascending as the default sorter', () => {
 			const array = range(1, 100);
 
 			const shuffled = shuffle(array);
