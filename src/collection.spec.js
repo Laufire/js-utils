@@ -626,6 +626,19 @@ describe('Collection', () => {
 			expect(result[length - 1]).toBe(start + (length - 1) * step);
 		});
 
+		test('range can return descending series', () => {
+			const start = rndBetween(-10, -1);
+			const end = rndBetween(1, 10) + start;
+			const step = rndBetween(-3, -1);
+			const length = Math.floor((end - start + 1) / Math.abs(step));
+
+			const result = range(start, end, step);
+
+			expect(result.length).toBe(length);
+			expect(result[0]).toBe(start);
+			expect(result[length - 1]).toBe(start + (length - 1) * step);
+		});
+
 		test('range has default values for all parameters', () => {
 			const start = 0;
 			const end = 9;

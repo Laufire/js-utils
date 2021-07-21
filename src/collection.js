@@ -463,7 +463,7 @@ const range = (
 	// eslint-disable-next-line no-magic-numbers
 	start = 0, end = 9, step = 1
 ) =>
-	Array.from({ length: (end - start + 1) / step },
+	Array.from({ length: (Math.abs(end - start) + 1) / Math.abs(step) },
 		(dummy, i) => (i * step) + start);
 
 const shares = (
