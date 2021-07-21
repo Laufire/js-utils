@@ -12,16 +12,24 @@ import { retry, strSubSet } from "../test/helpers";
 import { values } from './lib';
 
 /* Tests */
-test('rndBetween returns a random number between two integers,'
-	+ ' with 0 and 9 as the default start and end values.', () => {
-	const start = 0;
-	const end = 9;
+describe('rndBetween', () => {
+	const isBetween = (value, from, to) => {
+		expect(value >= from).toBe(true);
+		expect(value <= to).toBe(true);
+	};
 
-	retry(() => {
-		const rnd = rndBetween();
+	test('rndBetween returns a random integer between two integers', () => {
+		const from = -10;
+		const to = 10;
 
-		expect(rnd >= start).toBe(true);
-		expect(rnd <= end).toBe(true);
+		retry(() => isBetween(rndBetween(from, to), from, to));
+	});
+
+	test('rndBetween defaults to 0 and 9 from and to values', () => {
+		const from = 0;
+		const to = 9;
+
+		retry(() => isBetween(rndBetween(), from, to));
 	});
 });
 
