@@ -80,18 +80,29 @@ describe('rndValue returns a random a value from the given iterable.', () => {
 });
 
 describe('rndValues returns the given count of random a values'
-+ 'from the given iterable.', () => {
++ 'from the given iterable', () => {
 	const seed = retry((i) => [i, rndString()], 10);
 	const array = pick(seed, 1);
 	const object = fromEntries(seed);
 	const { length } = seed;
 
-	test('returns a values when the iterable is not empty', () => {
+	test('returns count number of values when the iterable length'
+	+ 'is longer than count', () => {
 		const test = (iterable) => {
 			const count = rndBetween(0, length - 1);
 			const result = rndValues(iterable, count);
 			expect(result.length).toEqual(count);
 			result.forEach((item) => expect(values(iterable)).toContain(item));
+		};
+
+		retry(() => [array, object].forEach(test));
+	});
+
+	test('count is limited to the length of the source iterable', () => {
+		const test = (iterable) => {
+			const count = seed.length * 2;
+			const result = rndValues(iterable, count);
+			expect(result.length).toEqual(seed.length);
 		};
 
 		retry(() => [array, object].forEach(test));
