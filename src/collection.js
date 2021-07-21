@@ -14,6 +14,7 @@ import { isArray, isIterable, isObject } from './reflection';
 import { assign, entries, keys, values, rndBetween } from './lib';
 import { ascending } from './sorters';
 
+const { abs, floor, sign } = Math;
 const toArray = (value) => (isArray(value) ? value : [value]);
 const keyArray = (object) => (isArray(object)
 	? object.map(String)
@@ -462,9 +463,12 @@ const adopt = (base, ...extensions) =>
 const range = (
 	// eslint-disable-next-line no-magic-numbers
 	start = 0, end = 9, step = 1
-) =>
-	Array.from({ length: (Math.abs(end - start) + 1) / Math.abs(step) },
-		(dummy, i) => (i * step) + start);
+) => Array.from({
+	length: sign(end - start) !== sign(step) || !step
+		? 0
+		: floor(abs(end - start) / abs(step)),
+},
+(dummy, i) => (i * step) + start);
 
 const shares = (
 	left, right, prop = 'id'
