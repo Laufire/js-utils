@@ -21,6 +21,7 @@ const keyArray = (object) => (isArray(object)
 	: keys(object));
 const combineObjects = (base, extension) =>
 	(isArray(base) && isArray(extension)
+		// eslint-disable-next-line no-sequences
 		? (base.push(...extension), base)
 		: (keys(extension).forEach((key) => {
 			const child = base[key];
@@ -216,9 +217,9 @@ TODO: select uses key from objects and values from arrays streamline this.
 */
 const select = (collection, selector) => keyArray(selector)
 	.reduce((aggregate, prop) =>
-		(collection[prop] !== undefined
-			// eslint-disable-next-line no-sequences
-			&& (aggregate[prop] = collection[prop]), aggregate),
+	(collection[prop] !== undefined
+		// eslint-disable-next-line no-sequences
+		&& (aggregate[prop] = collection[prop]), aggregate),
 	shell(collection));
 
 /*
@@ -231,8 +232,8 @@ const omit = (obj, selector) => {
 	return keys(obj).filter((prop) => !propsToOmit.includes(prop))
 		// eslint-disable-next-line no-return-assign
 		.reduce((aggregate, prop) =>
-			// eslint-disable-next-line no-sequences
-			(aggregate[prop] = obj[prop], aggregate)
+		// eslint-disable-next-line no-sequences
+		(aggregate[prop] = obj[prop], aggregate)
 		, shell(obj));
 };
 
@@ -490,8 +491,8 @@ const shuffle = (collection) => {
 		) => (t[i] = collection[c], t)
 		// eslint-disable-next-line no-return-assign
 		: (t, c) =>
-			// eslint-disable-next-line no-sequences
-			(t[c] = collection[c], t),
+		// eslint-disable-next-line no-sequences
+		(t[c] = collection[c], t),
 	shell(collection));
 };
 
