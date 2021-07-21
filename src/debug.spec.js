@@ -1,4 +1,4 @@
-import { peek, sleep } from './debug';
+import { peek, pretty, sleep } from './debug';
 
 beforeEach(() => {
 	jest.clearAllMocks();
@@ -28,6 +28,28 @@ describe('peek - a drop in console.log replacement with better devEx', () => {
 		expect(console.log).toHaveBeenCalledWith(label, val);
 	});
 });
+
+describe('pretty - returns the pretty JSON of the given value', () => {
+	JSON.stringify = jest.fn();
+
+	test('pretty calls the stringify with the given value and indent', () => {
+		const value = Symbol();
+		const indent = '    ';
+
+		pretty(value, indent);
+
+		expect(JSON.stringify).toHaveBeenCalledWith(value, null, indent);
+	});
+
+	test('indent defaults to tab', () => {
+		const value = Symbol();
+
+		pretty(value);
+
+		expect(JSON.stringify).toHaveBeenCalledWith(value, null, '\t');
+	});
+});
+
 
 test('sleep stalls the flow for 1000ms by default.', async () => {
 	const startedAt = performance.now();
