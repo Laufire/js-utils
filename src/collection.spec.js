@@ -612,44 +612,56 @@ describe('Collection', () => {
 	});
 
 	describe('range helps building number-series arrays', () => {
-		test('range returns an array of numbers with the given start, end'
-		+ ' and step values', () => {
-			const start = rndBetween(5, 9);
-			const end = rndBetween(5, 9) + start;
-			const step = rndBetween(1, 3);
-			const length = Math.floor((end - start + 1) / step);
-
-			const result = range(start, end, step);
+		const { abs, floor } = Math;
+		const getLength = (start, end, step ) => floor(abs(end - start) / abs(step));
+		const testRange = (result, start, end, step) => {
+			const length = getLength(start, end, step);
 
 			expect(result.length).toBe(length);
 			expect(result[0]).toBe(start);
 			expect(result[length - 1]).toBe(start + (length - 1) * step);
+		};
+		const buildRange = (starts, ends, steps) => {
+			const start = rndBetween(...starts);
+			const end = rndBetween(...ends) + start;
+			const step = rndBetween(...steps);
+			const result = range(start, end, step);
+
+			return [result, start, end, step];
+		};
+
+		test('range returns an array of numbers with the given start, end'
+		+ ' and step values', () => {
+			testRange(...buildRange([5, 9], [5, 9], [1, 3]));
 		});
 
 		test('range can return descending series', () => {
-			const start = rndBetween(-10, -1);
-			const end = rndBetween(1, 10) + start;
-			const step = rndBetween(-3, -1);
-			const length = Math.floor((end - start + 1) / Math.abs(step));
-
-			const result = range(start, end, step);
-
-			expect(result.length).toBe(length);
-			expect(result[0]).toBe(start);
-			expect(result[length - 1]).toBe(start + (length - 1) * step);
+			testRange(...buildRange([1, 10], [-10, -1], [-3, -1]));
 		});
 
 		test('range has default values for all parameters', () => {
 			const start = 0;
 			const end = 9;
 			const step = 1;
-			const length = Math.floor((end - start + 1) / step);
+			const length = getLength(start, end, step);
 
 			const result = range();
 
-			expect(result.length).toBe(length);
-			expect(result[0]).toBe(start);
-			expect(result[length - 1]).toBe(start + (length - 1) * step);
+			testRange(result, start, end, step);
+		});
+
+		describe('range returns an empty array when', () => {
+			test('step is 0', () => {
+				expect(range(0, 0, 0)).toEqual([]);
+			});
+
+			test('start to end direction and step direction are different', () => {
+				expect(range(10, 1, 1)).toEqual([]);
+			});
+
+			test('start and end are the same', () => {
+				range(-10, 10).map((num) => expect(range(num, num)).toEqual([]));
+			});
 		});
 	});
 
