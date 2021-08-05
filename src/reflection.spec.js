@@ -6,6 +6,7 @@ import  {
 	isCollection,
 	isIterable,
 	isFunction,
+	isDict,
 	isObject,
 	isDefined,
 } from './reflection';
@@ -60,8 +61,14 @@ describe('Reflection', () => {
 		expect(isFunction(fn)).toEqual(true);
 	});
 
-	test('isObject returns true only when the given value'
+	test('isDict returns true only when the given value'
 	+ ' is an Object', () => {
+		expect(isDict(obj)).toEqual(true);
+		expect(isDict(arr)).toEqual(false);
+	});
+
+	test('isObject returns true only when the given value'
+	+ ' is an Objectish', () => {
 		expect(isObject(obj)).toEqual(true);
 		expect(isObject(new fn())).toEqual(true);
 		expect(isObject(arr)).toEqual(false);

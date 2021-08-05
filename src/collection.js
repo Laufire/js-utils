@@ -10,7 +10,7 @@
 TODO: Complete the doc comments.
 */
 
-import { isArray, isIterable, isObject } from './reflection';
+import { isArray, isIterable, isDict } from './reflection';
 import { assign, entries, keys, values, rndBetween } from './lib';
 import { ascending } from './sorters';
 
@@ -57,8 +57,8 @@ const overlayObjects = (base, extension) => 	{
 		const child = base[key];
 		const childExtension = extension[key];
 
-		base[key] = isObject(childExtension)
-			? isObject(child)
+		base[key] = isDict(childExtension)
+			? isDict(child)
 				? overlayObjects(child, childExtension)
 				// eslint-disable-next-line no-use-before-define
 				: clone(childExtension)
@@ -168,7 +168,7 @@ const clone = (() => {
 	const cloneArray = (arr) => arr.map(clone);
 
 	return (value) =>
-		(isObject(value)
+		(isDict(value)
 			? cloneObj(value)
 			: isArray(value)
 				? cloneArray(value)
