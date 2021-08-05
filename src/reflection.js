@@ -16,11 +16,14 @@ NOTE: Unlike inferType, this function doesn't differentiate between
 const isFunction = (value) =>
 	typeof value === 'function';
 
+const isDict = (value) =>
+	constructorName(value) === 'Object';
+
 const isObject = (value) =>
 	typeof value === 'object'
 		&& ![undefined, 'Array'].includes(constructorName(value));
 
-const isIterable = (value) => isArray(value) || isObject(value);
+const isIterable = (value) => isArray(value) || isDict(value);
 
 const isDefined = (value) => value !== undefined;
 
@@ -44,6 +47,7 @@ export {
 	isCollection,
 	isIterable,
 	isFunction,
+	isDict,
 	isObject,
 	isDefined,
 };

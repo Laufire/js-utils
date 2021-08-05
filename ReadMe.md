@@ -17,6 +17,8 @@
 
 ## ToDo
 
+* Improve randomized tests. They fail due to chance.
+
 * Maintain key order in the results.
 
 * Thinks of the right way to standardize collection.keys. It gives string keys for array, which might or might not be preferable.
