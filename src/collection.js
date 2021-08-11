@@ -11,9 +11,14 @@ TODO: Complete the doc comments.
 */
 
 import { isArray, isIterable, isDict } from './reflection';
-import { assign, entries, keys, values, rndBetween } from './lib';
+import { rndBetween } from './lib';
 import { ascending } from './sorters';
 
+/* NOTE: Exporting named imports (like keys) turns them into getters
+ (probably by the compiler), this leads to some inconsistencies when
+ mocking with jest. Hence, they are imported from the source.
+*/
+const { assign, entries, keys, values } = Object;
 const { abs, floor, sign } = Math;
 const toArray = (value) => (isArray(value) ? value : [value]);
 const keyArray = (object) => (isArray(object)
