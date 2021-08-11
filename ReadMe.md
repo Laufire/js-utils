@@ -19,6 +19,8 @@
 
 * Improve randomized tests. They fail due to chance.
 
+* Consider passing nested paths to the callbacks of collection.traverse and collection.walk.
+
 * Maintain key order in the results.
 
 * Thinks of the right way to standardize collection.keys. It gives string keys for array, which might or might not be preferable.
