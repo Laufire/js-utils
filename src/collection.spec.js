@@ -3,6 +3,9 @@
 // NOTE: Immutability is tested implicitly, by preventing
 //	mutations the mock objects.
 
+// TODO: Spy on the integrity of the params passed to the callbacks
+// of map, traverse, etc.
+
 /* Tested */
 import {
 	adopt, shares, clean, clone, compose, combine, contains, dict, diff,

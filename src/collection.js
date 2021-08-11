@@ -158,7 +158,11 @@ const findIndex = findKey;
 * to the given callback.
 */
 const traverse = (obj, cb) => map(obj, (value, key) =>
-	(isIterable(value) ? traverse(value, cb) : cb(value, key)));
+	(isIterable(value)
+		? traverse(value, cb)
+		: cb(
+			value, key, obj
+		)));
 
 /*
 * Recursively passes all the props of the given collections
@@ -166,7 +170,9 @@ const traverse = (obj, cb) => map(obj, (value, key) =>
 */
 const walk = (obj, cb) => map(obj, (value, key) =>
 	// eslint-disable-next-line no-sequences
-	(isIterable(value) && walk(value, cb), cb(value, key)));
+	(isIterable(value) && walk(value, cb), cb(
+		value, key, obj
+	)));
 
 const clone = (() => {
 	const cloneObj = (obj) => map(obj, clone);
