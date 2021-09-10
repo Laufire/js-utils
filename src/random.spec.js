@@ -1,14 +1,15 @@
-import { fromEntries, map, pick } from './collection';
+import { fromEntries, map, pick, range } from './collection';
+import { isEqual } from './predicates';
 
 /* Tested */
 import {
 	rndBetween, rndOfString, rndString,
 	rndValue, rndValues, rndValueWeighted,
-	stringSeeds, withProb,
+	stringSeeds, withProb, isProbable,
 } from './random';
 
 /* Helpers */
-import { retry, strSubSet } from "../test/helpers";
+import { retry, strSubSet, isAcceptable } from "../test/helpers";
 import { values } from './lib';
 
 /* Tests */
@@ -150,4 +151,26 @@ describe('withProb returns a function which returns true once in a while'
 		expect(prevalence > probability * (1 - acceptableDeviation)).toEqual(true);
 		expect(prevalence < probability * (1 + acceptableDeviation)).toEqual(true);
 	});
+});
+
+test('isProbable true based on give probablility', () => {
+	const retryCount = 100000;
+	const generateTest = (probability, errorMargin) => {
+		const results = retry(() => isProbable(probability), retryCount);
+		const successCount = results.filter(isEqual(true)).length;
+		const expectedCount = Math.min(probability, 1) * retryCount;
+
+		return isAcceptable(
+			successCount, expectedCount, errorMargin
+		);
+	};
+	const testValues = (values, margin) => {
+		const results = values.map((probability) =>	generateTest(probability, margin));
+		const successCount = results.filter(isEqual(true)).length;
+
+		expect(successCount).toEqual(results.length);
+	};
+
+	testValues([0, 1, 2], 0);
+	testValues(range(2, 99).map((probability) => probability / 100), 0.08);
 });

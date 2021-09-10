@@ -97,6 +97,9 @@ const withProb = (prob) => {
 	return () => rndBetween(0, inverse) < precision;
 };
 
+const isProbable = (probablity) =>
+	rndBetween(1, 100) <= probablity * 100;
+
 export {
 	rndBetween,
 	rndString,
@@ -106,4 +109,5 @@ export {
 	rndValueWeighted,
 	stringSeeds,
 	withProb,
+	isProbable,
 };
