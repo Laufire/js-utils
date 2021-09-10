@@ -36,9 +36,13 @@ const retry = (fn, retryCount = defaults.retryCount) => {
 const strSubSet = (superStr, tested) =>
 	tested.split('').findIndex((char) => !(superStr.indexOf(char) > -1)) === -1;
 
+const isAcceptable = (
+	actual, expected, margin
+) => Math.abs((expected - actual) / (expected || 1)) <= margin;
+
 export {
 	truthies, falsies, array,
 	obj, cloned, extension, extended, isolated, collection, extendedCollection,
 	sortArray, getPredicate,
-	retry, strSubSet,
+	retry, strSubSet, isAcceptable,
 };
