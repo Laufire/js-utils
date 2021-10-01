@@ -9,12 +9,14 @@ import {
 } from './random';
 
 /* Helpers */
-import { retry, strSubSet, isAcceptable } from "../test/helpers";
+import { retry, strSubSet, isAcceptable } from '../test/helpers';
 import { values } from './lib';
 
 /* Tests */
 describe('rndBetween', () => {
-	const isBetween = (value, from, to) => {
+	const isBetween = (
+		value, from, to
+	) => {
 		expect(value >= from).toBe(true);
 		expect(value <= to).toBe(true);
 	};
@@ -23,14 +25,18 @@ describe('rndBetween', () => {
 		const from = -10;
 		const to = 10;
 
-		retry(() => isBetween(rndBetween(from, to), from, to));
+		retry(() => isBetween(
+			rndBetween(from, to), from, to
+		));
 	});
 
 	test('rndBetween defaults to 0 and 9 from and to values', () => {
 		const from = 0;
 		const to = 9;
 
-		retry(() => isBetween(rndBetween(), from, to));
+		retry(() => isBetween(
+			rndBetween(), from, to
+		));
 	});
 });
 
@@ -92,6 +98,7 @@ describe('rndValues returns the given count of random a values'
 		const test = (iterable) => {
 			const count = rndBetween(0, length - 1);
 			const result = rndValues(iterable, count);
+
 			expect(result.length).toEqual(count);
 			result.forEach((item) => expect(values(iterable)).toContain(item));
 		};
@@ -103,6 +110,7 @@ describe('rndValues returns the given count of random a values'
 		const test = (iterable) => {
 			const count = seed.length * 2;
 			const result = rndValues(iterable, count);
+
 			expect(result.length).toEqual(seed.length);
 		};
 
@@ -139,21 +147,21 @@ describe('withProb returns a function which returns true once in a while'
 	+ ' based on the given probability value.', () => {
 	test('returns true based on the given probability.', () => {
 		const probability = 0.3;
-		const acceptableDeviation = 0.2;
+		const allowedDeviation = 0.2;
 		const retryCount = 10000;
-		const isProbable = withProb(probability);
+		const checkProbability = withProb(probability);
 
-		const results = retry(isProbable, retryCount);
+		const results = retry(checkProbability, retryCount);
 
 		const counts = results.filter((result) => result === true).length;
 		const prevalence = counts / retryCount;
 
-		expect(prevalence > probability * (1 - acceptableDeviation)).toEqual(true);
-		expect(prevalence < probability * (1 + acceptableDeviation)).toEqual(true);
+		expect(prevalence > probability * (1 - allowedDeviation)).toEqual(true);
+		expect(prevalence < probability * (1 + allowedDeviation)).toEqual(true);
 	});
 });
 
-test('isProbable true based on give probablility', () => {
+test('isProbable returns true based on given probability', () => {
 	const retryCount = 100000;
 	const generateTest = (probability, errorMargin) => {
 		const results = retry(() => isProbable(probability), retryCount);
@@ -164,13 +172,15 @@ test('isProbable true based on give probablility', () => {
 			successCount, expectedCount, errorMargin
 		);
 	};
-	const testValues = (values, margin) => {
-		const results = values.map((probability) =>	generateTest(probability, margin));
+
+	const testCandidates = (candidates, margin) => {
+		const results = candidates.map((probability) =>
+			generateTest(probability, margin));
 		const successCount = results.filter(isEqual(true)).length;
 
 		expect(successCount).toEqual(results.length);
 	};
 
-	testValues([0, 1, 2], 0);
-	testValues(range(2, 99).map((probability) => probability / 100), 0.08);
+	testCandidates([0, 1, 2], 0);
+	testCandidates(range(2, 99).map((probability) => probability / 100), 0.08);
 });

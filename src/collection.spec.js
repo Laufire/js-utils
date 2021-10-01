@@ -1,25 +1,26 @@
 // NOTE: The reason for importing the modules, the old-school way
-//	is to ensure that, the downstream dependencies aren't affected.
+//	Is to ensure that, the downstream dependencies aren't affected.
 // NOTE: Immutability is tested implicitly, by preventing
-//	mutations the mock objects.
+//	Mutations the mock objects.
 
 // TODO: Spy on the integrity of the params passed to the callbacks
-// of map, traverse, etc.
+// Of map, traverse, etc.
 
 /* Tested */
+// TODO: Test index.
 import {
 	adopt, shares, clean, clone, compose, combine, contains, dict, diff,
 	each, entries, equals, find, findIndex, findKey, fill, filter, flip,
-	flipMany, fromEntries, gather, has, hasSame, index, map, merge, overlay,
-	patch, pick, omit, props, range, reduce, rename,  result,
+	flipMany, fromEntries, gather, has, hasSame, map, merge, overlay,
+	patch, pick, omit, props, range, reduce, rename, result,
 	sanitize, secure, select, shell, shuffle, spread, sort, squash,
 	translate, traverse, walk, values,
 } from './collection';
 
 /* Helpers */
-import { sortArray, getPredicate } from "../test/helpers";
-import { rndBetween } from "./lib";
-import { isDefined } from "./reflection";
+import { sortArray, getPredicate } from '../test/helpers';
+import { rndBetween } from './lib';
+import { isDefined } from './reflection';
 import { ascending, descending } from './sorters';
 import { product, sum } from './reducers';
 
@@ -51,7 +52,7 @@ describe('Collection', () => {
 	const complexObject = secure({
 		single: 'single',
 		parent: {
-			child: {
+			'child': {
 				grandChild: 'grandChild',
 			},
 			'/unescaped/child': 'unescaped/child',
@@ -128,8 +129,12 @@ describe('Collection', () => {
 	});
 
 	test('reduce reduces the given collection.', () => {
-		expect(reduce(simpleObj, sum, 0)).toEqual(3);
-		expect(reduce(simpleArray, product, 1)).toEqual(2);
+		expect(reduce(
+			simpleObj, sum, 0
+		)).toEqual(3);
+		expect(reduce(
+			simpleArray, product, 1
+		)).toEqual(2);
 	});
 
 	test('traverse recursively traverses through a given object and'
@@ -155,6 +160,7 @@ describe('Collection', () => {
 	test('walk recursively walks through a given object and'
 	+ ' builds a new object from its primitives and iterables', () => {
 		const classify = (value) => typeof value;
+
 		expect(walk(nestedObj, classify)).toEqual({
 			a: 'number',
 			b: 'number',
@@ -200,7 +206,9 @@ describe('Collection', () => {
 		topLevelBase.iterableOverlay = simpleObj;
 		const topLevel = secure(topLevelBase);
 
-		const merged = merge(base, bottomLevel, topLevel);
+		const merged = merge(
+			base, bottomLevel, topLevel
+		);
 
 		expect(base).not.toEqual(complexObject);
 		expect(merged).toHaveProperty(propToDelete);
@@ -231,7 +239,9 @@ describe('Collection', () => {
 		topLevelBase.iterableOverlay = simpleObj;
 		const topLevel = secure(topLevelBase);
 
-		const overlaid = overlay(base, bottomLevel, topLevel);
+		const overlaid = overlay(
+			base, bottomLevel, topLevel
+		);
 
 		expect(base).not.toEqual(complexObject);
 		expect(overlaid).toHaveProperty(propToDelete);
@@ -240,8 +250,8 @@ describe('Collection', () => {
 		expect(overlaid.primitiveOverlay).toEqual(simpleObj);
 		expect(topLevelBase.iterableOverlay).toEqual(simpleObj);
 		expect(overlaid.complexArray === topLevel.complexArray).toEqual(true);
-		expect(overlaid.complexArray.innerArray ===
-			topLevel.complexArray.innerArray).toEqual(true);
+		expect(overlaid.complexArray.innerArray
+			=== topLevel.complexArray.innerArray).toEqual(true);
 	});
 
 	test('combine combines multiple objects into one', () => {
@@ -253,7 +263,7 @@ describe('Collection', () => {
 
 		underlayBase.primitiveOverlay = 0;
 		underlayBase.iterableOverlay = {};
-		const underlay = secure(underlayBase);
+		const layerOne = secure(underlayBase);
 
 		delete overlayBase[propToDelete];
 		overlayBase.newProperty = newValue;
@@ -261,17 +271,19 @@ describe('Collection', () => {
 		overlayBase.complexArray.innerArray = [0];
 		overlayBase.primitiveOverlay = simpleObj;
 		overlayBase.iterableOverlay = simpleObj;
-		const overlay = secure(overlayBase);
+		const layerTwo = secure(overlayBase);
 
-		const combined = combine(base, underlay, overlay);
+		const combined = combine(
+			base, layerOne, layerTwo
+		);
 
 		expect(base).not.toEqual(complexObject);
 		expect(combined).toHaveProperty(propToDelete);
 		expect(combined.newProperty).toEqual(newValue);
 		expect(combined.parent.child.grandChild).toEqual(newValue);
-		expect(combined.array).toEqual(
-			complexObject.array.concat(underlayBase.array).concat(overlayBase.array)
-		);
+		expect(combined.array)
+			.toEqual(complexObject.array.concat(underlayBase.array)
+				.concat(overlayBase.array));
 		expect(combined.primitiveOverlay).toEqual(simpleObj);
 		expect(overlayBase.iterableOverlay).toEqual(simpleObj);
 		expect(combined.complexArray).toEqual([
@@ -304,7 +316,9 @@ describe('Collection', () => {
 			c: 3,
 		});
 
-		expect(combine({ a: [1] }, undefined, { a: [2] })).toEqual({
+		expect(combine(
+			{ a: [1] }, undefined, { a: [2] }
+		)).toEqual({
 			a: [1, 2],
 		});
 	});
@@ -321,16 +335,18 @@ describe('Collection', () => {
 		const overlayProp = Symbol('overlayProp');
 
 		const base = mockObj(['a'], baseProp);
-		const underlay = secure(mockObj(['a', 'b'], underlayProp));
-		const overlay = secure(mockObj(['c'], overlayProp));
+		const layerOne = secure(mockObj(['a', 'b'], underlayProp));
+		const layerTwo = secure(mockObj(['c'], overlayProp));
 
-		const filled = fill(base, underlay, overlay);
+		const filled = fill(
+			base, layerOne, layerTwo
+		);
 
 		expect(filled).toEqual(base);
 		expect(base).toEqual({
 			a: baseProp,
 			b: underlayProp,
-			c: overlayProp
+			c: overlayProp,
 		});
 	});
 
@@ -356,18 +372,18 @@ describe('Collection', () => {
 
 	test('translate gives the translation of the source based'
 	+ ' on a translation map', () => {
-		const translationMap = { welcome: "hello", farewell: "bye" };
-		const data = { hola: "welcome" };
+		const translationMap = { welcome: 'hello', farewell: 'bye' };
+		const data = { hola: 'welcome' };
 
-		expect(translate(data, translationMap)).toEqual({ "hola" : "hello" });
+		expect(translate(data, translationMap)).toEqual({ hola: 'hello' });
 	});
 
 	test('rename renames the source keys based on'
 	+ ' the given rename map', () => {
 		const data = { length: 1, breadth: 2 };
-		const renameMap = { length: "depth" };
+		const renameMap = { length: 'depth' };
 
-		expect(rename(data, renameMap)).toEqual({ "depth": 1 });
+		expect(rename(data, renameMap)).toEqual({ depth: 1 });
 	});
 
 	test('fromEntries builds an object out of entries', () => {
@@ -497,13 +513,19 @@ describe('Collection', () => {
 		const frozenArray = frozenObject.array;
 
 		const actions = {
-			objectMutation: () => frozenObject.parent.child = Symbol(),
-			objectExtension: () => frozenObject.parent.child1 = Symbol(),
+			objectMutation: () => {
+				frozenObject.parent.child = Symbol('objectMutation') ;
+			},
+			objectExtension: () => {
+				frozenObject.parent.childOne = Symbol('objectExtension') ;
+			},
 			objectDeletion: () => delete frozenObject.parent.child,
-			arrayMutation: () => frozenArray[0] = Symbol(),
-			arrayExtension: () => frozenArray.push(Symbol()),
+			arrayMutation: () => { frozenArray[0] = Symbol('arrayMutation') ; },
+			arrayExtension: () => {
+				frozenArray.push(Symbol('arrayExtension')) ;
+			},
 			arrayDeletion: () => frozenArray.pop(),
-		}
+		};
 
 		map(actions, (action) => expect(action).toThrow());
 	});
@@ -529,7 +551,7 @@ describe('Collection', () => {
 	test('hasSame tests the given collections for having'
 	+ ' the same children', () => {
 		expect(hasSame(complexArray, [...complexArray])).toBe(true);
-		expect(hasSame(complexObject, {...complexObject})).toBe(true);
+		expect(hasSame(complexObject, { ...complexObject })).toBe(true);
 		expect(hasSame(complexArray, clone(complexArray))).toBe(false);
 		expect(hasSame(complexObject, clone(complexObject))).toBe(false);
 	});
@@ -539,7 +561,8 @@ describe('Collection', () => {
 		const arrayOfObjects = secure([
 			{ a: 1, b: 2 },
 			{ a: 2, b: 1 },
-			{ c: 3 }, // Objects do not hold references to undefined values.
+			// Objects do not hold references to undefined values.
+			{ c: 3 },
 		]);
 		const objectOfArrays = secure({
 			a: [1, 2],
@@ -548,8 +571,12 @@ describe('Collection', () => {
 			// Arrays do hold references to undefined values, to preserve indices.
 		});
 
-		expect(gather(arrayOfObjects, 'a', 'b', 'c')).toEqual(objectOfArrays);
-		expect(gather(objectOfArrays, 0, 1, 2)).toEqual(arrayOfObjects);
+		expect(gather(
+			arrayOfObjects, 'a', 'b', 'c'
+		)).toEqual(objectOfArrays);
+		expect(gather(
+			objectOfArrays, 0, 1, 2
+		)).toEqual(arrayOfObjects);
 	});
 
 	test('pick picks the given prop from the children of the given iterable,'
@@ -557,7 +584,7 @@ describe('Collection', () => {
 		const arrayOfObjects = secure([
 			{ a: 1 },
 			{ a: 2, b: 3 },
-			{ c: 4},
+			{ c: 4 },
 		]);
 
 		expect(pick(arrayOfObjects, 'a')).toEqual([1, 2]);
@@ -565,23 +592,23 @@ describe('Collection', () => {
 
 	test('spread spreads the children of given iterables'
 	+ ' into the base iterable', () => {
-		const base = { a: {}, b: {} };
+		const base = { a: {}, b: {}};
 		const seeds = secure({
-			prop1: { a: 1, b: 2 },
-			prop2: { a: 3, b: 4 },
+			propOne: { a: 1, b: 2 },
+			propTwo: { a: 3, b: 4 },
 		});
 
 		const seeded = spread(base, seeds);
 
 		expect(seeded).toEqual({
-			a: { prop1: 1, prop2: 3 },
-			b: { prop1: 2, prop2: 4 },
+			a: { propOne: 1, propTwo: 3 },
+			b: { propOne: 2, propTwo: 4 },
 		});
 		expect(seeded).toEqual(base);
 	});
 
 	test('dict converts the given collection into a dictionary', () => {
-		expect(dict(simpleArray)).toEqual({0: 1, 1: 2});
+		expect(dict(simpleArray)).toEqual({ 0: 1, 1: 2 });
 	});
 
 	test('adopt copies values from extensions into the base', () => {
@@ -616,66 +643,92 @@ describe('Collection', () => {
 
 	describe('range helps building number-series arrays', () => {
 		const { abs, floor } = Math;
-		const getLength = (start, end, step ) => floor(abs(end - start) / abs(step));
-		const testRange = (result, start, end, step) => {
-			const length = getLength(start, end, step);
+		const getLength = (
+			start, end, step
+		) => floor(abs(end - start) / abs(step));
+		const testRange = (
+			resultedRange, start, end, step
+		) => {
+			const length = getLength(
+				start, end, step
+			);
 
-			expect(result.length).toBe(length);
-			expect(result[0]).toBe(start);
-			expect(result[length - 1]).toBe(start + (length - 1) * step);
+			expect(resultedRange.length).toBe(length);
+			expect(resultedRange[0]).toBe(start);
+			expect(resultedRange[length - 1])
+				.toBe(start + ((length - 1) * step));
 		};
-		const buildRange = (starts, ends, steps) => {
+		const buildRange = (
+			starts, ends, steps
+		) => {
 			const start = rndBetween(...starts);
 			const end = rndBetween(...ends) + start;
 			const step = rndBetween(...steps);
-			const result = range(start, end, step);
+			const resultingRange = range(
+				start, end, step
+			);
 
-			return [result, start, end, step];
+			return [resultingRange, start, end, step];
 		};
 
 		test('range returns an array of numbers with the given start, end'
 		+ ' and step values', () => {
-			testRange(...buildRange([5, 9], [5, 9], [1, 3]));
+			testRange(...buildRange(
+				[5, 9], [5, 9], [1, 3]
+			));
 		});
 
 		test('range can return descending series', () => {
-			testRange(...buildRange([1, 10], [-10, -1], [-3, -1]));
+			testRange(...buildRange(
+				[1, 10], [-10, -1], [-3, -1]
+			));
 		});
 
 		test('range has default values for all parameters', () => {
 			const start = 0;
 			const end = 9;
 			const step = 1;
-			const length = getLength(start, end, step);
 
-			const result = range();
+			const resultingRange = range();
 
-			testRange(result, start, end, step);
+			testRange(
+				resultingRange, start, end, step
+			);
 		});
 
 		describe('range returns an empty array when', () => {
 			test('step is 0', () => {
-				expect(range(0, 0, 0)).toEqual([]);
+				expect(range(
+					0, 0, 0
+				)).toEqual([]);
 			});
 
-			test('start to end direction and step direction are different', () => {
-				expect(range(10, 1, 1)).toEqual([]);
+			test('start to end direction and step direction '
+			+ 'are different', () => {
+				expect(range(
+					10, 1, 1
+				)).toEqual([]);
 			});
 
 			test('start and end are the same', () => {
-				range(-10, 10).map((num) => expect(range(num, num)).toEqual([]));
+				range(-10, 10).map((num) => expect(range(num, num))
+					.toEqual([]));
 			});
 		});
 	});
 
 	test('shares tests whether the given objects share the same value'
 	+ ' on a given property', () => {
-		expect(shares(simpleObj, nestedObj, 'a')).toBe(true);
-		expect(shares(simpleObj, complexObject, 'a')).toBe(false);
+		expect(shares(
+			simpleObj, nestedObj, 'a'
+		)).toBe(true);
+		expect(shares(
+			simpleObj, complexObject, 'a'
+		)).toBe(false);
 	});
 
 	test('shares uses \'id\' as the default property compare', () => {
-		expect(shares({ id: 1 }, { id : 1 })).toBe(true);
+		expect(shares({ id: 1 }, { id: 1 })).toBe(true);
 	});
 
 	describe('shuffle shuffles the given collection', () => {
@@ -689,7 +742,7 @@ describe('Collection', () => {
 		});
 
 		test('shuffle shuffles objects', () => {
-			const obj = mockObj(range(1, 100).map((i) => '0' + i));
+			const obj = mockObj(range(1, 100).map((i) => `0${ i }`));
 
 			const shuffled = shuffle(obj);
 			const shuffledValues = values(shuffled);
@@ -713,7 +766,7 @@ describe('Collection', () => {
 		});
 
 		test('sort sorts objects', () => {
-			const obj = mockObj(range(1, 100).map((i) => '0' + i));
+			const obj = mockObj(range(1, 100).map((i) => `0${ i }`));
 			const shuffled = shuffle(obj);
 
 			const sorted = sort(shuffled, ascending);

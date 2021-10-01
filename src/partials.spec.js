@@ -9,14 +9,13 @@ test('translate returns a partial to access values of collections', () => {
 
 describe('partial returns a partially provisioned function, '
 + 'which could be called with remaining data.', () => {
-
 	test('arrays are used for positional arguments', () => {
 		const sum = (a, b) => a + b;
-		const withoutB = partial(sum, [1]);
-		const withoutA = partial(sum, [undefined, 2]);
+		const withoutBValue = partial(sum, [1]);
+		const withoutAValue = partial(sum, [undefined, 2]);
 
-		expect(withoutB(3)).toEqual(4);
-		expect(withoutA(1)).toEqual(3);
+		expect(withoutBValue(3)).toEqual(4);
+		expect(withoutAValue(1)).toEqual(3);
 	});
 
 	test('objects are used for named arguments', () => {
@@ -27,5 +26,4 @@ describe('partial returns a partially provisioned function, '
 		expect(simple({ b: 2 })).toEqual(3);
 		expect(overridden({ a: 1, b: 2 })).toEqual(3);
 	});
-
 });

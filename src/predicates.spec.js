@@ -3,14 +3,13 @@ import { isEqual, isSame, isPart, doesContain,
 	truthy, falsy, everything, nothing,
 	first, unique,
 	not, or, and, onProp,
-	predicate,
-} from './predicates';
+	predicate } from './predicates';
 
 /* Helpers */
 import { contains, equals, filter, keys, shares } from './collection';
 import { truthies, falsies, array,
 	obj, cloned, extension, extended, isolated,
-	collection, extendedCollection, sortArray } from "../test/helpers";
+	collection, extendedCollection, sortArray } from '../test/helpers';
 
 /* Spec */
 describe('Predicates', () => {
@@ -21,7 +20,8 @@ describe('Predicates', () => {
 
 	test('isSame returns a function to test referential equality'
 		+ ' between the candidates', () => {
-		expect(filter(collection, isSame(collection.obj)).obj).toBe(collection.obj);
+		expect(filter(collection, isSame(collection.obj)).obj)
+			.toBe(collection.obj);
 	});
 
 	test('isPart returns a function to test whether the tested object is'
@@ -66,15 +66,18 @@ describe('Predicates', () => {
 		expect(filter(collection, not(isSame(obj))).obj).not.toBe(obj);
 		expect(filter(collection, not(isPart(extended))).obj).not.toBe(obj);
 
-		expect(sortArray(array.filter(not(truthy)))).toEqual(sortArray(falsies));
-		expect(sortArray(array.filter(not(falsy)))).toEqual(sortArray(truthies));
+		expect(sortArray(array.filter(not(truthy))))
+			.toEqual(sortArray(falsies));
+		expect(sortArray(array.filter(not(falsy))))
+			.toEqual(sortArray(truthies));
 		expect(sortArray(array.filter(not(everything)))).toEqual([]);
 		expect(sortArray(array.filter(not(nothing)))).toEqual(sortArray(array));
 	});
 
 	test('and returns a function to test the candidates to pass'
 	+ ' all the given predicates.', () => {
-		expect(filter(collection, and(isSame(obj), isSame(cloned)))).toEqual({});
+		expect(filter(collection, and(isSame(obj), isSame(cloned))))
+			.toEqual({});
 		expect(filter(collection, and(isSame(obj), isEqual(cloned))))
 			.toEqual({ obj });
 	});
@@ -94,28 +97,31 @@ describe('Predicates', () => {
 			onProp('d', isEqual(4)))).toEqual({ extended });
 	});
 
-	describe('generators pass all available arguments to the given predicates.', () => {
+	describe('generators pass all available arguments'
+	+ 'to the given predicates.', () => {
 		const generators = {
-			and, or, not
+			and, or, not,
 		};
 
 		test.each(keys(generators))('testing the generator: %s', (key) => {
-			const predicate = jest.fn();
+			const mockPredicate = jest.fn();
 			const args = [obj.a, 'a', obj];
 
-			filter(obj, generators[key](predicate));
+			filter(obj, generators[key](mockPredicate));
 
-			expect(predicate).toHaveBeenCalledWith(...args);
+			expect(mockPredicate).toHaveBeenCalledWith(...args);
 		});
 
 		test('testing the generator: onProp.', () => {
-			const predicate = jest.fn();
-			const collection = { obj };
+			const mockPredicate = jest.fn();
+			const mockCollection = { obj };
 			const prop = 'a';
 
-			filter(collection, onProp(prop, predicate));
+			filter(mockCollection, onProp(prop, mockPredicate));
 
-			expect(predicate).toHaveBeenCalledWith(obj[prop], 'obj', collection);
+			expect(mockPredicate).toHaveBeenCalledWith(
+				obj[prop], 'obj', mockCollection
+			);
 		});
 	});
 
@@ -127,7 +133,9 @@ describe('Predicates', () => {
 		expect(filter(extendedCollection, predicate(contains, extension)))
 			.toEqual({ extended });
 
-		expect(filter(extendedCollection, predicate(shares, extension, 'd')))
+		expect(filter(extendedCollection, predicate(
+			shares, extension, 'd'
+		)))
 			.toEqual({ extended });
 	});
 });

@@ -1,6 +1,4 @@
-// eslint-disable-next-line id-match
 const { assign, entries, keys, values } = Object;
-// eslint-disable-next-line id-match
 const { floor, random } = Math;
 
 // eslint-disable-next-line no-magic-numbers

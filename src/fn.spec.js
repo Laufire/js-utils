@@ -26,7 +26,7 @@ test('cache caches the given function based on parameters till the next call'
 });
 
 test('value extracts the value from the given function or variable', () => {
-	const val = Symbol();
+	const val = Symbol('val');
 
 	expect(value(val)).toBe(val);
 	expect(value(() => val)).toBe(val);

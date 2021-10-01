@@ -1,6 +1,6 @@
 /* Tested */
 import { map } from './collection';
-import  {
+import {
 	constructorName,
 	inferType,
 	isCollection,
@@ -15,7 +15,8 @@ describe('Reflection', () => {
 	/* Mocks and Stubs */
 	const obj = {};
 	const arr = [];
-	const fn = function(){};
+	const fn = function () {};
+	const Constructor = fn;
 
 	/* Tests */
 	test('constructorName returns the constructor name'
@@ -27,7 +28,7 @@ describe('Reflection', () => {
 			String: '',
 			Number: 1,
 			Date: new Date(),
-			fn: new fn(),
+			fn: new Constructor(),
 		};
 
 		map(expectations, (value, expectation) =>
@@ -70,7 +71,7 @@ describe('Reflection', () => {
 	test('isObject returns true only when the given value'
 	+ ' is an Objectish', () => {
 		expect(isObject(obj)).toEqual(true);
-		expect(isObject(new fn())).toEqual(true);
+		expect(isObject(new Constructor())).toEqual(true);
 		expect(isObject(arr)).toEqual(false);
 	});
 
