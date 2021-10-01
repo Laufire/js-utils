@@ -97,8 +97,9 @@ const withProb = (prob) => {
 	return () => rndBetween(0, inverse) < precision;
 };
 
-const isProbable = (probablity) =>
-	rndBetween(1, 100) <= probablity * 100;
+const isProbable = (probability) =>
+	// eslint-disable-next-line no-magic-numbers
+	rndBetween(1, 100) <= probability * 100;
 
 export {
 	rndBetween,

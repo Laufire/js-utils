@@ -5,10 +5,10 @@
 import { isDefined } from './reflection';
 
 const peek = (value, label) =>
-(
+	(
 	// eslint-disable-next-line no-console, no-sequences
-	console.log(...isDefined(label) ? [label] : [], value), value
-);
+		console.log(...isDefined(label) ? [label] : [], value), value
+	);
 
 const pretty = (value, indent = '\t') =>
 	JSON.stringify(

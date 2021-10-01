@@ -228,7 +228,7 @@ TODO: select uses key from objects and values from arrays streamline this.
 */
 const select = (collection, selector) => keyArray(selector)
 	.reduce((aggregate, prop) =>
-	(collection[prop] !== undefined
+		(collection[prop] !== undefined
 		// eslint-disable-next-line no-sequences
 		&& (aggregate[prop] = collection[prop]), aggregate),
 	shell(collection));
@@ -244,7 +244,7 @@ const omit = (obj, selector) => {
 		// eslint-disable-next-line no-return-assign
 		.reduce((aggregate, prop) =>
 		// eslint-disable-next-line no-sequences
-		(aggregate[prop] = obj[prop], aggregate)
+			(aggregate[prop] = obj[prop], aggregate)
 		, shell(obj));
 };
 
@@ -396,7 +396,7 @@ const translate = (source, translationMap) =>
 	entries(source).reduce((ret, [key, value]) =>
 		assign(ret, { [key]: translationMap[value] }), shell(source));
 
-// Ex: ([3, 5], {1: "a"}) => {a: 5}
+// Ex: ([3, 5], {1: 'a'}) => {a: 5}
 const rename = (source, renameMap) =>
 	entries(renameMap).reduce((ret, [key, value]) =>
 		assign(ret, { [value]: source[key] }), shell(source));
@@ -503,7 +503,7 @@ const shuffle = (collection) => {
 		// eslint-disable-next-line no-return-assign
 		: (t, c) =>
 		// eslint-disable-next-line no-sequences
-		(t[c] = collection[c], t),
+			(t[c] = collection[c], t),
 	shell(collection));
 };
 
