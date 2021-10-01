@@ -1,8 +1,8 @@
-import { varry } from './number';
+import { vary } from './number';
 import * as random from './random';
 
-describe("varry", () => {
-    test("varry should give a percentange between ", () => {
+describe("vary", () => {
+    test("vary should give a percentage between ", () => {
         const variance = 1;
         const hundred = 100;
         const min = hundred - (variance * hundred);
@@ -10,7 +10,7 @@ describe("varry", () => {
 
         jest.spyOn(random, 'rndBetween');
 
-        const result = varry(variance);
+        const result = vary(variance);
 
         expect(random.rndBetween).toHaveBeenCalledWith(min, max);
     });
