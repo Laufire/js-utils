@@ -262,9 +262,10 @@ rules:
   # require-atomic-updates: error # Marked.
 overrides:
   # Overrides for tests.
-  - files: [ "**.spec.js" ]
+  - files: [ "*.spec.js" ]
     rules:
-      max-lines-per-function: off
+      max-lines: ['off']
+      max-lines-per-function: 'off'
       max-nested-callbacks: 0
       max-statements: 0
       no-magic-numbers: 0

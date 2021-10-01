@@ -3,7 +3,6 @@
  */
 
 /* Helpers */
-// eslint-disable-next-line id-match
 const { isArray } = Array;
 
 const constructorName = (value) =>
