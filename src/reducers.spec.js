@@ -48,7 +48,7 @@ describe('Reducers', () => {
 	});
 
 	test('count returns the number of occurrences of the given counted'
-	+ 'among the  given candidates.', () => {
+	+ 'among the given candidates.', () => {
 		expect(reduce(
 			obj, count(1), 0
 		)).toEqual(1);
