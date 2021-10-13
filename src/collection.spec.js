@@ -1,10 +1,10 @@
 // NOTE: The reason for importing the modules, the old-school way
-//	Is to ensure that, the downstream dependencies aren't affected.
+// - is to ensure that, the downstream dependencies aren't affected.
 // NOTE: Immutability is tested implicitly, by preventing
-//	Mutations the mock objects.
+//	- mutations the mock objects.
 
 // TODO: Spy on the integrity of the params passed to the callbacks
-// Of map, traverse, etc.
+// - of map, traverse, etc.
 
 /* Tested */
 // TODO: Test index.
