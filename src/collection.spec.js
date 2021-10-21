@@ -536,7 +536,7 @@ describe('Collection', () => {
 		expect(contains(1, 0)).toBe(false);
 		expect(contains(complexObject, clone(complexObject))).toBe(true);
 		expect(contains(simpleObj, {})).toBe(true);
-		expect(equals({}, simpleObj)).toBe(false);
+		expect(contains({}, simpleObj)).toBe(false);
 	});
 
 	test('equals tests the value equality of primitives and'
