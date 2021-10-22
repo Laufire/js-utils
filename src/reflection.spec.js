@@ -1,4 +1,5 @@
-import { map } from '@laufire/utils/collection';
+import { map, range, fromEntries } from '@laufire/utils/collection';
+import { rndValue, rndBetween, rndString } from '@laufire/utils/random';
 
 /* Tested */
 import {
@@ -14,8 +15,8 @@ import {
 
 describe('Reflection', () => {
 	/* Mocks and Stubs */
-	const obj = {};
-	const arr = [];
+	const arr = range(0, rndBetween(5, 8));
+	const obj = fromEntries(map(arr, (value, index) => [index, value]));
 	const fn = function () {};
 	const Constructor = fn;
 
@@ -41,11 +42,13 @@ describe('Reflection', () => {
 
 	test('inferType infers the type of the given value', () => {
 		const expectations = {
+			function: fn,
 			object: obj,
 			array: arr,
-			function: fn,
 			date: new Date(),
-			number: 1,
+			number: rndBetween(0, 9),
+			string: rndString(16),
+			boolean: rndValue([true, false]),
 			null: null,
 			undefined: undefined,
 		};
