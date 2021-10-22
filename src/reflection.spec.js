@@ -1,5 +1,6 @@
-/* Tested */
 import { map } from '@laufire/utils/collection';
+
+/* Tested */
 import {
 	constructorName,
 	inferType,
