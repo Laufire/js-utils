@@ -19,6 +19,8 @@
 
 * Use the published version for testing.
 
+* Randomize all possible tests.
+
 * Improve randomized tests. They fail due to chance.
 
 * Consider passing nested paths to the callbacks of collection.traverse and collection.walk.
