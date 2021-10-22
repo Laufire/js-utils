@@ -1,5 +1,5 @@
 /* Tested */
-import { map } from './collection';
+import { map } from '@laufire/utils/collection';
 import {
 	constructorName,
 	inferType,
@@ -39,15 +39,18 @@ describe('Reflection', () => {
 	});
 
 	test('inferType infers the type of the given value', () => {
-		[
-			[obj, 'object'],
-			[arr, 'array'],
-			[fn, 'function'],
-			[new Date(), 'date'],
-			[1, 'number'],
-			[null, 'null'],
-			[undefined, 'undefined'],
-		].map(([value, type]) => expect(inferType(value)).toEqual(type));
+		const expectations = {
+			object: obj,
+			array: arr,
+			function: fn,
+			date: new Date(),
+			number: 1,
+			null: null,
+			undefined: undefined,
+		};
+
+		map(expectations, (value, type) =>
+			expect(inferType(value)).toEqual(type));
 	});
 
 	test('isCollection is an alias for isIterable', () => {
