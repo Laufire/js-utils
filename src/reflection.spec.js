@@ -39,10 +39,15 @@ describe('Reflection', () => {
 	});
 
 	test('inferType infers the type of the given value', () => {
-		expect(inferType(obj)).toEqual('object');
-		expect(inferType(1)).toEqual('number');
-		expect(inferType(null)).toEqual('null');
-		expect(inferType(undefined)).toEqual('undefined');
+		[
+			[obj, 'object'],
+			[arr, 'array'],
+			[fn, 'function'],
+			[new Date(), 'date'],
+			[1, 'number'],
+			[null, 'null'],
+			[undefined, 'undefined'],
+		].map(([value, type]) => expect(inferType(value)).toEqual(type));
 	});
 
 	test('isCollection is an alias for isIterable', () => {
