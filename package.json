@@ -8,6 +8,8 @@
     "build": "rm -rf ./dist && babel --ignore '**/*.spec.js' -d ./dist ./src && npm run copy",
     "dev": "npm run build && cd ./dist && npm link && cd ..",
     "test": "jest --no-cache",
+    "test-dev": "jest --no-cache",
+    "test-ci": "npm run test-dev -- --coverage",
     "lint": "eslint .",
     "prepareDist": "npm run lint && npm test && npm run build",
     "dist": "npm run prepareDist && cd dist && npm publish --ignore-scripts"
