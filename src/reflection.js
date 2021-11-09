@@ -43,6 +43,8 @@ const inferType = (value) => {
 /* Aliases */
 const isCollection = isIterable;
 
+const isEmpty = (value) => [null, undefined, NaN].includes(value);
+
 export {
 	constructorName,
 	inferType,
@@ -53,4 +55,5 @@ export {
 	isDict,
 	isObject,
 	isDefined,
+	isEmpty,
 };

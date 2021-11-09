@@ -11,6 +11,7 @@ import {
 	isDict,
 	isObject,
 	isDefined,
+	isEmpty,
 } from './reflection';
 
 describe('Reflection', () => {
@@ -91,5 +92,32 @@ describe('Reflection', () => {
 		+ ' is undefined', () => {
 		expect(isDefined(undefined)).toEqual(false);
 		expect(isDefined(obj)).toEqual(true);
+	});
+
+	describe('isEmpty', () => {
+		test('returns true if the value is empty', () => {
+			const expectations = {
+				null: null,
+				undefined: undefined,
+				NaN: NaN,
+			};
+
+			map(expectations, (value) =>
+				expect(isEmpty(value)).toEqual(true));
+		});
+
+		test('returns false if the value is not empty', () => {
+			const expectations = {
+				array: arr,
+				object: obj,
+				function: fn,
+				string: rndString(16),
+				number: rndBetween(0, 9),
+				boolean: rndValue([true, false]),
+			};
+
+			map(expectations, (value) =>
+				expect(isEmpty(value)).toEqual(false));
+		});
 	});
 });
