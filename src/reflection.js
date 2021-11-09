@@ -45,6 +45,9 @@ const isCollection = isIterable;
 
 const isEmpty = (value) => [null, undefined, NaN].includes(value);
 
+const isSimple = (value) => !isEmpty(value)
+	&& ['number', 'string', 'boolean'].includes(inferType(value));
+
 export {
 	constructorName,
 	inferType,
@@ -56,4 +59,5 @@ export {
 	isObject,
 	isDefined,
 	isEmpty,
+	isSimple,
 };
