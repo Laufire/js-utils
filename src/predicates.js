@@ -14,7 +14,7 @@ const isSame = (left) => (right) => left === right;
 
 const isPart = (left) => (right) => contains(left, right);
 
-const doesContain = isPart;
+const doesContain = (left) => (right) => contains(right, left);
 
 const truthy = (right) => !!right;
 

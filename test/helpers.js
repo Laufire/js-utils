@@ -1,4 +1,5 @@
-import { clone, secure, shuffle } from '../src/collection';
+import { clone, secure, shuffle, keys, filter } from '../src/collection';
+import { rndValue } from '../src/random';
 
 /* Config */
 const defaults = {
@@ -14,6 +15,8 @@ const cloned = secure(clone(obj));
 const extension = secure({ d: 4 });
 const collection = { obj, cloned };
 const extended = secure({ ...obj, ...extension });
+const rndkey = rndValue(keys(obj));
+const contracted = filter(obj, (dummy, key) => key !== rndkey);
 const isolated = secure({ z: 26 });
 const extendedCollection = { obj, cloned, extended };
 const array = secure(shuffle(truthies.concat(falsies)));
@@ -44,5 +47,5 @@ export {
 	truthies, falsies, array,
 	obj, cloned, extension, extended, isolated, collection, extendedCollection,
 	sortArray, getPredicate,
-	retry, strSubSet, isAcceptable,
+	retry, strSubSet, isAcceptable, contracted,
 };
