@@ -7,9 +7,9 @@ import { isEqual, isSame, isPart, doesContain,
 
 /* Helpers */
 import { contains, equals, filter, keys, shares } from './collection';
-import { truthies, falsies, array,
-	obj, cloned, extension, extended, isolated,
-	collection, extendedCollection, sortArray } from '../test/helpers';
+import { truthies, falsies, array, obj, cloned, extension, extended, isolated,
+	collection, extendedCollection, sortArray, contracted }
+	from '../test/helpers';
 
 /* Spec */
 describe('Predicates', () => {
@@ -30,8 +30,12 @@ describe('Predicates', () => {
 		expect(filter(collection, isPart(isolated))).toEqual({});
 	});
 
-	test('isPart is an alias for doesShare', () => {
-		expect(isPart).toBe(doesContain);
+	test('doesContain returns a function to test whether the tested object is'
+		+ 'partially contained in any of the elements', () => {
+		expect(filter(collection, doesContain(contracted)))
+			.toEqual(collection);
+		expect(filter(collection, doesContain(isolated)))
+			.toEqual({});
 	});
 
 	test('truthy tests for truthy values', () => {

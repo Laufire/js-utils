@@ -60,6 +60,7 @@ const rndValue = (collection) => {
 };
 
 const rndValues = (() => {
+	// TODO: Make rndvalues to work with objects.
 	// eslint-disable-next-line no-magic-numbers
 	const skip = (array, i) => [...array.slice(0, i), ...array.slice(i + 1)];
 
