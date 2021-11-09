@@ -27,12 +27,16 @@ const isIterable = (value) => isArray(value) || isDict(value);
 const isDefined = (value) => value !== undefined;
 
 const inferType = (value) => {
+	const startpos = 8;
+	const endpos = -1;
 	const type = typeof value;
 
 	return type !== 'object'
 		? type
 		: value !== null
-			? value.constructor.name.toLowerCase()
+			? Object.prototype.toString.call(value)
+				.slice(startpos, endpos)
+				.toLowerCase()
 			: 'null';
 };
 
