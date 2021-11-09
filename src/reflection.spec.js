@@ -1,4 +1,4 @@
-import { map, range, fromEntries } from '@laufire/utils/collection';
+import { map, range, fromEntries, values } from '@laufire/utils/collection';
 import { rndValue, rndBetween, rndString } from '@laufire/utils/random';
 
 /* Tested */
@@ -21,6 +21,37 @@ describe('Reflection', () => {
 	const obj = fromEntries(map(arr, (value, index) => [index, value]));
 	const fn = function () {};
 	const Constructor = fn;
+	const constructed = new Constructor();
+	const emptyTypes = {
+		null: null,
+		undefined: undefined,
+		number: NaN,
+	};
+	const simpleTypes = {
+		number: rndBetween(0, 9),
+		string: rndString(16),
+		boolean: rndValue([true, false]),
+	};
+	const iterableTypes = {
+		array: arr,
+		object: obj,
+		map: new Map(),
+	};
+	const constructedTypes = {
+		date: new Date(),
+		map: new Map(),
+		object: constructed,
+	};
+	const complexTypes = {
+		...iterableTypes,
+		...constructedTypes,
+		function: fn,
+	};
+	const allTypes = {
+		...emptyTypes,
+		...simpleTypes,
+		...complexTypes,
+	};
 
 	/* Tests */
 	test('constructorName returns the constructor name'
@@ -32,7 +63,7 @@ describe('Reflection', () => {
 			String: '',
 			Number: 1,
 			Date: new Date(),
-			fn: new Constructor(),
+			fn: constructed,
 		};
 
 		map(expectations, (value, expectation) =>
@@ -43,17 +74,7 @@ describe('Reflection', () => {
 	});
 
 	test('inferType infers the type of the given value', () => {
-		const expectations = {
-			function: fn,
-			object: obj,
-			array: arr,
-			date: new Date(),
-			number: rndBetween(0, 9),
-			string: rndString(16),
-			boolean: rndValue([true, false]),
-			null: null,
-			undefined: undefined,
-		};
+		const expectations = allTypes;
 
 		map(expectations, (value, type) =>
 			expect(inferType(value)).toEqual(type));
@@ -85,7 +106,7 @@ describe('Reflection', () => {
 	test('isObject returns true only when the given value'
 	+ ' is an Objectish', () => {
 		expect(isObject(obj)).toEqual(true);
-		expect(isObject(new Constructor())).toEqual(true);
+		expect(isObject(constructed)).toEqual(true);
 		expect(isObject(arr)).toEqual(false);
 	});
 
@@ -95,55 +116,18 @@ describe('Reflection', () => {
 		expect(isDefined(obj)).toEqual(true);
 	});
 
-	describe('isEmpty', () => {
-		test('returns true if the value is empty', () => {
-			const expectations = {
-				null: null,
-				undefined: undefined,
-				NaN: NaN,
-			};
+	test('isEmpty', () => {
+		const emptyValues = values(emptyTypes);
 
-			map(expectations, (value) =>
-				expect(isEmpty(value)).toEqual(true));
-		});
-
-		test('returns false if the value is not empty', () => {
-			const expectations = {
-				array: arr,
-				object: obj,
-				function: fn,
-				string: rndString(16),
-				number: rndBetween(0, 9),
-				boolean: rndValue([true, false]),
-			};
-
-			map(expectations, (value) =>
-				expect(isEmpty(value)).toEqual(false));
-		});
+		map(allTypes, (value) =>
+			expect(isEmpty(value)).toEqual(emptyValues.includes(value)));
 	});
 
-	describe('isSimple', () => {
-		test('returns true, if the value is simple', () => {
-			const expectations = {
-				string: rndString(16),
-				number: rndBetween(0, 9),
-				boolean: rndValue([true, false]),
-			};
+	test('isSimple', () => {
+		const simpleValues = values(simpleTypes);
 
-			map(expectations, (value) =>
-				expect(isSimple(value)).toEqual(true));
-		});
-
-		test('returns false, if the value is not simple', () => {
-			const expectations = {
-				NaN: NaN,
-				array: arr,
-				object: obj,
-				function: fn,
-			};
-
-			map(expectations, (value) =>
-				expect(isSimple(value)).toEqual(false));
-		});
+		map(allTypes, (value) =>
+			expect(isSimple(value)).toEqual(simpleValues.includes(value)));
+		expect(isSimple(NaN)).toEqual(false);
 	});
 });
