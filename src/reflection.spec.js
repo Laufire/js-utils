@@ -12,6 +12,7 @@ import {
 	isObject,
 	isDefined,
 	isEmpty,
+	isSimple,
 } from './reflection';
 
 describe('Reflection', () => {
@@ -118,6 +119,31 @@ describe('Reflection', () => {
 
 			map(expectations, (value) =>
 				expect(isEmpty(value)).toEqual(false));
+		});
+	});
+
+	describe('isSimple', () => {
+		test('returns true, if the value is simple', () => {
+			const expectations = {
+				string: rndString(16),
+				number: rndBetween(0, 9),
+				boolean: rndValue([true, false]),
+			};
+
+			map(expectations, (value) =>
+				expect(isSimple(value)).toEqual(true));
+		});
+
+		test('returns false, if the value is not simple', () => {
+			const expectations = {
+				NaN: NaN,
+				array: arr,
+				object: obj,
+				function: fn,
+			};
+
+			map(expectations, (value) =>
+				expect(isSimple(value)).toEqual(false));
 		});
 	});
 });
