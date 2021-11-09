@@ -26,7 +26,7 @@ describe('Predicates', () => {
 
 	test('isPart returns a function to test whether the tested object is'
 		+ ' wholly contained in any of the elements', () => {
-		expect(filter(collection, isPart(extended)).obj).toBe(collection.obj);
+		expect(filter(collection, isPart(extended))).toEqual(collection);
 		expect(filter(collection, isPart(isolated))).toEqual({});
 	});
 
