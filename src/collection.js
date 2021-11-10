@@ -110,22 +110,17 @@ NOTE: The standard each implementation is avoided, as it doesn't align -
 const each = map;
 
 // An Array.filter like function for Objects.
-/*
-TODO: Try accommodating arrays. The issue is that Object.keys works with
-	sparse keys, unlike [].keys, which does with dense.
-*/
-const filter = (obj, cb) => {
-	const ret = shell(obj);
-
-	keys(obj).forEach((key) => {
-		if(cb(
-			obj[key], key, obj
-		))
-			ret[key] = obj[key];
-	});
-
-	return ret;
-};
+const filter = (iterable, cb) => (isArray(iterable)
+	? iterable.filter(cb)
+	// eslint-disable-next-line no-return-assign
+	: keys(iterable).reduce((t, key) => (
+		(
+			cb(
+				iterable[key], key, iterable
+			) && (t[key] = iterable[key]), t
+		)
+	)
+	, {}));
 
 // An Array.reduce like function for Objects.
 const reduce = (
