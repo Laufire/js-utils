@@ -24,6 +24,6 @@ test('getDR gives the distance ratio between two numbers', () => {
 	const result = rndBetween(70, 80) / 100;
 	const actual = expected - (expected * result);
 
-	expect(getDR(actual, expected))
-		.toEqual(Number(result.toFixed(2)));
+	expect(getDR(actual, expected).toFixed(2))
+		.toEqual(result.toFixed(2));
 });
