@@ -3,7 +3,7 @@
  */
 
 /* Imports */
-import { keys, map, values } from './collection';
+import { keys, map, values, filter, reduce } from './collection';
 import { rndBetween as rb } from './lib';
 
 /* Exports */
@@ -60,17 +60,17 @@ const rndValue = (collection) => {
 };
 
 const rndValues = (() => {
-	// TODO: Make rndvalues to work with objects.
-	// eslint-disable-next-line no-magic-numbers
-	const skip = (array, i) => [...array.slice(0, i), ...array.slice(i + 1)];
+	const skipRndKey = (iterable) => {
+		const rndKey = rndValue(keys(iterable));
 
-	return (iterable, count = 1) => {
-		const array = values(iterable);
-
-		return array.reduce((t) => (t.length > count
-			? skip(t, rndBetween(0, t.length - 1))
-			: t), array);
+		return filter(iterable, (dummy, key) => String(key) !== rndKey);
 	};
+
+	return (iterable, count = 1) => reduce(
+		iterable, (t) => (keys(t).length > count
+			? skipRndKey(t)
+			: t), iterable
+	);
 })();
 
 const rndValueWeighted = (weights) => {

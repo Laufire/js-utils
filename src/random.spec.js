@@ -1,4 +1,4 @@
-import { fromEntries, map, pick, range } from './collection';
+import { contains, fromEntries, map, pick, range } from './collection';
 import { isEqual } from './predicates';
 
 /* Tested */
@@ -10,7 +10,7 @@ import {
 
 /* Helpers */
 import { retry, strSubSet, isAcceptable } from '../test/helpers';
-import { values } from './lib';
+import { keys } from './lib';
 
 /* Tests */
 describe('rndBetween', () => {
@@ -95,15 +95,24 @@ describe('rndValues returns the given count of random a values'
 
 	test('returns count number of values when the iterable length'
 	+ 'is longer than count', () => {
-		const test = (iterable) => {
-			const count = rndBetween(0, length - 1);
+		const count = rndBetween(0, length - 1);
+		const arrayTest = (iterable) => {
 			const result = rndValues(iterable, count);
 
-			expect(result.length).toEqual(count);
-			result.forEach((item) => expect(values(iterable)).toContain(item));
+			expect(keys(result).length).toEqual(count);
+			result.map((val) => expect(iterable.includes(val)).toEqual(true));
+		};
+		const objectTest = (iterable) => {
+			const result = rndValues(iterable, count);
+
+			expect(keys(result).length).toEqual(count);
+			expect(contains(iterable, result)).toEqual(true);
 		};
 
-		retry(() => [array, object].forEach(test));
+		retry(() => {
+			arrayTest(array);
+			objectTest(object);
+		});
 	});
 
 	test('count is limited to the length of the source iterable', () => {
@@ -111,7 +120,7 @@ describe('rndValues returns the given count of random a values'
 			const count = seed.length * 2;
 			const result = rndValues(iterable, count);
 
-			expect(result.length).toEqual(seed.length);
+			expect(keys(result).length).toEqual(seed.length);
 		};
 
 		retry(() => [array, object].forEach(test));
