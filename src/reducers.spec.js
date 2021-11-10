@@ -1,10 +1,9 @@
+/* Helpers */
+import { merge, reduce, secure, values } from '@laufire/utils/collection';
+import { obj, extension, extended } from '../test/helpers';
+
 /* Tested */
 import { avg, count, len, max, min, product, reducer, sum } from './reducers';
-
-/* Helpers */
-import { merge, reduce, secure } from './collection';
-import { values } from './lib';
-import { obj, extension, extended } from '../test/helpers';
 
 /* Spec */
 describe('Reducers', () => {

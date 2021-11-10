@@ -1,15 +1,16 @@
+/* Helpers */
+import { contains, equals, filter, keys, shares } from
+	'@laufire/utils/collection';
+import { truthies, falsies, array, obj, cloned, extension, extended, isolated,
+	collection, extendedCollection, sortArray, contracted }
+	from '../test/helpers';
+
 /* Tested */
 import { isEqual, isSame, isPart, doesContain,
 	truthy, falsy, everything, nothing,
 	first, unique,
 	not, or, and, onProp,
 	predicate } from './predicates';
-
-/* Helpers */
-import { contains, equals, filter, keys, shares } from './collection';
-import { truthies, falsies, array, obj, cloned, extension, extended, isolated,
-	collection, extendedCollection, sortArray, contracted }
-	from '../test/helpers';
 
 /* Spec */
 describe('Predicates', () => {
