@@ -1,70 +1,101 @@
+/* Helpers */
+import { dict, secure, values } from '@laufire/utils/collection';
+import { rndString, rndBetween } from '@laufire/utils/random';
 /* Tested */
 import { descend, index, summarize } from './crunch';
-
-/* Helpers */
-import { dict, secure, values } from './collection';
 
 const sum = (...numbers) => numbers.reduce((t, c) => t + c, 0);
 
 /* Spec */
 describe('Crunch', () => {
 	/* Mocks and Stubs */
-	const elmOne = secure({ a: 1, b: 2 });
-	const elmTwo = secure({ a: 1, b: 3 });
-	const elmThree = secure({ a: 1, b: 3 });
+	const rndKeyOne = rndString();
+	const rndKeyTwo = rndString();
+	const rndValueOne = rndBetween(0, 9);
+	const rndValueTwo = rndBetween(0, 9);
+	const rndValueThree = rndValueTwo + 1;
+	const elmOne = secure({
+		[rndKeyOne]: rndValueOne,
+		[rndKeyTwo]: rndValueTwo,
+	});
+	const elmTwo = secure({
+		[rndKeyOne]: rndValueOne,
+		[rndKeyTwo]: rndValueThree,
+	});
+	const elmThree = secure({
+		[rndKeyOne]: rndValueOne,
+		[rndKeyTwo]: rndValueThree,
+	});
 	const arr = secure([elmOne, elmTwo, elmThree]);
 	const obj = secure(dict(arr));
+	const types = [arr, obj];
 
 	test('index builds and index the given collection'
 	+ ' on the given keys of the children to help with retrieval', () => {
-		const expected = { 1: { 2: [elmOne], 3: [elmTwo, elmThree] }};
+		const expected = {
+			[rndValueOne]: {
+				[rndValueTwo]: [elmOne],
+				[rndValueThree]: [elmTwo, elmThree],
+			},
+		};
 
-		const indexedFromArr = index(
-			arr, 'a', 'b'
-		);
-		const indexedFromObj = index(
-			obj, 'a', 'b'
-		);
+		types.forEach((item) => {
+			const result = index(
+				item, rndKeyOne, rndKeyTwo
+			);
 
-		expect(indexedFromArr).toEqual(expected);
-		expect(indexedFromObj).toEqual(expected);
+			expect(result).toEqual(expected);
+		});
 	});
 
 	test('summarize summarizes the given collection'
 	+ ' and builds an index on the given keys', () => {
 		const summarizer = (item) => sum(...values(item));
-		const expected = { 1: { 2: 3, 3: 4 }};
+		const expected = {
+			[rndValueOne]: {
+				[rndValueTwo]: rndValueOne + rndValueTwo,
+				[rndValueThree]: rndValueOne + rndValueThree,
+			},
+		};
 
-		const summaryFromArr = summarize(
-			arr, summarizer, 'a', 'b'
-		);
-		const summaryFromObj = summarize(
-			obj, summarizer, 'a', 'b'
-		);
+		types.forEach((item) => {
+			const result = summarize(
+				item, summarizer, rndKeyOne, rndKeyTwo
+			);
 
-		expect(summaryFromArr).toEqual(expected);
-		expect(summaryFromObj).toEqual(expected);
+			expect(result).toEqual(expected);
+		});
 	});
 
 	test('descend descends into the given collection'
 	+ ' upto the given level and executes the given process'
 	+ ' and returns a new collection', () => {
-		const process = (num) => num + 1;
+		const numTwo = rndBetween(0, 9);
+		const descendLevel = 1;
+		const process = (num) => num + numTwo;
 		const expectedFromArr = [
-			{ a: 2, b: 3 },
-			{ a: 2, b: 4 },
-			{ a: 2, b: 4 },
+			{
+				[rndKeyOne]: rndValueOne + numTwo,
+				[rndKeyTwo]: rndValueTwo + numTwo,
+			},
+			{
+				[rndKeyOne]: rndValueOne + numTwo,
+				[rndKeyTwo]: rndValueThree + numTwo,
+			},
+			{
+				[rndKeyOne]: rndValueOne + numTwo,
+				[rndKeyTwo]: rndValueThree + numTwo,
+			},
 		];
 		const expectedFromObj = dict(expectedFromArr);
+		const expectations = [expectedFromArr, expectedFromObj];
 
-		const gotFromArr = descend(
-			arr, process, 1
-		);
-		const gotFromObj = descend(
-			obj, process, 1
-		);
+		types.forEach((item, i) => {
+			const result = descend(
+				item, process, descendLevel
+			);
 
-		expect(gotFromArr).toEqual(expectedFromArr);
-		expect(gotFromObj).toEqual(expectedFromObj);
+			expect(result).toEqual(expectations[i]);
+		});
 	});
 });
