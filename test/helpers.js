@@ -1,5 +1,4 @@
 import { clone, secure, shuffle, keys, filter } from '../src/collection';
-import { getDR } from '../src/number';
 import { rndValue } from '../src/random';
 
 /* Config */
@@ -40,9 +39,9 @@ const retry = (fn, retryCount = defaults.retryCount) => {
 const strSubSet = (superStr, tested) =>
 	tested.split('').findIndex((char) => !(superStr.indexOf(char) > -1)) === -1;
 
-const isAcceptable = (
-	actual, expected, margin
-) => getDR(actual, expected) <= margin;
+	const isAcceptable = (
+		actual, expected, margin
+	) => Math.abs((expected - actual) / (expected || 1)) <= margin;
 
 export {
 	truthies, falsies, array,
