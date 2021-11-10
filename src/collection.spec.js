@@ -7,7 +7,6 @@
 // - of map, traverse, etc.
 
 /* Tested */
-// TODO: Test index.
 import {
 	adopt, shares, clean, clone, compose, combine, contains, dict, diff,
 	each, entries, equals, find, findIndex, findKey, fill, filter, flip,

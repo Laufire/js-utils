@@ -16,9 +16,6 @@ import { inferType } from './reflection';
  * value.
  * Ex: (k) => value.
  */
-/* TODO: Check whether this function could be named as translator.
-	Hence this is a higher order function.
-*/
 const translate = (map) => (key) => map[key];
 
 // eslint-disable-next-line max-lines-per-function
