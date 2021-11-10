@@ -1,8 +1,10 @@
 /* Tested */
-import { cache, value } from './fn';
+import { cache, value, defined } from './fn';
 
 /* Helpers */
-import { equals } from './collection';
+import { equals, range } from './collection';
+import { isDefined } from './reflection';
+import { rndBetween } from './random';
 
 test('cache caches the given function based on parameters till the next call'
 	+ ' with a new set of args', () => {
@@ -30,4 +32,15 @@ test('value extracts the value from the given function or variable', () => {
 
 	expect(value(val)).toBe(val);
 	expect(value(() => val)).toBe(val);
+});
+
+test('defined filters the first defined value', () => {
+	const randomLimit = rndBetween(5, 8);
+	const values = range(0, randomLimit);
+
+	values[rndBetween(0, randomLimit)] = undefined;
+
+	values.forEach((item, i) =>
+		expect(defined(...values.slice(i)))
+			.toEqual(isDefined(item) ? item : values[i + 1]));
 });
