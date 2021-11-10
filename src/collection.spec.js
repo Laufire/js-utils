@@ -23,6 +23,7 @@ import { rndBetween } from './lib';
 import { isDefined } from './reflection';
 import { ascending, descending } from './sorters';
 import { product, sum } from './reducers';
+import { rndValue } from './random';
 
 const mockObj = (keys, value) =>
 	fromEntries(map(keys, (key) => [key, isDefined(value) ? value : key]));
@@ -121,11 +122,15 @@ describe('Collection', () => {
 
 	test('filter filters the properties of the given iterable using'
 	+ ' the passed filter function', () => {
-		expect(filter(simpleObj, getPredicate(1))).toEqual({
-			a: 1,
-		});
+		const array = range(0, 10);
+		const object = array.reduce((t, val) =>
+			({ ...t, [val]: val }), {});
+		const needle = rndValue(array);
 
-		expect(filter(simpleArray, getPredicate(1))).toEqual([1]);
+		expect(filter(object, getPredicate(object[needle])))
+			.toEqual({ [needle]: object[needle] });
+		expect(filter(array, getPredicate(needle)))
+			.toEqual([needle]);
 	});
 
 	test('reduce reduces the given collection.', () => {
