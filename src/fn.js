@@ -4,7 +4,7 @@
  */
 
 import { hasSame } from './collection';
-import { isFunction } from './reflection';
+import { isFunction, isDefined } from './reflection';
 
 const cache = (fn, qualifier = hasSame) => {
 	// eslint-disable-next-line init-declarations
@@ -20,7 +20,10 @@ const cache = (fn, qualifier = hasSame) => {
 
 const value = (x) => (isFunction(x) ? x() : x);
 
+const defined = (...values) => values.find(isDefined);
+
 export {
 	cache,
 	value,
+	defined,
 };
