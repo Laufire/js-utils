@@ -1,6 +1,5 @@
-// TODO: Use the imported version of the library for test.
-import { clone, secure, shuffle, keys, filter } from '../src/collection';
-import { rndValue } from '../src/random';
+import { clone, secure, shuffle, keys, filter } from '@laufire/utils/collection';
+import { rndValue } from '@laufire/utils/random';
 
 /* Config */
 const defaults = {

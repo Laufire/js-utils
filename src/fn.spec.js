@@ -1,10 +1,10 @@
+/* Helpers */
+import { equals, range } from '@laufire/utils/collection';
+import { isDefined } from '@laufire/utils/reflection';
+import { rndBetween } from '@laufire/utils/random';
+
 /* Tested */
 import { cache, value, defined } from './fn';
-
-/* Helpers */
-import { equals, range } from './collection';
-import { isDefined } from './reflection';
-import { rndBetween } from './random';
 
 test('cache caches the given function based on parameters till the next call'
 	+ ' with a new set of args', () => {

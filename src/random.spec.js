@@ -1,5 +1,6 @@
-import { contains, fromEntries, map, pick, range } from './collection';
-import { isEqual } from './predicates';
+import { isEqual } from '@laufire/utils/predicates';
+import { map, contains, fromEntries, pick, range, keys } from
+	'@laufire/utils/collection';
 
 /* Tested */
 import {
@@ -10,7 +11,6 @@ import {
 
 /* Helpers */
 import { retry, strSubSet, isAcceptable } from '../test/helpers';
-import { keys } from './lib';
 
 /* Tests */
 describe('rndBetween', () => {
