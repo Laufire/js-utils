@@ -1,12 +1,14 @@
 /* Helpers */
-import { map, merge, values } from './collection';
+import { combine, map, merge, values } from './collection';
 
 /* Exports */
 const index = (collection, ...indexKeys) => {
 	indexKeys.reverse();
 
-	return merge(...values(map(collection, (item) =>
-		indexKeys.reduce((agg, key) => ({ [item[key]]: agg }), item))));
+	return combine(...values(map(collection, (item) =>
+		indexKeys.reduce((
+			agg, indexKey, i
+		) => ({ [item[indexKey]]: i === 0 ? [agg] : agg }), item))));
 };
 
 const summarize = (
