@@ -15,7 +15,7 @@ setupEnvironment() {
 
 installPackages() {
 
-	npm install
+	pnpm install
 }
 
 # Main
