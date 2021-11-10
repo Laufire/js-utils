@@ -5,6 +5,12 @@
 
 // TODO: Spy on the integrity of the params passed to the callbacks
 // - of map, traverse, etc.
+/* Helpers */
+import { sortArray, getPredicate } from '../test/helpers';
+import { rndBetween, rndValue } from '@laufire/utils/random';
+import { isDefined } from '@laufire/utils/reflection';
+import { ascending, descending } from '@laufire/utils/sorters';
+import { product, sum } from '@laufire/utils/reducers';
 
 /* Tested */
 import {
@@ -15,14 +21,6 @@ import {
 	sanitize, secure, select, shell, shuffle, spread, sort, squash,
 	translate, traverse, walk, values,
 } from './collection';
-
-/* Helpers */
-import { sortArray, getPredicate } from '../test/helpers';
-import { rndBetween } from './lib';
-import { isDefined } from './reflection';
-import { ascending, descending } from './sorters';
-import { product, sum } from './reducers';
-import { rndValue } from './random';
 
 const mockObj = (keys, value) =>
 	fromEntries(map(keys, (key) => [key, isDefined(value) ? value : key]));
