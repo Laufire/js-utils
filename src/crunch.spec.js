@@ -11,12 +11,13 @@ describe('Crunch', () => {
 	/* Mocks and Stubs */
 	const elmOne = secure({ a: 1, b: 2 });
 	const elmTwo = secure({ a: 1, b: 3 });
-	const arr = secure([elmOne, elmTwo]);
+	const elmThree = secure({ a: 1, b: 3 });
+	const arr = secure([elmOne, elmTwo, elmThree]);
 	const obj = secure(dict(arr));
 
 	test('index builds and index the given collection'
 	+ ' on the given keys of the children to help with retrieval', () => {
-		const expected = { 1: { 2: elmOne, 3: elmTwo }};
+		const expected = { 1: { 2: [elmOne], 3: [elmTwo, elmThree] }};
 
 		const indexedFromArr = index(
 			arr, 'a', 'b'
@@ -49,7 +50,11 @@ describe('Crunch', () => {
 	+ ' upto the given level and executes the given process'
 	+ ' and returns a new collection', () => {
 		const process = (num) => num + 1;
-		const expectedFromArr = [{ a: 2, b: 3 }, { a: 2, b: 4 }];
+		const expectedFromArr = [
+			{ a: 2, b: 3 },
+			{ a: 2, b: 4 },
+			{ a: 2, b: 4 },
+		];
 		const expectedFromObj = dict(expectedFromArr);
 
 		const gotFromArr = descend(
