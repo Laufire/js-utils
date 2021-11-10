@@ -19,11 +19,27 @@ describe('vary', () => {
 	});
 });
 
-test('getDR gives the distance ratio between two numbers', () => {
-	const expected = rndBetween(50, 60);
-	const result = rndBetween(70, 80) / 100;
-	const actual = expected - (expected * result);
+describe('getDR', () => {
+	test('gives the distance ratio between two numbers', () => {
+		const numTwo = rndBetween(50, 60);
+		const result = rndBetween(70, 80) / 100;
+		const numOne = numTwo - (numTwo * result);
 
-	expect(getDR(actual, expected).toFixed(2))
-		.toEqual(result.toFixed(2));
+		expect(getDR(numOne, numTwo).toFixed(2))
+			.toEqual(result.toFixed(2));
+	});
+
+	test('gives infinity if numTwo is zero', () => {
+		const numTwo = 0;
+		const numOne = rndBetween(50, 60);
+
+		expect(getDR(numOne, numTwo)).toEqual(Infinity);
+	});
+
+	test('gives zero if both numbers are zero', () => {
+		const numTwo = 0;
+		const numOne = 0;
+
+		expect(getDR(numOne, numTwo)).toEqual(0);
+	});
 });
