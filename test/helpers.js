@@ -1,4 +1,5 @@
 import { clone, secure, shuffle, keys, filter } from '../src/collection';
+import { getDR } from '../src/number';
 import { rndValue } from '../src/random';
 
 /* Config */
@@ -41,7 +42,7 @@ const strSubSet = (superStr, tested) =>
 
 const isAcceptable = (
 	actual, expected, margin
-) => Math.abs((expected - actual) / (expected || 1)) <= margin;
+) => getDR(actual, expected) <= margin;
 
 export {
 	truthies, falsies, array,
