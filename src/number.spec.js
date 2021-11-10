@@ -1,5 +1,5 @@
 import { rndBetween } from './lib';
-import { vary } from './number';
+import { getDR, vary } from './number';
 import * as random from './random';
 
 describe('vary', () => {
@@ -17,4 +17,13 @@ describe('vary', () => {
 		expect(random.rndBetween).toHaveBeenCalledWith(min, max);
 		expect(result).toBe(mockResult / 100);
 	});
+});
+
+test('getDR gives the distance ratio between two numbers', () => {
+	const expected = rndBetween(50, 60);
+	const result = rndBetween(70, 80) / 100;
+	const actual = expected - (expected * result);
+
+	expect(getDR(actual, expected))
+		.toEqual(Number(result.toFixed(2)));
 });
