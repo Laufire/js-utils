@@ -6,8 +6,10 @@ const vary = (variance) =>
 	rndBetween(hundred - (variance * hundred),
 		hundred + (variance * hundred)) / hundred;
 
-const getDR = (actual, expected) =>
-	Math.abs((expected - actual) / expected);
+const getDR = (numOne, numTwo) =>
+	(numTwo
+		? Math.abs((numTwo - numOne) / numTwo)
+		: numOne ? Infinity : 0);
 
 export {
 	vary,
