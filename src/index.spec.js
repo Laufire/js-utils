@@ -1,5 +1,5 @@
+import { traverse } from '@laufire/utils/collection';
 import * as laufire from '.';
-import { traverse } from './collection';
 
 const isGetter = (obj, prop) =>
 	!!Object.getOwnPropertyDescriptor(obj, prop).get;

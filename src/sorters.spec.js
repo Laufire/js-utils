@@ -1,10 +1,10 @@
+/* Helpers */
+import { map, range, secure, shuffle, sort, translate, values } from
+	'@laufire/utils/collection';
+
 /* Tested */
 import { ascending, compile, descending, existing,
 	onProp, reverse } from './sorters';
-
-/* Helpers */
-import { map, range, secure, shuffle, sort, translate } from './collection';
-import { values } from './lib';
 
 /* Spec */
 describe('Sorters', () => {
