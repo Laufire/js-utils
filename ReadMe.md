@@ -17,31 +17,19 @@
 
 ## ToDo
 
-* Use the published version for testing.
-
-* Randomize all possible tests.
-
-* Improve randomized tests. They fail due to chance.
-
 * Consider passing nested paths to the callbacks of collection.traverse and collection.walk.
 
-* Maintain key order in the results.
-
-* Thinks of the right way to standardize collection.keys. It gives string keys for array, which might or might not be preferable.
+* Ensure key order in the results.
 
 * Move to Typescript, to allow for better support on IDEs.
 
-* Lint the tests.
-
 * Fix grammar.
 
-* Improve the API documentation.
+* Improve API documentation.
 
 * Test the index file for the integrity of imports.
 
 * Coverage might not cover all paths. Especially those of shared functions, as they might be partially covered by multiple functions, yet report full coverage. Find a fix for this.
-
-* Introduce collection.sort, a non-mutating one.
 
 * Functionalities:
 
@@ -70,3 +58,7 @@
 ## Gotchas
 
 * Object keys maintain a chronological order, unless they are integers. In which case they are added to the beginning in an ascending order.
+
+## Decisions
+
+* 20211111 - Decided to use numbers as array keys, to play nice with third party libraries.

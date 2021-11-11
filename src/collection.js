@@ -79,10 +79,6 @@ const { freeze, preventExtensions,
 	seal } = Object;
 
 /* Exports */
-/*
-TODO: Decide whether keys on arrays should return numbers,
-	instead of strings.
-*/
 
 /**
  * Returns an empty container of the same type as the given collection.
