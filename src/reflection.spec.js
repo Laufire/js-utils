@@ -1,4 +1,7 @@
-import { map, range, fromEntries, values } from '@laufire/utils/collection';
+import {
+	map, range, fromEntries,
+	values, secure,
+} from '@laufire/utils/collection';
 import { rndValue, rndBetween, rndString } from '@laufire/utils/random';
 
 /* Tested */
@@ -17,41 +20,41 @@ import {
 
 describe('Reflection', () => {
 	/* Mocks and Stubs */
-	const arr = range(0, rndBetween(5, 8));
-	const obj = fromEntries(map(arr, (value, index) => [index, value]));
+	const arr = secure(range(0, rndBetween(5, 8)));
+	const obj = secure(fromEntries(map(arr, (value, index) => [index, value])));
 	const fn = function () {};
 	const Constructor = fn;
 	const constructed = new Constructor();
-	const emptyTypes = {
+	const emptyTypes = secure({
 		null: null,
 		undefined: undefined,
 		number: NaN,
-	};
-	const simpleTypes = {
+	});
+	const simpleTypes = secure({
 		number: rndBetween(0, 9),
 		string: rndString(16),
 		boolean: rndValue([true, false]),
-	};
-	const iterableTypes = {
+	});
+	const iterableTypes = secure({
 		array: arr,
 		object: obj,
 		map: new Map(),
-	};
-	const constructedTypes = {
+	});
+	const constructedTypes = secure({
 		date: new Date(),
 		map: new Map(),
 		object: constructed,
-	};
-	const complexTypes = {
+	});
+	const complexTypes = secure({
 		...iterableTypes,
 		...constructedTypes,
 		function: fn,
-	};
-	const allTypes = {
+	});
+	const allTypes = secure({
 		...emptyTypes,
 		...simpleTypes,
 		...complexTypes,
-	};
+	});
 
 	/* Tests */
 	test('constructorName returns the constructor name'

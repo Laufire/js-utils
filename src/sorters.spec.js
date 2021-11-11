@@ -40,16 +40,16 @@ describe('Sorters', () => {
 	});
 
 	describe('compile helps in sorting collection of collections.', () => {
-		const data = [
+		const data = secure([
 			{ a: 1, b: 2 },
 			{ a: 1, b: 1 },
 			{ a: 0, b: 3 },
 			{ a: 1, b: 1 },
-		];
+		]);
 
 		test('compile works with multiple props,'
 		+ 'with descending priority.', () => {
-			const config = { a: 'ascending', b: 'descending' };
+			const config = secure({ a: 'ascending', b: 'descending' });
 			const expected = translate([2, 0, 1, 3], data);
 
 			const sorted = sort(data, compile(config));
@@ -58,8 +58,8 @@ describe('Sorters', () => {
 		});
 
 		test('compile supports custom grammars.', () => {
-			const grammar = { descending: ascending };
-			const config = { a: 'ascending', b: 'descending' };
+			const grammar = secure({ descending: ascending });
+			const config = secure({ a: 'ascending', b: 'descending' });
 			const expected = translate([2, 1, 3, 0], data);
 
 			const sorted = sort(data, compile(config, grammar));
@@ -68,7 +68,7 @@ describe('Sorters', () => {
 		});
 
 		test('compile works with two dimensional arrays.', () => {
-			const config = ['ascending', 'descending'];
+			const config = secure(['ascending', 'descending']);
 			const arrData = map(data, values);
 			const expected = translate([2, 0, 1, 3], arrData);
 

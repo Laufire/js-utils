@@ -1,5 +1,5 @@
 import { isEqual } from '@laufire/utils/predicates';
-import { map, contains, fromEntries, pick, range, keys } from
+import { map, contains, fromEntries, pick, range, keys, secure } from
 	'@laufire/utils/collection';
 
 /* Tested */
@@ -68,8 +68,8 @@ test('rndOfString returns a random sub-string of the given string.', () => {
 describe('rndValue returns a random a value from the given iterable.', () => {
 	test('returns a value when the iterable is not empty', () => {
 		const seed = retry((i) => [i, rndString()], 10);
-		const array = pick(seed, 1);
-		const object = fromEntries(seed);
+		const array = secure(pick(seed, 1));
+		const object = secure(fromEntries(seed));
 
 		retry(() => {
 			expect(array).toContain(rndValue(array));
@@ -89,8 +89,8 @@ describe('rndValue returns a random a value from the given iterable.', () => {
 describe('rndValues returns the given count of random a values'
 + 'from the given iterable', () => {
 	const seed = retry((i) => [i, rndString()], 10);
-	const array = pick(seed, 1);
-	const object = fromEntries(seed);
+	const array = secure(pick(seed, 1));
+	const object = secure(fromEntries(seed));
 	const { length } = seed;
 
 	test('returns count number of values when the iterable length'
@@ -134,16 +134,15 @@ describe('rndValues returns the given count of random a values'
 describe('rndValueWeighted returns a random a value from'
 	+ ' the given weight table according to the given weights.', () => {
 	test('returns a value when the iterable is not empty', () => {
-		const weights = { a: 1, b: 2 };
+		const weights = secure({ a: 1, b: 2 });
 		const getRnd = rndValueWeighted(weights);
-		const results = retry(getRnd, 1000);
 
+		const results = retry(getRnd, 1000);
 		const counts = map(weights, (dummy, key) =>
 			results.filter((v) => v === key).length);
 
 		expect(counts.a > 250).toEqual(true);
 		expect(counts.b > 500).toEqual(true);
-
 		expect(rndValue({})).toBeUndefined();
 	});
 
