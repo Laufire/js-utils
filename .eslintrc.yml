@@ -215,7 +215,7 @@ rules:
   no-shadow: error
   no-redeclare: error
   no-shadow-restricted-names: error
-  no-unused-vars: error
+  no-unused-vars: ["error", { "argsIgnorePattern": "dummy" }]
   no-use-before-define: error
   no-undef: error
   no-undef-init: error
