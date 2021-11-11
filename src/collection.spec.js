@@ -3,8 +3,6 @@
 // NOTE: Immutability is tested implicitly, by preventing
 //	- mutations the mock objects.
 
-// TODO: Spy on the integrity of the params passed to the callbacks
-// - of map, traverse, etc.
 /* Helpers */
 import { sortArray, getPredicate } from '../test/helpers';
 import { rndBetween, rndValue } from '@laufire/utils/random';
