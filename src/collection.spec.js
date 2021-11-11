@@ -644,10 +644,10 @@ describe('Collection', () => {
 	});
 
 	describe('range helps building number-series arrays', () => {
-		const { abs, floor } = Math;
+		const { abs, ceil } = Math;
 		const getLength = (
 			start, end, step
-		) => floor(abs(end - start) / abs(step));
+		) => ceil(abs(end - start) / abs(step));
 		const testRange = (
 			resultedRange, start, end, step
 		) => {
@@ -701,20 +701,29 @@ describe('Collection', () => {
 		describe('range returns an empty array when', () => {
 			test('step is 0', () => {
 				expect(range(
-					0, 0, 0
+					rndBetween(-10, 10), rndBetween(-10, 10), 0
 				)).toEqual([]);
 			});
 
 			test('start to end direction and step direction '
 			+ 'are different', () => {
+				const start = rndBetween(-10, 10);
+				const step = rndBetween(-5, 5);
+				const end = start - (step * rndBetween(1, 10));
+
 				expect(range(
-					10, 1, 1
+					start,
+					end,
+					step,
 				)).toEqual([]);
 			});
 
 			test('start and end are the same', () => {
-				range(-10, 10).map((num) => expect(range(num, num))
-					.toEqual([]));
+				const num = rndBetween(-10, 10);
+
+				expect(range(
+					num, num, rndBetween(-10, 10)
+				)).toEqual([]);
 			});
 		});
 	});
