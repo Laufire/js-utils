@@ -17,11 +17,11 @@ import {
 	flipMany, fromEntries, gather, has, hasSame, map, merge, overlay,
 	patch, pick, omit, props, range, reduce, rename, result,
 	sanitize, secure, select, shell, shuffle, spread, sort, squash,
-	translate, traverse, walk, values,
+	translate, traverse, walk, values, keys,
 } from './collection';
 
-const mockObj = (keys, value) =>
-	fromEntries(map(keys, (key) => [key, isDefined(value) ? value : key]));
+const mockObj = (objKeys, value) =>
+	fromEntries(map(objKeys, (key) => [key, isDefined(value) ? value : key]));
 
 /* Spec */
 describe('Collection', () => {
@@ -794,6 +794,32 @@ describe('Collection', () => {
 
 			expect(sorted).toEqual(array);
 			expect(sorted).not.toBe(array);
+		});
+	});
+
+	describe('keys', () => {
+		const array = range(0, rndBetween(5, 8));
+		const object = fromEntries(Object.entries(array));
+		const expectations = [
+			['array', 'number', array],
+			['object', 'string', object],
+		];
+		const converters = {
+			number: Number,
+			string: String,
+		};
+
+		test.each(expectations)('returns %p keys as %ps', (
+			dummy, itemType, input
+		) => {
+			const inputKeys = Object.entries(input).map(([key]) =>
+				converters[itemType](key));
+
+			const resultKeys = keys(input);
+
+			expect(resultKeys.length).toEqual(inputKeys.length);
+			resultKeys.forEach((dummyOne, index) =>
+				expect(resultKeys[index]).toEqual(inputKeys[index]));
 		});
 	});
 });
