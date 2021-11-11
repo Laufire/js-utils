@@ -63,7 +63,7 @@ const rndValues = (() => {
 	const skipRndKey = (iterable) => {
 		const rndKey = rndValue(keys(iterable));
 
-		return filter(iterable, (dummy, key) => String(key) !== rndKey);
+		return filter(iterable, (dummy, key) => key !== rndKey);
 	};
 
 	return (iterable, count = 1) => reduce(
