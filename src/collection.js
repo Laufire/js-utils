@@ -19,7 +19,7 @@ import { ascending } from './sorters';
  mocking with jest. Hence, they are imported from the source.
 */
 const { assign, entries, keys, values } = Object;
-const { abs, floor, sign } = Math;
+const { abs, ceil, sign } = Math;
 const toArray = (value) => (isArray(value) ? value : [value]);
 const keyArray = (object) => (isArray(object)
 	? object.map(String)
@@ -473,7 +473,7 @@ const range = (
 ) => Array.from({
 	length: sign(end - start) !== sign(step) || !step
 		? 0
-		: floor(abs(end - start) / abs(step)),
+		: ceil(abs(end - start) / abs(step)),
 },
 (dummy, i) => (i * step) + start);
 
