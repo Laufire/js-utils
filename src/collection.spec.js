@@ -78,7 +78,7 @@ describe('Collection', () => {
 	});
 
 	/* Helpers */
-	const stitch = (val, key) => key + val;
+	const stitch = (val, key) => String(key) + String(val);
 
 	/* Tests */
 	test('shell returns an empty container of the same type'
@@ -633,7 +633,7 @@ describe('Collection', () => {
 	+ ' by the predicate', () => {
 		expect(findKey(simpleObj, getPredicate(2))).toBe('b');
 		expect(findKey(simpleObj, getPredicate(3))).toBeUndefined();
-		expect(findKey(simpleArray, getPredicate(2))).toBe('1');
+		expect(findKey(simpleArray, getPredicate(2))).toBe(1);
 		expect(findKey(simpleArray, getPredicate(3))).toBeUndefined();
 	});
 

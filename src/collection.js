@@ -28,12 +28,12 @@ const keys = (object) => (isArray(object)
 	: objKeys(object));
 const keyArray = (object) => (isArray(object)
 	? object.map(String)
-	: objKeys(object));
+	: keys(object));
 const combineObjects = (base, extension) =>
 	(isArray(base) && isArray(extension)
 		// eslint-disable-next-line no-sequences
 		? (base.push(...extension), base)
-		: (objKeys(extension).forEach((key) => {
+		: (keys(extension).forEach((key) => {
 			const child = base[key];
 			const childExtension = extension[key];
 
@@ -47,7 +47,7 @@ const combineObjects = (base, extension) =>
 	);
 
 const mergeObjects = (base, extension) => 	{
-	objKeys(extension).forEach((key) => {
+	keys(extension).forEach((key) => {
 		const child = base[key];
 		const childExtension = extension[key];
 
@@ -63,7 +63,7 @@ const mergeObjects = (base, extension) => 	{
 };
 
 const overlayObjects = (base, extension) => 	{
-	objKeys(extension).forEach((key) => {
+	keys(extension).forEach((key) => {
 		const child = base[key];
 		const childExtension = extension[key];
 
@@ -100,7 +100,7 @@ const fromEntries = (kvPairs) => kvPairs.reduce((agg, pair) => {
 const map = (collection, cb) => {
 	const ret = shell(collection);
 
-	objKeys(collection).forEach((key) => (ret[key] = cb(collection[key], key)));
+	keys(collection).forEach((key) => (ret[key] = cb(collection[key], key)));
 	return ret;
 };
 
@@ -114,7 +114,7 @@ const each = map;
 const filter = (iterable, cb) => (isArray(iterable)
 	? iterable.filter(cb)
 	// eslint-disable-next-line no-return-assign
-	: objKeys(iterable).reduce((t, key) => (
+	: keys(iterable).reduce((t, key) => (
 		(
 			cb(
 				iterable[key], key, iterable
@@ -129,7 +129,7 @@ const reduce = (
 ) => {
 	let acc = initial;
 
-	objKeys(obj).forEach((key) => {
+	keys(obj).forEach((key) => {
 		acc = reducer(
 			acc, obj[key], key, obj
 		);
@@ -139,11 +139,11 @@ const reduce = (
 };
 
 const find = (collection, predicate) =>
-	collection[objKeys(collection).find((key) =>
+	collection[keys(collection).find((key) =>
 		predicate(collection[key], key))];
 
 const findKey = (collection, predicate) => {
-	const colKeys = objKeys(collection);
+	const colKeys = keys(collection);
 
 	return colKeys[colKeys.findIndex((key) => predicate(collection[key], key))];
 };
@@ -197,7 +197,7 @@ const clean = (collection) => {
 		return collection.filter((value) => value !== undefined);
 
 	const ret = {};
-	const objectKeys = objKeys(collection);
+	const objectKeys = keys(collection);
 	const l = objectKeys.length;
 	let i = 0;
 
@@ -373,7 +373,7 @@ const result = (() => {
 const flip = (obj) => {
 	const ret = {};
 
-	objKeys(obj).forEach((key) => (ret[obj[key]] = key));
+	keys(obj).forEach((key) => (ret[obj[key]] = key));
 	return ret;
 };
 
@@ -385,7 +385,7 @@ IE: {'a': ['b', 'c']} => {'b': 'a', 'c': 'a'}.
 const flipMany = (obj) => {
 	const ret = {};
 
-	objKeys(obj).forEach((key) => obj[key].forEach((item) =>
+	keys(obj).forEach((key) => obj[key].forEach((item) =>
 		(ret[item] = key)));
 	return ret;
 };
@@ -400,7 +400,7 @@ const rename = (source, renameMap) =>
 		assign(ret, { [value]: source[key] }), shell(source));
 
 const compose = (...objects) => {
-	const keysToPick = objKeys(objects[0]);
+	const keysToPick = keys(objects[0]);
 	const keysLength = keysToPick.length;
 
 	return objects.reduce((aggregate, current) => {
@@ -424,7 +424,7 @@ const patch = (base, extension) =>
 const diff = (base, compared) => {
 	const difference = shell(base);
 
-	objKeys(compared).forEach((key) => {
+	keys(compared).forEach((key) => {
 		const baseChild = base[key];
 		const comparedChild = compared[key];
 
@@ -435,7 +435,7 @@ const diff = (base, compared) => {
 		}
 	});
 
-	objKeys(base).forEach((key) =>
+	keys(base).forEach((key) =>
 		compared[key] === undefined && (difference[key] = undefined));
 
 	return difference;
@@ -447,20 +447,20 @@ const secure = (object) =>
 
 const contains = (base, compared) =>
 	(isIterable(base) && isIterable(compared)
-		? objKeys(compared)
+		? keys(compared)
 			.findIndex((key) => !contains(base[key], compared[key])) === -1
 		: base === compared);
 
 const equals = (base, compared) =>
 	(isIterable(base) && isIterable(compared)
-		? objKeys(base).length === objKeys(compared).length
-			&& objKeys(base)
+		? keys(base).length === keys(compared).length
+			&& keys(base)
 				.findIndex((key) => !equals(base[key], compared[key])) === -1
 		: base === compared);
 
 /* Tests the collections to have same children. */
 const hasSame = (base, compared) =>
-	objKeys(base).length === objKeys(compared).length
+	keys(base).length === keys(compared).length
 	&& findKey(base, (value, key) => value !== compared[key]) === undefined;
 
 const dict = (collection) =>
@@ -486,7 +486,7 @@ const shares = (
 	left[prop] === right[prop];
 
 const shuffle = (collection) => {
-	const ixs = objKeys(collection);
+	const ixs = keys(collection);
 	const newIxs = [];
 
 	while(ixs.length)
