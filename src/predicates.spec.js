@@ -1,6 +1,7 @@
 /* Helpers */
 import { contains, equals, filter, keys, shares } from
 	'@laufire/utils/collection';
+// TODO Some data in test helpers also in reflection spec
 import { truthies, falsies, array, obj, cloned, extension, extended, isolated,
 	collection, extendedCollection, sortArray, contracted }
 	from '../test/helpers';
@@ -71,12 +72,17 @@ describe('Predicates', () => {
 		expect(filter(collection, not(isSame(obj))).obj).not.toBe(obj);
 		expect(filter(collection, not(isPart(extended))).obj).not.toBe(obj);
 
-		expect(sortArray(array.filter(not(truthy))))
-			.toEqual(sortArray(falsies));
-		expect(sortArray(array.filter(not(falsy))))
-			.toEqual(sortArray(truthies));
+		const expectations = [
+			[truthy, falsies],
+			[falsy, truthies],
+			[nothing, array],
+		];
+
+		expectations.forEach(([fn, values]) => {
+			expect(sortArray(array.filter(not(fn))))
+				.toEqual(sortArray(values));
+		});
 		expect(sortArray(array.filter(not(everything)))).toEqual([]);
-		expect(sortArray(array.filter(not(nothing)))).toEqual(sortArray(array));
 	});
 
 	test('and returns a function to test the candidates to pass'
@@ -110,6 +116,7 @@ describe('Predicates', () => {
 
 		test.each(keys(generators))('testing the generator: %s', (key) => {
 			const mockPredicate = jest.fn();
+			// TODO Randomize the string
 			const args = [obj.a, 'a', obj];
 
 			filter(obj, generators[key](mockPredicate));
@@ -120,6 +127,7 @@ describe('Predicates', () => {
 		test('testing the generator: onProp.', () => {
 			const mockPredicate = jest.fn();
 			const mockCollection = { obj };
+			// TODO Randomize the string
 			const prop = 'a';
 
 			filter(mockCollection, onProp(prop, mockPredicate));
@@ -132,6 +140,7 @@ describe('Predicates', () => {
 
 	test('predicate derives predicates from relevant '
 	+ 'collection functions', () => {
+		// TODO Randomize the string
 		expect(filter(extendedCollection, predicate(equals, extended)))
 			.toEqual({ extended });
 

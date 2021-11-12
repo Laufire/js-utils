@@ -5,7 +5,7 @@
 
 /* Helpers */
 import { sortArray, getPredicate } from '../test/helpers';
-import { rndBetween, rndValue } from '@laufire/utils/random';
+import { rndBetween, rndString, rndValue } from '@laufire/utils/random';
 import { isDefined } from '@laufire/utils/reflection';
 import { ascending, descending } from '@laufire/utils/sorters';
 import { product, sum } from '@laufire/utils/reducers';
@@ -26,11 +26,12 @@ const mockObj = (keys, value) =>
 /* Spec */
 describe('Collection', () => {
 	/* Mocks and Stubs */
+	// TODO Randomize
 	const simpleObj = secure({
 		a: 1,
 		b: 2,
 	});
-	const simpleArray = secure([1, 2]);
+	const simpleArray = [1, 2];
 	const nestedObj = secure({
 		a: 1, b: 2,
 		c: {
@@ -60,6 +61,7 @@ describe('Collection', () => {
 		iterableOverlay: null,
 		complexArray: complexArray,
 	});
+	// TODO Randomize
 	const baseObject = secure({
 		a: 1,
 		b: 2,
@@ -176,14 +178,18 @@ describe('Collection', () => {
 
 	test('squash squashes objects and object lists'
 	+ ' to a single object', () => {
+		// TODO Randomize
+		const keyOne = rndString();
+		const keyTwo = rndString();
+		const keyThree = rndString();
 		const squashed = squash(
-			{ a: 1 }, [{ b: 2 }], { c: 3 }
+			{ [keyOne]: 1 }, [{ [keyTwo]: 2 }], { [keyThree]: 3 }
 		);
 
 		expect(squashed).toEqual({
-			a: 1,
-			b: 2,
-			c: 3,
+			[keyOne]: 1,
+			[keyTwo]: 2,
+			[keyThree]: 3,
 		});
 	});
 

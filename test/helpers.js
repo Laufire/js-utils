@@ -26,7 +26,6 @@ const extendedCollection = { obj, cloned, extended };
 const array = secure(shuffle(truthies.concat(falsies)));
 const rndArray = secure(shuffle(range(0, rndBetween(5, 8))));
 const rndObject = secure(dict(rndArray));
-const [rndNumber] = rndArray;
 
 /* Functions */
 const sortArray = (arr) => arr.slice().sort();
@@ -52,11 +51,13 @@ const strSubSet = (superStr, tested) =>
 
 const rndKey = (collection) => rndValue(keys(collection));
 
+const rndNumber = () => rndBetween(0, 100);
+
 export {
 	truthies, falsies, array,
 	obj, cloned, extension, extended, isolated, 
 	collection, extendedCollection,
-	sortArray, getPredicate,
-	retry, strSubSet, isAcceptable, rndKey, 
-	contracted, rndArray, rndObject, rndNumber
+	sortArray, getPredicate, retry, 
+	strSubSet, isAcceptable, rndKey, rndNumber,
+	contracted, rndArray, rndObject,
 };
