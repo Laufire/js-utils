@@ -155,6 +155,17 @@ describe('Predicates', () => {
 		expect(filter(collection, key(isEqual('obj')))).toEqual({ obj });
 	});
 
+	test('key c should not be there in output', () => {
+		expect(filter({ a: 1, c: 3 }, not(key(isEqual('c')))))
+			.toEqual({ a: 1 });
+	});
+
+	test.only('key c and val 1 should not be there in output', () => {
+		expect(filter({ a: 1, b: 2, c: 3 },
+			and([not(key(isEqual('c'))), not(value(isEqual(1)))])))
+			.toEqual({ b: 2 });
+	});
+
 	test('passes value to predicate function', () => {
 		const { d } = extension;
 

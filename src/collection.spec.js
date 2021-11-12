@@ -4,8 +4,8 @@
 //	- mutations the mock objects.
 
 /* Helpers */
-import { sortArray, getPredicate } from '../test/helpers';
-import { rndBetween, rndValue } from '@laufire/utils/random';
+import { sortArray, getPredicate, rndKey } from '../test/helpers';
+import { rndBetween, rndString, rndValue } from '@laufire/utils/random';
 import { isDefined } from '@laufire/utils/reflection';
 import { ascending, descending } from '@laufire/utils/sorters';
 import { product, sum } from '@laufire/utils/reducers';
@@ -401,18 +401,20 @@ describe('Collection', () => {
 			expect(select(simpleObj, ['a'])).toEqual({ a: 1 });
 		});
 
-		// #BREAKING: Treat objects and arrays similarly.
 		test('select returns a sub-object of the given object,'
 		+ ' with the properties in the given selector object', () => {
 			expect(select(simpleObj, {
-				a: 'some-thing',
-				keyNotInSource: 'some value',
+				[rndString()]: 'keyNotInSource',
+				[rndString()]: 'a',
 			})).toEqual({ a: 1 });
 		});
 
 		test('select returns a sub-array of the given array,'
 		+ ' with the given array of properties', () => {
-			expect(select(simpleArray, [0])).toEqual([1]);
+			const randomKey = rndKey(simpleArray);
+			const expectation = [simpleArray[randomKey]];
+
+			expect(clean(select(simpleArray, [[randomKey]]))).toEqual(expectation);
 		});
 	});
 
@@ -422,15 +424,19 @@ describe('Collection', () => {
 			expect(omit(simpleObj, ['a'])).toEqual({ b: 2 });
 		});
 
-		// #BREAKING: Treat objects and arrays similarly.
 		test('omit returns a sub-object of the given object,'
 		+ ' without the properties in the given selector object', () => {
-			expect(omit(simpleObj, { a: 'some-thing' })).toEqual({ b: 2 });
+			expect(omit(simpleObj, { [rndString()]: 'a' })).toEqual({ b: 2 });
 		});
 
 		test('omit returns a sub-array of the given array,'
 		+ ' without the given array of properties', () => {
-			expect(clean(omit(simpleArray, [0]))).toEqual([2]);
+			const randomKey = Number(rndKey(simpleArray));
+			// TODO: Use imported predicates.
+			const expectation = simpleArray.filter((dummy, key) =>
+				key !== randomKey);
+
+			expect(clean(omit(simpleArray, [randomKey]))).toEqual(expectation);
 		});
 	});
 

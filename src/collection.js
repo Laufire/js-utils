@@ -26,9 +26,6 @@ const toArray = (value) => (isArray(value) ? value : [value]);
 const keys = (object) => (isArray(object)
 	? objKeys(object).map(Number)
 	: objKeys(object));
-const keyArray = (object) => (isArray(object)
-	? object.map(String)
-	: keys(object));
 const combineObjects = (base, extension) =>
 	(isArray(base) && isArray(extension)
 		// eslint-disable-next-line no-sequences
@@ -219,25 +216,17 @@ const sanitize = (collection) =>
 
 const props = (obj, objProps) => objProps.map((prop) => obj[prop]);
 
-/*
-TODO: select uses key from objects and values from arrays streamline this.
-	This would be a #BREAKING change. keyArray is the source for this confusion.
-*/
-const select = (collection, selector) => keyArray(selector)
+const select = (collection, selector) => values(selector)
 	.reduce((aggregate, prop) =>
 		(collection[prop] !== undefined
 		// eslint-disable-next-line no-sequences
 		&& (aggregate[prop] = collection[prop]), aggregate),
 	shell(collection));
 
-/*
-TODO: omit uses key from objects and values from arrays streamline this.
-	This would be a #BREAKING change. keyArray is the source for this confusion.
-*/
 const omit = (obj, selector) => {
-	const propsToOmit = keyArray(selector);
+	const propsToOmit = values(selector);
 
-	return objKeys(obj).filter((prop) => !propsToOmit.includes(prop))
+	return keys(obj).filter((prop) => !propsToOmit.includes(prop))
 		// eslint-disable-next-line no-return-assign
 		.reduce((aggregate, prop) =>
 		// eslint-disable-next-line no-sequences
