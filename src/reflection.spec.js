@@ -1,8 +1,6 @@
-import {
-	map, range, fromEntries,
-	values, secure,
-} from '@laufire/utils/collection';
-import { rndValue, rndBetween, rndString } from '@laufire/utils/random';
+import { map, values, secure } from '@laufire/utils/collection';
+import { rndValue, rndString } from '@laufire/utils/random';
+import { rndArray, rndNumber, rndObject } from '../test/helpers';
 
 /* Tested */
 import {
@@ -20,8 +18,7 @@ import {
 
 describe('Reflection', () => {
 	/* Mocks and Stubs */
-	const arr = secure(range(0, rndBetween(5, 8)));
-	const obj = secure(fromEntries(map(arr, (value, index) => [index, value])));
+	// TODO: Move all possible values to test helpers.
 	const fn = function () {};
 	const Constructor = fn;
 	const constructed = new Constructor();
@@ -31,13 +28,13 @@ describe('Reflection', () => {
 		number: NaN,
 	});
 	const simpleTypes = secure({
-		number: rndBetween(0, 9),
+		number: rndNumber,
 		string: rndString(16),
 		boolean: rndValue([true, false]),
 	});
 	const iterableTypes = secure({
-		array: arr,
-		object: obj,
+		array: rndArray,
+		object: rndObject,
 		map: new Map(),
 	});
 	const constructedTypes = secure({
@@ -60,8 +57,8 @@ describe('Reflection', () => {
 	test('constructorName returns the constructor name'
 	+ ' of the given value', () => {
 		const expectations = {
-			Object: obj,
-			Array: arr,
+			Object: rndObject,
+			Array: rndArray,
 			Function: fn,
 			String: '',
 			Number: 1,
@@ -89,34 +86,34 @@ describe('Reflection', () => {
 
 	test('isIterable returns true only when the given value'
 		+ ' is an Array or an Object', () => {
-		expect(isIterable(obj)).toEqual(true);
-		expect(isIterable(arr)).toEqual(true);
+		expect(isIterable(rndObject)).toEqual(true);
+		expect(isIterable(rndArray)).toEqual(true);
 		expect(isIterable(fn)).toEqual(false);
 	});
 
 	test('isFunction returns true only when the given value'
 		+ ' is a Function', () => {
-		expect(isFunction(obj)).toEqual(false);
+		expect(isFunction(rndObject)).toEqual(false);
 		expect(isFunction(fn)).toEqual(true);
 	});
 
 	test('isDict returns true only when the given value'
 	+ ' is an Object', () => {
-		expect(isDict(obj)).toEqual(true);
-		expect(isDict(arr)).toEqual(false);
+		expect(isDict(rndObject)).toEqual(true);
+		expect(isDict(rndArray)).toEqual(false);
 	});
 
 	test('isObject returns true only when the given value'
 	+ ' is an Objectish', () => {
-		expect(isObject(obj)).toEqual(true);
+		expect(isObject(rndObject)).toEqual(true);
 		expect(isObject(constructed)).toEqual(true);
-		expect(isObject(arr)).toEqual(false);
+		expect(isObject(rndArray)).toEqual(false);
 	});
 
 	test('isDefined returns false only when the given value'
 		+ ' is undefined', () => {
 		expect(isDefined(undefined)).toEqual(false);
-		expect(isDefined(obj)).toEqual(true);
+		expect(isDefined(rndObject)).toEqual(true);
 	});
 
 	test('isEmpty', () => {

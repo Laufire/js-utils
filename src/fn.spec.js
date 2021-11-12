@@ -1,7 +1,7 @@
 /* Helpers */
-import { equals, range } from '@laufire/utils/collection';
+import { equals, clone } from '@laufire/utils/collection';
 import { isDefined } from '@laufire/utils/reflection';
-import { rndBetween } from '@laufire/utils/random';
+import { rndArray, rndKey } from '../test/helpers';
 
 /* Tested */
 import { cache, value, defined } from './fn';
@@ -11,11 +11,13 @@ test('cache caches the given function based on parameters till the next call'
 	const testCache = (qualifier, callCount) => {
 		const fn = jest.fn((...args) => args);
 		const cachedFn = cache(fn, qualifier);
+		// TODO: Use symbols.
 		const array = [1, 2];
 		const number = 1;
 		const result = cachedFn(array, number);
 
 		expect(cachedFn(array, number)).toEqual(result);
+		// TODO: Change API, Use twoHaveBeenCalledTimes.
 		expect(fn.mock.calls.length).toEqual(1);
 
 		cachedFn(array, number + 1);
@@ -35,10 +37,9 @@ test('value extracts the value from the given function or variable', () => {
 });
 
 test('defined filters the first defined value', () => {
-	const randomLimit = rndBetween(5, 8);
-	const values = range(0, randomLimit);
+	const values = clone(rndArray);
 
-	values[rndBetween(0, randomLimit)] = undefined;
+	values[rndKey(values)] = undefined;
 
 	values.forEach((item, i) =>
 		expect(defined(...values.slice(i)))
