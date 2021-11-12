@@ -812,8 +812,8 @@ describe('Collection', () => {
 		test.each(expectations)('returns %p keys as %ps', (
 			dummy, itemType, input
 		) => {
-			const inputKeys = Object.entries(input).map(([key]) =>
-				converters[itemType](key));
+			const inputKeys = Object.entries(input).map(([dummyOne, value]) =>
+				converters[itemType](value));
 
 			const resultKeys = keys(input);
 

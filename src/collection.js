@@ -23,6 +23,9 @@ const { abs, ceil, sign } = Math;
 const { assign, entries, keys: objKeys, values } = Object;
 
 const toArray = (value) => (isArray(value) ? value : [value]);
+const keys = (object) => (isArray(object)
+	? objKeys(object).map(Number)
+	: objKeys(object));
 const keyArray = (object) => (isArray(object)
 	? object.map(String)
 	: objKeys(object));
@@ -81,13 +84,6 @@ const { freeze, preventExtensions,
 	seal } = Object;
 
 /* Exports */
-/*
-TODO: Decide whether keys on arrays should return numbers,
-	instead of strings.
-*/
-const keys = (object) => (isArray(object)
-	? objKeys(object).map((dummy, key) => Number(key))
-	: objKeys(object));
 
 /**
  * Returns an empty container of the same type as the given collection.
