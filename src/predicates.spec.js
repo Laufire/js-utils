@@ -10,7 +10,7 @@ import { isEqual, isSame, isPart, doesContain,
 	truthy, falsy, everything, nothing,
 	first, unique,
 	not, or, and, onProp,
-	predicate } from './predicates';
+	predicate, isIn, key, value } from './predicates';
 
 /* Spec */
 describe('Predicates', () => {
@@ -108,14 +108,15 @@ describe('Predicates', () => {
 			and, or, not,
 		};
 
-		test.each(keys(generators))('testing the generator: %s', (key) => {
-			const mockPredicate = jest.fn();
-			const args = [obj.a, 'a', obj];
+		test.each(keys(generators))('testing the generator: %s',
+			(generatorKey) => {
+				const mockPredicate = jest.fn();
+				const args = [obj.a, 'a', obj];
 
-			filter(obj, generators[key](mockPredicate));
+				filter(obj, generators[generatorKey](mockPredicate));
 
-			expect(mockPredicate).toHaveBeenCalledWith(...args);
-		});
+				expect(mockPredicate).toHaveBeenCalledWith(...args);
+			});
 
 		test('testing the generator: onProp.', () => {
 			const mockPredicate = jest.fn();
@@ -142,5 +143,21 @@ describe('Predicates', () => {
 			shares, extension, 'd'
 		)))
 			.toEqual({ extended });
+	});
+
+	test('isIn', () => {
+		// TODO: use imported collection.filter instead. It's not used as it's buggy.
+		expect([1, 2, 3].filter(isIn([2, 3])))
+			.toEqual([2, 3]);
+	});
+
+	test('passes key to predicate function.', () => {
+		expect(filter(collection, key(isEqual('obj')))).toEqual({ obj });
+	});
+
+	test('passes value to predicate function', () => {
+		const { d } = extension;
+
+		expect(filter(extended, value(isEqual(d)))).toEqual(extension);
 	});
 });

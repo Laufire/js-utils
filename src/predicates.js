@@ -30,6 +30,12 @@ const first = (
 
 const unique = first;
 
+const isIn = (predicate) => (value) => predicate.includes(value);
+
+const key = (predicate) => (dummy, value) => predicate(value);
+
+const value = (predicate) => (item) => predicate(item);
+
 /* Generators */
 const not = (predicate) => (right, ...rest) => !predicate(right, ...rest);
 
@@ -57,5 +63,5 @@ export {
 	truthy, falsy, everything, nothing,
 	first, unique,
 	not, and, or, onProp,
-	predicate,
+	predicate, isIn, key, value,
 };
