@@ -1,6 +1,7 @@
 /* Helpers */
 import { dict, secure, values } from '@laufire/utils/collection';
-import { rndString, rndBetween } from '@laufire/utils/random';
+import { rndString } from '@laufire/utils/random';
+import { rndNumber } from '../test/helpers';
 /* Tested */
 import { descend, index, summarize } from './crunch';
 
@@ -11,8 +12,8 @@ describe('Crunch', () => {
 	/* Mocks and Stubs */
 	const rndKeyOne = rndString();
 	const rndKeyTwo = rndString();
-	const rndValueOne = rndBetween(0, 9);
-	const rndValueTwo = rndBetween(0, 9);
+	const rndValueOne = rndNumber;
+	const rndValueTwo = rndNumber;
 	const rndValueThree = rndValueTwo + 1;
 	const elmOne = secure({
 		[rndKeyOne]: rndValueOne,
@@ -70,7 +71,7 @@ describe('Crunch', () => {
 	test('descend descends into the given collection'
 	+ ' upto the given level and executes the given process'
 	+ ' and returns a new collection', () => {
-		const numTwo = rndBetween(0, 9);
+		const numTwo = rndNumber;
 		const descendLevel = 1;
 		const process = (num) => num + numTwo;
 		const expectedFromArr = [

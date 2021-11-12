@@ -1,31 +1,29 @@
+/* eslint-disable no-console */
 import { peek, pretty, sleep } from './debug';
 
+// TODO: Try to use package config instead.
 beforeEach(() => {
 	jest.clearAllMocks();
 });
 
+const value = Symbol('value');
+
 describe('peek - a drop in console.log replacement with better devEx', () => {
-	// eslint-disable-next-line no-console
 	console.log = jest.fn();
 
 	test('peek logs a value to the console and returns the same value.', () => {
-		const val = 1;
+		const ret = peek(value);
 
-		const ret = peek(val);
-
-		expect(ret).toBe(val);
-		// eslint-disable-next-line no-console
-		expect(console.log).toHaveBeenCalledWith(val);
+		expect(ret).toBe(value);
+		expect(console.log).toHaveBeenCalledWith(value);
 	});
 
 	test('peek supports an optional label.', () => {
-		const val = 1;
-		const label = 'someLabel';
+		const label = Symbol('someLabel');
 
-		peek(val, label);
+		peek(value, label);
 
-		// eslint-disable-next-line no-console
-		expect(console.log).toHaveBeenCalledWith(label, val);
+		expect(console.log).toHaveBeenCalledWith(label, value);
 	});
 });
 
@@ -33,8 +31,7 @@ describe('pretty - returns the pretty JSON of the given value', () => {
 	JSON.stringify = jest.fn();
 
 	test('pretty calls the stringify with the given value and indent', () => {
-		const value = Symbol('value');
-		const indent = '    ';
+		const indent = Symbol('indent');
 
 		pretty(value, indent);
 
@@ -44,8 +41,6 @@ describe('pretty - returns the pretty JSON of the given value', () => {
 	});
 
 	test('indent defaults to tab', () => {
-		const value = Symbol('value');
-
 		pretty(value);
 
 		expect(JSON.stringify).toHaveBeenCalledWith(
@@ -54,6 +49,8 @@ describe('pretty - returns the pretty JSON of the given value', () => {
 	});
 });
 
+// TODO: Mock the test instead of testing the implementation, in order to save time.
+// TODO: Spyon global setTimeout and Promise for parameters.
 test('sleep stalls the flow for 1000ms by default.', async () => {
 	// eslint-disable-next-line no-undef
 	const startedAt = performance.now();

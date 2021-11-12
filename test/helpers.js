@@ -1,5 +1,8 @@
-import { clone, secure, shuffle, keys, filter } from '@laufire/utils/collection';
-import { rndValue } from '@laufire/utils/random';
+import { 
+	clone, secure, shuffle,
+	keys, filter, range, dict 
+} from '@laufire/utils/collection';
+import { rndValue, rndBetween } from '@laufire/utils/random';
 
 /* Config */
 const defaults = {
@@ -10,6 +13,7 @@ const defaults = {
 /* Data */
 const truthies = [1, '2', true, [], {}];
 const falsies = [0, '', false, undefined, null];
+// TODO: Randomize all possible values.
 const obj = secure({ a: 1, b: 2, c: 3 });
 const cloned = secure(clone(obj));
 const extension = secure({ d: 4 });
@@ -20,6 +24,9 @@ const contracted = filter(obj, (dummy, key) => key !== rndkey);
 const isolated = secure({ z: 26 });
 const extendedCollection = { obj, cloned, extended };
 const array = secure(shuffle(truthies.concat(falsies)));
+const rndArray = secure(shuffle(range(0, rndBetween(5, 8))));
+const rndObject = secure(dict(rndArray));
+const [rndNumber] = rndArray;
 
 /* Functions */
 const sortArray = (arr) => arr.slice().sort();
@@ -43,9 +50,13 @@ const strSubSet = (superStr, tested) =>
 		actual, expected, margin
 	) => Math.abs((expected - actual) / (expected || 1)) <= margin;
 
+const rndKey = (collection) => rndValue(keys(collection));
+
 export {
 	truthies, falsies, array,
-	obj, cloned, extension, extended, isolated, collection, extendedCollection,
+	obj, cloned, extension, extended, isolated, 
+	collection, extendedCollection,
 	sortArray, getPredicate,
-	retry, strSubSet, isAcceptable, contracted,
+	retry, strSubSet, isAcceptable, rndKey, 
+	contracted, rndArray, rndObject, rndNumber
 };
