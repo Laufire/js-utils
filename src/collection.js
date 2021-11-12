@@ -14,6 +14,7 @@ TODO: Complete the doc comments.
 import { isArray, isIterable, isDict } from './reflection';
 import { rndBetween } from './lib';
 import { ascending } from './sorters';
+import { parts } from './path';
 
 /* NOTE: Exporting named imports (like keys) turns them into getters
  (probably by the compiler), this leads to some inconsistencies when
@@ -349,25 +350,18 @@ const squash = (...objects) =>
  * And backslash is the escape char.
  * @returns {*} The value from the path or undefined.
  */
-const result = (() => {
-	const initialSlash = /^\//;
-	const matcher = /(?:(?:[^/\\]|\\.)*\/)/g;
-	const escapedSequence = /\\(.)/g;
+const result = (obj, path) => {
+	const pathParts = parts(path);
 
-	return (obj, path) => {
-		const parts = (`${ path }/`.replace(initialSlash, '').match(matcher) || [])
-			.map((part) => part.replace(escapedSequence, '$1').slice(0, -1));
+	const partCount = pathParts.length;
+	let currentObject = obj;
+	let cursor = 0;
 
-		const partCount = parts.length;
-		let currentObject = obj;
-		let cursor = 0;
+	while(cursor < partCount && isIterable(currentObject))
+		currentObject = currentObject[pathParts[cursor++]];
 
-		while(cursor < partCount && isIterable(currentObject))
-			currentObject = currentObject[parts[cursor++]];
-
-		return currentObject;
-	};
-})();
+	return currentObject;
+};
 
 // Swaps the keys and values of a map.
 const flip = (obj) => {
