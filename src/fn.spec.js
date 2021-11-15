@@ -11,18 +11,18 @@ test('cache caches the given function based on parameters till the next call'
 	const testCache = (qualifier, callCount) => {
 		const fn = jest.fn((...args) => args);
 		const cachedFn = cache(fn, qualifier);
-		// TODO: Use symbols.
-		const array = [1, 2];
-		const number = 1;
-		const result = cachedFn(array, number);
+		const array = rndArray;
+		const symbolOne = Symbol('SymbolOne');
+		const SymbolTwo = Symbol('SymbolTwo');
 
-		expect(cachedFn(array, number)).toEqual(result);
-		// TODO: Change API, Use twoHaveBeenCalledTimes.
-		expect(fn.mock.calls.length).toEqual(1);
+		const result = cachedFn(array, symbolOne);
 
-		cachedFn(array, number + 1);
-		cachedFn(array.slice(), number + 1);
-		expect(fn.mock.calls.length).toEqual(callCount);
+		expect(cachedFn(array, symbolOne)).toEqual(result);
+		expect(fn).toHaveBeenCalledTimes(1);
+
+		cachedFn(array, SymbolTwo);
+		cachedFn(array.slice(), SymbolTwo);
+		expect(fn).toHaveBeenCalledTimes(callCount);
 	};
 
 	testCache(undefined, 3);
