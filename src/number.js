@@ -6,6 +6,7 @@ const vary = (variance) =>
 	rndBetween(hundred - (variance * hundred),
 		hundred + (variance * hundred)) / hundred;
 
+// TODO: Revisit.
 const getDR = (numOne, numTwo) =>
 	(numTwo
 		? Math.abs((numTwo - numOne) / numTwo)

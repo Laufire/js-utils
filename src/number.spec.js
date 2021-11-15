@@ -4,6 +4,7 @@ import * as random from './random';
 
 describe('vary', () => {
 	test('vary should give a percentage between ', () => {
+		// TODO: Revisit.
 		const variance = 1;
 		const hundred = 100;
 		const min = hundred - (variance * hundred);
