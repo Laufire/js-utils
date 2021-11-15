@@ -5,7 +5,7 @@ const isGetter = (obj, prop) =>
 	!!Object.getOwnPropertyDescriptor(obj, prop).get;
 
 describe('laufire', () => {
-	test('no getters are exported', () => {
+	test('no getters are exported, so to control the exports', () => {
 		traverse(laufire, (
 			dummy, key, obj
 		) => {
