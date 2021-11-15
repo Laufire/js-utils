@@ -12,8 +12,8 @@ describe('Crunch', () => {
 	/* Mocks and Stubs */
 	const rndKeyOne = rndString();
 	const rndKeyTwo = rndString();
-	const rndValueOne = rndNumber;
-	const rndValueTwo = rndNumber;
+	const rndValueOne = rndNumber();
+	const rndValueTwo = rndNumber();
 	const rndValueThree = rndValueTwo + 1;
 	const elmOne = secure({
 		[rndKeyOne]: rndValueOne,
@@ -71,7 +71,7 @@ describe('Crunch', () => {
 	test('descend descends into the given collection'
 	+ ' upto the given level and executes the given process'
 	+ ' and returns a new collection', () => {
-		const numTwo = rndNumber;
+		const numTwo = rndNumber();
 		const descendLevel = 1;
 		const process = (num) => num + numTwo;
 		const expectedFromArr = [

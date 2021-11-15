@@ -28,7 +28,7 @@ describe('Reflection', () => {
 		number: NaN,
 	});
 	const simpleTypes = secure({
-		number: rndNumber,
+		number: rndNumber(),
 		string: rndString(16),
 		boolean: rndValue([true, false]),
 	});
