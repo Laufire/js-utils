@@ -98,10 +98,6 @@ const withProb = (prob) => {
 	return () => rndBetween(0, inverse) < precision;
 };
 
-const isProbable = (probability) =>
-	// eslint-disable-next-line no-magic-numbers
-	rndBetween(1, 100) <= probability * 100;
-
 export {
 	rndBetween,
 	rndString,
@@ -111,5 +107,4 @@ export {
 	rndValueWeighted,
 	stringSeeds,
 	withProb,
-	isProbable,
 };

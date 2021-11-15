@@ -1,16 +1,15 @@
-import { isEqual } from '@laufire/utils/predicates';
-import { map, contains, fromEntries, pick, range, keys, secure } from
+import { map, contains, fromEntries, pick, keys, secure } from
 	'@laufire/utils/collection';
 
 /* Tested */
 import {
 	rndBetween, rndOfString, rndString,
 	rndValue, rndValues, rndValueWeighted,
-	stringSeeds, withProb, isProbable,
+	stringSeeds, withProb,
 } from './random';
 
 /* Helpers */
-import { retry, strSubSet, isAcceptable } from '../test/helpers';
+import { retry, strSubSet } from '../test/helpers';
 
 /* Tests */
 describe('rndBetween', () => {
@@ -167,28 +166,4 @@ describe('withProb returns a function which returns true once in a while'
 		expect(prevalence > probability * (1 - allowedDeviation)).toEqual(true);
 		expect(prevalence < probability * (1 + allowedDeviation)).toEqual(true);
 	});
-});
-
-test('isProbable returns true based on given probability', () => {
-	const retryCount = 100000;
-	const generateTest = (probability, errorMargin) => {
-		const results = retry(() => isProbable(probability), retryCount);
-		const successCount = results.filter(isEqual(true)).length;
-		const expectedCount = Math.min(probability, 1) * retryCount;
-
-		return isAcceptable(
-			successCount, expectedCount, errorMargin
-		);
-	};
-
-	const testCandidates = (candidates, margin) => {
-		const results = candidates.map((probability) =>
-			generateTest(probability, margin));
-		const successCount = results.filter(isEqual(true)).length;
-
-		expect(successCount).toEqual(results.length);
-	};
-
-	testCandidates([0, 1, 2], 0);
-	testCandidates(range(2, 99).map((probability) => probability / 100), 0.08);
 });
