@@ -22,8 +22,17 @@ const value = (x) => (isFunction(x) ? x() : x);
 
 const defined = (...values) => values.find(isDefined);
 
+const self = (x) => x;
+
+const identity = self;
+
+const nothing = () => undefined;
+
 export {
 	cache,
 	value,
 	defined,
+	self,
+	identity,
+	nothing,
 };

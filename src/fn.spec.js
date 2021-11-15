@@ -4,7 +4,7 @@ import { isDefined } from '@laufire/utils/reflection';
 import { rndArray, rndKey } from '../test/helpers';
 
 /* Tested */
-import { cache, value, defined } from './fn';
+import { cache, value, defined, self, identity, nothing } from './fn';
 
 test('cache caches the given function based on parameters till the next call'
 	+ ' with a new set of args', () => {
@@ -44,4 +44,18 @@ test('defined filters the first defined value', () => {
 	values.forEach((item, i) =>
 		expect(defined(...values.slice(i)))
 			.toEqual(isDefined(item) ? item : values[i + 1]));
+});
+
+test('returns the same input value', () => {
+	const x = Symbol('x');
+
+	expect(self(x)).toEqual(x);
+});
+
+test('identity is an alias of self', () => {
+	expect(self).toEqual(identity);
+});
+
+test('returns undefined', () => {
+	expect(nothing()).toEqual(undefined);
 });

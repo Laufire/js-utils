@@ -39,12 +39,6 @@
 
 		* till / findResult - a findKey like function which returns the return value of the predicate instead.
 
-	* Simple functions.
-
-		* identity.
-
-		* void.
-
 ## Later
 
 * Test for and improve performance.
