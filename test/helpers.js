@@ -1,6 +1,6 @@
 import { 
 	clone, secure, shuffle,
-	keys, filter, range, dict 
+	keys, filter, range, dict, equals 
 } from '@laufire/utils/collection';
 import { rndValue, rndBetween, rndString } from '@laufire/utils/random';
 
@@ -53,11 +53,13 @@ const rndKey = (collection) => rndValue(keys(collection));
 
 const rndNumber = () => rndBetween(0, 100);
 
+const doesEqual = (arg1, arg2) => equals(arg1, arg2) || equals(String(arg1), arg2);
+
 export {
 	truthies, falsies, array,
 	obj, cloned, extension, extended, isolated, 
 	collection, extendedCollection,
 	sortArray, getPredicate, retry, 
 	strSubSet, isAcceptable, rndKey, rndNumber,
-	contracted, rndArray, rndObject,
+	contracted, rndArray, rndObject, doesEqual,
 };

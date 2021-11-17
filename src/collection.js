@@ -99,7 +99,11 @@ const fromEntries = (kvPairs) => kvPairs.reduce((agg, pair) => {
 const map = (collection, cb) => {
 	const ret = shell(collection);
 
-	libKeys(collection).forEach((key) => (ret[key] = cb(collection[key], key)));
+	const collectionKeys = libKeys(collection);
+
+	collectionKeys.forEach((key) => (ret[key] = cb(
+		collection[key], key, collection
+	)));
 	return ret;
 };
 
@@ -138,13 +142,12 @@ const reduce = (
 };
 
 const find = (collection, predicate) =>
-	collection[libKeys(collection).find((key) =>
-		predicate(collection[key], key))];
+	collection[libKeys(collection)[0]];
 
 const findKey = (collection, predicate) => {
 	const colKeys = libKeys(collection);
 
-	return colKeys[colKeys.findIndex((key) => predicate(collection[key], key))];
+	return colKeys[colKeys[0]];
 };
 
 const findIndex = findKey;

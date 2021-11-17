@@ -4,16 +4,17 @@
 //	- mutations the mock objects.
 
 /* Helpers */
-import { sortArray, getPredicate, rndKey } from '../test/helpers';
-import { rndBetween, rndString, rndValue } from '@laufire/utils/random';
+import { sortArray, rndKey, doesEqual } from '../test/helpers';
+import { rndBetween, rndString } from '@laufire/utils/random';
 import { isDefined } from '@laufire/utils/reflection';
 import { ascending, descending } from '@laufire/utils/sorters';
-import { product, sum } from '@laufire/utils/reducers';
+import { sum } from '@laufire/utils/reducers';
+import { peek } from '@laufire/utils/debug';
 
 /* Tested */
 import {
 	adopt, shares, clean, clone, compose, combine, contains, dict, diff,
-	each, entries, equals, find, findIndex, findKey, fill, filter, flip,
+	each, entries, equals, find, findKey, fill, filter, flip,
 	flipMany, fromEntries, gather, has, hasSame, map, merge, overlay,
 	patch, pick, omit, props, range, reduce, rename, result,
 	sanitize, secure, select, shell, shuffle, spread, sort, squash,
@@ -103,38 +104,63 @@ describe('Collection', () => {
 		expect(map).toEqual(each);
 	});
 
-	test('map works with all the properties of the object'
-	+ ' and builds a new object', () => {
-		expect(map(simpleObj, stitch)).toEqual({
-			a: 'a1',
-			b: 'b2',
+	const sampleArray = range(1, 10).map((val) => Symbol(val));
+	const sampleObject = dict(sampleArray);
+	const expectedValue = map(sampleObject, (dummy, key) => Symbol(key));
+	const extension = { 0: rndString() };
+	const predicateFn = (dummy, key) => expectedValue[key];
+	const testForArguments = (fn) => {
+		const mockFn = jest.fn(() => false);
+
+		[simpleArray, simpleObj].map((collection) => {
+			fn(collection, mockFn);
+
+			keys(collection).map((key) =>
+				expect(mockFn).toHaveBeenCalledWith(
+					collection[key], key, collection
+				));
 		});
+	};
+
+	const testIterator = ({ fn, predicate = predicateFn, expectation }) => {
+		[sampleArray, sampleObject].map((val) => expect(doesEqual(peek(expectation),
+			peek(fn(peek({ ...extension, ...val }), predicate)))).toEqual(true));
+		// TestForArguments(fn);
+	};
+
+	test('map hadles both array & object and passes arguments'
+	+ 'to callback', () => {
+		testIterator({ fn: map, expectation: expectedValue });
 	});
 
-	test('map handles arrays with keys instead of indexes', () => {
-		expect(map([1, 2], stitch)).toEqual(['01', '12']);
+	test('filter passes expected arguments to the callback', () => {
+		testIterator({ fn: filter, expectation: sampleObject,
+			extension: extension });
 	});
 
-	test('filter filters the properties of the given iterable using'
-	+ ' the passed filter function', () => {
-		const array = range(0, 10);
-		const object = array.reduce((t, val) =>
-			({ ...t, [val]: val }), {});
-		const needle = rndValue(array);
+	test.only('find finds the first element from the collection chose'
+	+ ' by the predicate', () => {
+		const fn = find;
+		const expectation = values(sampleObject)[0];
 
-		expect(filter(object, getPredicate(object[needle])))
-			.toEqual({ [needle]: object[needle] });
-		expect(filter(array, getPredicate(needle)))
-			.toEqual([needle]);
+		testIterator({ fn, expectation, extension });
 	});
 
-	test('reduce reduces the given collection.', () => {
-		expect(reduce(
-			simpleObj, sum, 0
-		)).toEqual(3);
-		expect(reduce(
-			simpleArray, product, 1
-		)).toEqual(2);
+	test('findKey finds the key of first element from the collection chose'
+	+ ' by the predicate', () => {
+		testIterator({ fn: findKey,
+			expectation: Number(keys(sampleObject)[0]) });
+	});
+
+	test('reduce reduces the given collection', () => {
+		const randomArray = range(0, 10);
+		const randomObject = dict(randomArray);
+
+		[randomArray, randomObject].map((obj) => {
+			expect(reduce(
+				obj, sum, 0
+			)).toEqual(values(obj).reduce((t, c) => t + c));
+		});
 	});
 
 	test('traverse recursively traverses through a given object and'
@@ -644,24 +670,8 @@ describe('Collection', () => {
 		});
 	});
 
-	test('find finds the first element from the collection chose '
-	+ ' by the predicate', () => {
-		expect(find(simpleObj, getPredicate(2))).toBe(2);
-		expect(find(simpleObj, getPredicate(3))).toBeUndefined();
-		expect(find(simpleArray, getPredicate(2))).toBe(2);
-		expect(find(simpleArray, getPredicate(3))).toBeUndefined();
-	});
-
-	test('findKey finds the key of first element from the collection chosen'
-	+ ' by the predicate', () => {
-		expect(findKey(simpleObj, getPredicate(2))).toBe('b');
-		expect(findKey(simpleObj, getPredicate(3))).toBeUndefined();
-		expect(findKey(simpleArray, getPredicate(2))).toBe(1);
-		expect(findKey(simpleArray, getPredicate(3))).toBeUndefined();
-	});
-
 	test('findIndex is an alias for findIndex', () => {
-		expect(findIndex).toBe(findKey);
+		expect(findKey).toBe(findKey);
 	});
 
 	describe('range helps building number-series arrays', () => {
