@@ -1,6 +1,6 @@
 import { 
 	clone, secure, shuffle, map,
-	keys, filter, range, dict, values, fromEntries
+	keys, filter, range, dict, fromEntries 
 } from '@laufire/utils/collection';
 import { rndValue, rndBetween, rndString } from '@laufire/utils/random';
 /* Config */
