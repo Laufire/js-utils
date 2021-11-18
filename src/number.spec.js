@@ -1,6 +1,7 @@
 import { rndBetween } from './lib';
 import { getDR, vary } from './number';
 import * as random from './random';
+import { fixNumber } from '../test/helpers';
 
 describe('vary', () => {
 	test('vary should give a percentage between ', () => {
@@ -26,8 +27,8 @@ describe('getDR', () => {
 		const result = rndBetween(70, 80) / 100;
 		const numOne = numTwo - (numTwo * result);
 
-		expect(getDR(numOne, numTwo).toFixed(2))
-			.toEqual(result.toFixed(2));
+		expect(fixNumber(getDR(numOne, numTwo)))
+			.toEqual(fixNumber(result));
 	});
 
 	test('gives infinity if numTwo is zero', () => {
