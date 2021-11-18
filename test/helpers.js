@@ -1,9 +1,8 @@
 import { 
-	clone, secure, shuffle,
-	keys, filter, range, dict 
+	clone, secure, shuffle, map,
+	keys, filter, range, dict, values
 } from '@laufire/utils/collection';
 import { rndValue, rndBetween, rndString } from '@laufire/utils/random';
-
 /* Config */
 const defaults = {
 	retryCount: 1000,
@@ -13,19 +12,27 @@ const defaults = {
 /* Data */
 const truthies = [1, '2', true, [], {}];
 const falsies = [0, '', false, undefined, null];
-// TODO: Randomize all possible values.
-const obj = secure({ a: 1, b: 2, c: 3 });
-const cloned = secure(clone(obj));
-const extension = secure({ d: 4 });
+const rndRange = range(0, rndBetween(5, 8));
+//TODO: Use symbols for values.
+const rndArray = secure(shuffle(rndRange));
+const rndObject = secure(dict(rndArray));
+const obj = secure(rndObject);
+ // TODO: Revisit. 
+const cloned = secure(clone(rndObject));
+const key = Math.max(...rndArray) + 1;
+const value = Math.max(...rndArray) + 1;
+const extension = { [key]: value, [key + 1]: value + 1 };
 const collection = { obj, cloned };
 const extended = secure({ ...obj, ...extension });
 const rndkey = rndValue(keys(obj));
 const contracted = filter(obj, (dummy, key) => key !== rndkey);
-const isolated = secure({ z: 26 });
-const extendedCollection = { obj, cloned, extended };
+const isolated = secure({ [rndBetween(10, 20)]: rndBetween(30, 40) });
+const extendedCollection = {
+	[rndString()]: obj,
+	[rndString()]: cloned,
+	[rndString()]: extended,
+};
 const array = secure(shuffle(truthies.concat(falsies)));
-const rndArray = secure(shuffle(range(0, rndBetween(5, 8))));
-const rndObject = secure(dict(rndArray));
 
 /* Functions */
 const sortArray = (arr) => arr.slice().sort();
@@ -53,11 +60,15 @@ const rndKey = (collection) => rndValue(keys(collection));
 
 const rndNumber = () => rndBetween(0, 100);
 
+const fixNumber = (value) => value.toFixed(4); 
+
+const expectEquals = (valOne, valtwo) => expect(valOne).toEqual(valtwo);
+
 export {
 	truthies, falsies, array,
 	obj, cloned, extension, extended, isolated, 
-	collection, extendedCollection,
-	sortArray, getPredicate, retry, 
-	strSubSet, isAcceptable, rndKey, rndNumber,
-	contracted, rndArray, rndObject,
+	collection, extendedCollection, rndRange,
+	sortArray, getPredicate, retry, strSubSet,
+	isAcceptable, rndKey, rndNumber, fixNumber,
+	expectEquals, contracted, rndArray, rndObject,
 };

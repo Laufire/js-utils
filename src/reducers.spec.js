@@ -1,79 +1,102 @@
 /* Helpers */
-import { merge, reduce, secure, values } from '@laufire/utils/collection';
-import { obj, extension, extended } from '../test/helpers';
+import { dict, map, merge,
+	reduce, secure, shuffle } from '@laufire/utils/collection';
+import { rndValue } from '@laufire/utils/random';
+import { rndRange, extension, fixNumber, expectEquals } from '../test/helpers';
 
 /* Tested */
 import { avg, count, len, max, min, product, reducer, sum } from './reducers';
 
 /* Spec */
 describe('Reducers', () => {
-	/* Mocks and Stubs */
-	const array = secure(values(obj));
+	const rndArray = secure(shuffle(rndRange));
+	const rndObject = secure(dict(rndArray));
+	const collections = [rndObject, rndArray];
+
+	const testPredicate = (
+		predicate, buildExpectation, initial
+	) => {
+		const expected = reduce(
+			rndArray, buildExpectation, initial
+		);
+
+		map(collections, (collection) => {
+			expect(reduce(
+				collection, predicate, initial
+			)).toEqual(expected);
+		});
+	};
 
 	test('sum sums the given candidates.', () => {
-		expect(reduce(
-			obj, sum, 0
-		)).toEqual(6);
-		expect(reduce(
-			array, sum, 0
-		)).toEqual(6);
+		testPredicate(
+			sum, (t, c) => t + c, 0
+		);
 	});
 
 	test('product multiples the given candidates.', () => {
-		expect(reduce(
-			obj, product, 1
-		)).toEqual(6);
-		expect(reduce(
-			array, product, 1
-		)).toEqual(6);
-	});
-
-	test('avg computes the average of the given candidates.', () => {
-		expect(reduce(
-			obj, avg, 0
-		)).toEqual(2);
-		expect(reduce(
-			array, avg, 0
-		)).toEqual(2);
+		testPredicate(
+			product, (t, c) => t * c, 1
+		);
 	});
 
 	test('length returns the length of the given collection.', () => {
-		expect(reduce(
-			obj, len, 0
-		)).toEqual(3);
-		expect(reduce(
-			array, len, 0
-		)).toEqual(3);
+		testPredicate(
+			len, (t) => t + 1, 0
+		);
+	});
+
+	test('avg computes the average of the given candidates.', () => {
+		const expected = fixNumber(reduce(
+			rndArray, (t, c) => t + c, 0
+		) / rndArray.length);
+
+		map(collections, (collection) => {
+			expectEquals(fixNumber(reduce(
+				collection, avg, 0
+			)), expected);
+		});
 	});
 
 	test('count returns the number of occurrences of the given counted'
-	+ 'among the given candidates.', () => {
-		expect(reduce(
-			obj, count(1), 0
-		)).toEqual(1);
-		expect(reduce(
-			array, count(0), 0
-		)).toEqual(0);
+	+ ' among the given candidates.', () => {
+		const existing = rndValue(rndArray);
+		const nonExistent = Math.max(...rndArray) + 1;
+
+		const expectations = [
+			[existing, 1],
+			[nonExistent, 0],
+		];
+
+		map(expectations, ([value, expected]) =>
+			expect(reduce(
+				rndValue(collections), count(value), 0
+			)).toEqual(expected));
 	});
 
 	test('min finds the smallest of the given candidates.', () => {
-		expect(reduce(obj, min)).toEqual(1);
+		const minValue = Math.min(...rndArray);
+
+		expect(reduce(rndValue(collections), min)).toEqual(minValue);
 		expect(reduce(
-			array, min, 0
-		)).toEqual(0);
+			rndValue(collections), min, minValue - 1
+		)).toEqual(minValue - 1);
 	});
 
 	test('max finds the largest of the given candidates.', () => {
+		const maxValue = Math.max(...rndArray);
+
+		expect(reduce(rndValue(collections), max)).toEqual(maxValue);
 		expect(reduce(
-			obj, max, 100
-		)).toEqual(100);
-		expect(reduce(array, max)).toEqual(3);
+			rndValue(collections), max, maxValue + 1
+		)).toEqual(maxValue + 1);
 	});
 
 	test('reducer derives reducers from '
 	+ 'relevant collection functions.', () => {
 		expect(reduce(
-			[obj, extension], reducer(merge), {}
-		)).toEqual(extended);
+			[rndObject, extension], reducer(merge), {}
+		)).toEqual(merge(
+			{}, rndObject, extension
+		));
 	});
 });

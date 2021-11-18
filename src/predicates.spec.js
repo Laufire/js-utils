@@ -1,16 +1,18 @@
 /* Helpers */
-import { contains, equals, filter, keys, shares } from
+import { contains, filter, shares, map, values } from
 	'@laufire/utils/collection';
+import { rndValue, rndValues } from '@laufire/utils/random';
 import { truthies, falsies, array, obj, cloned, extension, extended, isolated,
-	collection, extendedCollection, sortArray, contracted }
+	collection, extendedCollection, sortArray, contracted, rndArray, rndKey }
 	from '../test/helpers';
+import { rndBetween } from './lib';
 
 /* Tested */
 import { isEqual, isSame, isPart, doesContain,
 	truthy, falsy, everything, nothing,
 	first, unique,
 	not, or, and, onProp,
-	predicate, isIn, key, value } from './predicates';
+	predicate, isIn, value, key } from './predicates';
 
 /* Spec */
 describe('Predicates', () => {
@@ -71,12 +73,17 @@ describe('Predicates', () => {
 		expect(filter(collection, not(isSame(obj))).obj).not.toBe(obj);
 		expect(filter(collection, not(isPart(extended))).obj).not.toBe(obj);
 
-		expect(sortArray(array.filter(not(truthy))))
-			.toEqual(sortArray(falsies));
-		expect(sortArray(array.filter(not(falsy))))
-			.toEqual(sortArray(truthies));
-		expect(sortArray(array.filter(not(everything)))).toEqual([]);
-		expect(sortArray(array.filter(not(nothing)))).toEqual(sortArray(array));
+		const expectations = [
+			[truthy, falsies],
+			[falsy, truthies],
+			[nothing, array],
+			[everything, []],
+		];
+
+		map(expectations, ([fn, expected]) => {
+			expect(sortArray(array.filter(not(fn))))
+				.toEqual(sortArray(expected));
+		});
 	});
 
 	test('and returns a function to test the candidates to pass'
@@ -95,69 +102,89 @@ describe('Predicates', () => {
 			.toEqual({});
 	});
 
-	test('onProp returns a function to test the given prop across candidates'
+	test('onProp returns a function to test the given'
+	+ 'prop across candidates'
 	+ ' of a collection.', () => {
-		expect(filter(collection, onProp('a', isEqual(1)))).toEqual(collection);
-		expect(filter(extendedCollection,
-			onProp('d', isEqual(4)))).toEqual({ extended });
+		const prop = rndKey(isolated);
+
+		expect(filter({ ...extendedCollection, isolated },
+			onProp(prop, isEqual(isolated[prop]))))
+			// TODO: Randomize the key.
+			.toEqual({ isolated });
 	});
 
 	describe('generators pass all available arguments'
 	+ 'to the given predicates.', () => {
+		const childCollection = rndValue(collection);
+		const childKey = rndKey(childCollection);
 		const generators = {
 			and, or, not,
 		};
+		const mockPredicate = jest.fn();
 
-		test.each(keys(generators))('testing the generator: %s',
-			(generatorKey) => {
-				const mockPredicate = jest.fn();
-				const args = [obj.a, 'a', obj];
+		test.each(values(generators))('testing the generator: %s for args',
+			(generator) => {
+				const args = [
+					childCollection[childKey],
+					childKey,
+					childCollection,
+				];
 
-				filter(obj, generators[generatorKey](mockPredicate));
+				filter(childCollection, generator(mockPredicate));
 
 				expect(mockPredicate).toHaveBeenCalledWith(...args);
 			});
 
-		test('testing the generator: onProp.', () => {
-			const mockPredicate = jest.fn();
-			const mockCollection = { obj };
-			const prop = 'a';
+		test('the generator onProp passes args properly', () => {
+			const mockCollection = { [childKey]: childCollection };
+			const prop = rndKey(childCollection);
+			const args = [childCollection[prop], childKey, mockCollection];
 
 			filter(mockCollection, onProp(prop, mockPredicate));
 
-			expect(mockPredicate).toHaveBeenCalledWith(
-				obj[prop], 'obj', mockCollection
-			);
+			expect(mockPredicate).toHaveBeenCalledWith(...args);
 		});
 	});
 
-	test('predicate derives predicates from relevant '
-	+ 'collection functions', () => {
-		expect(filter(extendedCollection, predicate(equals, extended)))
-			.toEqual({ extended });
+	test('predicate derives predicates from relevant'
+	+ ' collection functions', () => {
+		const childKey = rndKey(extendedCollection);
+		const childCollection = extendedCollection[childKey];
+		const mockCollection = { ...extendedCollection, isolated };
 
-		expect(filter(extendedCollection, predicate(contains, extension)))
-			.toEqual({ extended });
+		expect(filter(mockCollection, predicate(isSame(childCollection))))
+			.toEqual({ [childKey]: childCollection });
 
-		expect(filter(extendedCollection, predicate(
-			shares, extension, 'd'
+		expect(filter(mockCollection, predicate(contains, isolated)))
+			.toEqual({ isolated });
+
+		expect(filter(mockCollection, predicate(
+			shares, isolated, rndKey(isolated)
 		)))
-			.toEqual({ extended });
+			.toEqual({ isolated });
 	});
 
 	test('isIn', () => {
 		// TODO: use imported collection.filter instead. It's not used as it's buggy.
-		expect([1, 2, 3].filter(isIn([2, 3])))
-			.toEqual([2, 3]);
+		// TODO: Randomize the count.
+		const inArrayValues = rndValues(rndArray,
+			rndBetween(0, rndArray.length - 1));
+
+		expect(rndArray.filter(isIn(inArrayValues)))
+			.toEqual(inArrayValues);
 	});
 
 	test('passes key to predicate function.', () => {
-		expect(filter(collection, key(isEqual('obj')))).toEqual({ obj });
+		const collectionKey = rndKey(collection);
+
+		expect(filter(collection, key(isEqual(collectionKey))))
+			.toEqual({ [collectionKey]: collection[collectionKey] });
 	});
 
 	test('passes value to predicate function', () => {
-		const { d } = extension;
+		const extensionKey = rndKey(extension);
 
-		expect(filter(extended, value(isEqual(d)))).toEqual(extension);
+		expect(filter(extended, value(isEqual(extension[extensionKey]))))
+			.toEqual({ [extensionKey]: extended[extensionKey] });
 	});
 });
