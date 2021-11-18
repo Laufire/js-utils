@@ -5,6 +5,7 @@
 /* Imports */
 import { keys, map, values, filter, reduce } from './collection';
 import { rndBetween as rb } from './lib';
+import { defined } from './fn';
 
 /* Exports */
 const stringSeeds = {
@@ -66,11 +67,15 @@ const rndValues = (() => {
 		return filter(iterable, (dummy, key) => key !== rndKey);
 	};
 
-	return (iterable, count = 1) => reduce(
-		iterable, (t) => (keys(t).length > count
-			? skipRndKey(t)
-			: t), iterable
-	);
+	return (iterable, count) => {
+		const length = defined(count, rndBetween(0, iterable.length - 1));
+
+		return reduce(
+			iterable, (t) => (keys(t).length > length
+				? skipRndKey(t)
+				: t), iterable
+		);
+	};
 })();
 
 const rndValueWeighted = (weights) => {

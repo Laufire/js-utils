@@ -125,8 +125,8 @@ describe('rndValues returns the given count of random a values'
 		retry(() => [array, object].forEach(test));
 	});
 
-	test('count defaults to 1', () => {
-		expect(rndValues(array).length).toEqual(1);
+	test('count defaults to random value', () => {
+		expect(rndValues(array).length).toBeLessThan(array.length);
 	});
 });
 
