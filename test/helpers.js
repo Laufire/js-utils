@@ -1,6 +1,6 @@
 import { 
 	clone, secure, shuffle, map,
-	keys, filter, range, dict, values
+	keys, filter, range, dict, values, fromEntries
 } from '@laufire/utils/collection';
 import { rndValue, rndBetween, rndString } from '@laufire/utils/random';
 /* Config */
@@ -12,21 +12,21 @@ const defaults = {
 /* Data */
 const truthies = [1, '2', true, [], {}];
 const falsies = [0, '', false, undefined, null];
+const getRndRange = () => range(0, rndBetween(5, 8));
 const rndRange = range(0, rndBetween(5, 8));
-//TODO: Use symbols for values.
-const rndArray = secure(shuffle(rndRange));
+const rndArray = secure(map(getRndRange(), Symbol));
 const rndObject = secure(dict(rndArray));
 const obj = secure(rndObject);
  // TODO: Revisit. 
 const cloned = secure(clone(rndObject));
-const key = Math.max(...rndArray) + 1;
-const value = Math.max(...rndArray) + 1;
-const extension = { [key]: value, [key + 1]: value + 1 };
+const extension = secure(fromEntries(getRndRange().map((value) => 
+	[rndString(), Symbol(value)])));
 const collection = { obj, cloned };
 const extended = secure({ ...obj, ...extension });
-const rndkey = rndValue(keys(obj));
-const contracted = filter(obj, (dummy, key) => key !== rndkey);
-const isolated = secure({ [rndBetween(10, 20)]: rndBetween(30, 40) });
+const removedKey = rndValue(keys(obj));
+const contracted = filter(obj, (dummy, key) => key !== removedKey);
+const isolated = secure(fromEntries(getRndRange().map((value) => 
+	[rndString(), Symbol(value)])));
 const extendedCollection = {
 	[rndString()]: obj,
 	[rndString()]: cloned,
