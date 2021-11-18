@@ -4,12 +4,16 @@
 //	- mutations the mock objects.
 
 /* Helpers */
-import { sortArray, rndKey, doesEqual } from '../test/helpers';
-import { rndBetween, rndString } from '@laufire/utils/random';
+import { sortArray, rndKey } from '../test/helpers';
+import { rndBetween, rndString, rndValue, rndValues }
+	from '@laufire/utils/random';
 import { isDefined } from '@laufire/utils/reflection';
 import { ascending, descending } from '@laufire/utils/sorters';
 import { sum } from '@laufire/utils/reducers';
-import { peek } from '@laufire/utils/debug';
+import { dict as tDict, select as tSelect, map as tMap, keys as tKeys,
+	values as tValues, secure as tSecure, range as tRange }
+	from '@laufire/utils/collection';
+import { isEqual } from '@laufire/utils/predicates';
 
 /* Tested */
 import {
@@ -104,52 +108,83 @@ describe('Collection', () => {
 		expect(map).toEqual(each);
 	});
 
-	const sampleArray = range(1, 10).map((val) => Symbol(val));
-	const sampleObject = dict(sampleArray);
-	const expectedValue = map(sampleObject, (dummy, key) => Symbol(key));
-	const extension = { 0: rndString() };
-	const predicateFn = (dummy, key) => expectedValue[key];
+	const sampleArray = tSecure(tMap(tRange(0, 10), () => Symbol(rndString())));
+	const sampleObject = tSecure(tDict(sampleArray));
+	const expectationBase = tSecure(tMap(sampleObject, (dummy, key) =>
+		Symbol(key)));
 	const testForArguments = (fn) => {
-		const mockFn = jest.fn(() => false);
+		// TODO: Use imported nothing after publishing.
+		const mockPredicate = jest.fn(() => false);
 
-		[simpleArray, simpleObj].map((collection) => {
-			fn(collection, mockFn);
-
-			keys(collection).map((key) =>
-				expect(mockFn).toHaveBeenCalledWith(
+		tMap([simpleArray, simpleObj], (collection) => {
+			fn(collection, mockPredicate);
+			// TODO: Use imported Keys after publishing.
+			tMap(keys(collection), (key) =>
+				expect(mockPredicate).toHaveBeenCalledWith(
 					collection[key], key, collection
 				));
 		});
 	};
 
-	const testIterator = ({ fn, predicate = predicateFn, expectation }) => {
-		[sampleArray, sampleObject].map((val) => expect(doesEqual(peek(expectation),
-			peek(fn(peek({ ...extension, ...val }), predicate)))).toEqual(true));
-		// TestForArguments(fn);
+	const testIterator = ({ fn, predicate, data }) => {
+		tMap(data, ([collection, expectation]) =>
+			expect(fn(collection, predicate)).toEqual(expectation));
+		testForArguments(fn);
 	};
 
-	test('map hadles both array & object and passes arguments'
-	+ 'to callback', () => {
-		testIterator({ fn: map, expectation: expectedValue });
+	test('map transforms the given iterable using the given callback', () => {
+		const fn = map;
+		const predicate = (dummy, key) => expectationBase[key];
+		const expectation = expectationBase;
+		const data = [
+			[sampleArray, tValues(expectation)],
+			[sampleObject, expectation],
+		];
+
+		testIterator({ fn, predicate, data });
 	});
 
-	test('filter passes expected arguments to the callback', () => {
-		testIterator({ fn: filter, expectation: sampleObject,
-			extension: extension });
+	test('filter filters the given iterable using the given callback', () => {
+		const fn = filter;
+		// TODO: Use imported rndValues after publishing.
+		const rndKeys = rndValues(tKeys(expectationBase), rndBetween(1,
+			tKeys(expectationBase).length - 1));
+		const predicate = (dummy, key) => rndKeys.includes(String(key));
+		const expectation = tSelect(sampleObject, rndKeys);
+		const data = [
+			[sampleArray, tValues(expectation)],
+			[sampleObject, expectation],
+		];
+
+		testIterator({ fn, predicate, data });
 	});
 
-	test.only('find finds the first element from the collection chose'
+	test('find finds the first element from the collection chose'
 	+ ' by the predicate', () => {
 		const fn = find;
-		const expectation = values(sampleObject)[0];
+		const randomValue = rndValue(expectationBase);
+		const predicate = (value) => isEqual(randomValue)(value);
+		const expectation = sampleObject[randomValue];
+		const data = [
+			[sampleArray, expectation],
+			[sampleObject, expectation],
+		];
 
-		testIterator({ fn, expectation, extension });
+		testIterator({ fn, predicate, data });
 	});
 
 	test('findKey finds the key of first element from the collection chose'
 	+ ' by the predicate', () => {
-		testIterator({ fn: findKey,
-			expectation: Number(keys(sampleObject)[0]) });
+		const fn = findKey;
+		const randomKey = rndKey(expectationBase);
+		const predicate = (dummy, key) => String(key) === randomKey;
+		const expectation = randomKey;
+		const data = [
+			[sampleArray, Number(expectation)],
+			[sampleObject, expectation],
+		];
+
+		testIterator({ fn, predicate, data });
 	});
 
 	test('reduce reduces the given collection', () => {

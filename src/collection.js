@@ -142,12 +142,17 @@ const reduce = (
 };
 
 const find = (collection, predicate) =>
-	collection[libKeys(collection)[0]];
+	collection[libKeys(collection).find((key) =>
+		predicate(
+			collection[key], key, collection
+		))];
 
 const findKey = (collection, predicate) => {
 	const colKeys = libKeys(collection);
 
-	return colKeys[colKeys[0]];
+	return colKeys[colKeys.findIndex((key) => predicate(
+		collection[key], key, collection
+	))];
 };
 
 const findIndex = findKey;
