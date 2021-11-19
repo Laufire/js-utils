@@ -1,6 +1,6 @@
 import { map, values, secure } from '@laufire/utils/collection';
 import { rndValue, rndString } from '@laufire/utils/random';
-import { rndArray, rndNumber, rndObject } from '../test/helpers';
+import { array, rndNumber, object } from '../test/helpers';
 
 /* Tested */
 import {
@@ -33,8 +33,8 @@ describe('Reflection', () => {
 		boolean: rndValue([true, false]),
 	});
 	const iterableTypes = secure({
-		array: rndArray,
-		object: rndObject,
+		array: array,
+		object: object,
 		map: new Map(),
 	});
 	const constructedTypes = secure({
@@ -57,8 +57,8 @@ describe('Reflection', () => {
 	test('constructorName returns the constructor name'
 	+ ' of the given value', () => {
 		const expectations = {
-			Object: rndObject,
-			Array: rndArray,
+			Object: object,
+			Array: array,
 			Function: fn,
 			String: '',
 			Number: 1,
@@ -86,34 +86,34 @@ describe('Reflection', () => {
 
 	test('isIterable returns true only when the given value'
 		+ ' is an Array or an Object', () => {
-		expect(isIterable(rndObject)).toEqual(true);
-		expect(isIterable(rndArray)).toEqual(true);
+		expect(isIterable(object)).toEqual(true);
+		expect(isIterable(array)).toEqual(true);
 		expect(isIterable(fn)).toEqual(false);
 	});
 
 	test('isFunction returns true only when the given value'
 		+ ' is a Function', () => {
-		expect(isFunction(rndObject)).toEqual(false);
+		expect(isFunction(object)).toEqual(false);
 		expect(isFunction(fn)).toEqual(true);
 	});
 
 	test('isDict returns true only when the given value'
 	+ ' is an Object', () => {
-		expect(isDict(rndObject)).toEqual(true);
-		expect(isDict(rndArray)).toEqual(false);
+		expect(isDict(object)).toEqual(true);
+		expect(isDict(array)).toEqual(false);
 	});
 
 	test('isObject returns true only when the given value'
 	+ ' is an Objectish', () => {
-		expect(isObject(rndObject)).toEqual(true);
+		expect(isObject(object)).toEqual(true);
 		expect(isObject(constructed)).toEqual(true);
-		expect(isObject(rndArray)).toEqual(false);
+		expect(isObject(array)).toEqual(false);
 	});
 
 	test('isDefined returns false only when the given value'
 		+ ' is undefined', () => {
 		expect(isDefined(undefined)).toEqual(false);
-		expect(isDefined(rndObject)).toEqual(true);
+		expect(isDefined(object)).toEqual(true);
 	});
 
 	test('isEmpty', () => {

@@ -2,9 +2,12 @@
 import { contains, filter, shares, map, values } from
 	'@laufire/utils/collection';
 import { rndValue, rndValues } from '@laufire/utils/random';
-import { truthies, falsies, array, obj, cloned, extension, extended, isolated,
-	collection, extendedCollection, sortArray, contracted, rndArray, rndKey }
-	from '../test/helpers';
+import {
+	object, cloned, extension, extended, isolated,
+	collection, extendedCollection, sortArray,
+	contracted, rndKey, ecKeys,
+} from '../test/helpers';
+import { secure, shuffle } from './collection';
 import { rndBetween } from './lib';
 
 /* Tested */
@@ -16,15 +19,19 @@ import { isEqual, isSame, isPart, doesContain,
 
 /* Spec */
 describe('Predicates', () => {
+	const truthies = [1, '2', true, [], {}];
+	const falsies = [0, '', false, undefined, null];
+	const array = secure(shuffle(truthies.concat(falsies)));
+
 	test('isEqual returns a function to test value equality'
 		+ ' between the candidates.', () => {
-		expect(filter(collection, isEqual(obj))).toEqual(collection);
+		expect(filter(collection, isEqual(object))).toEqual(collection);
 	});
 
 	test('isSame returns a function to test referential equality'
 		+ ' between the candidates', () => {
-		expect(filter(collection, isSame(collection.obj)).obj)
-			.toBe(collection.obj);
+		expect(filter(collection, isSame(collection.object)).object)
+			.toBe(collection.object);
 	});
 
 	test('isPart returns a function to test whether the tested object is'
@@ -69,9 +76,12 @@ describe('Predicates', () => {
 	});
 
 	test('not returns the inverse of the given predicate.', () => {
-		expect(filter(collection, not(isEqual(obj)))).not.toEqual(collection);
-		expect(filter(collection, not(isSame(obj))).obj).not.toBe(obj);
-		expect(filter(collection, not(isPart(extended))).obj).not.toBe(obj);
+		expect(filter(collection, not(isEqual(object)))).not
+			.toEqual(collection);
+		expect(filter(collection, not(isSame(object))).object).not
+			.toBe(object);
+		expect(filter(collection, not(isPart(extended))).object).not
+			.toBe(object);
 
 		const expectations = [
 			[truthy, falsies],
@@ -88,15 +98,15 @@ describe('Predicates', () => {
 
 	test('and returns a function to test the candidates to pass'
 	+ ' all the given predicates.', () => {
-		expect(filter(collection, and(isSame(obj), isSame(cloned))))
+		expect(filter(collection, and(isSame(object), isSame(cloned))))
 			.toEqual({});
-		expect(filter(collection, and(isSame(obj), isEqual(cloned))))
-			.toEqual({ obj });
+		expect(filter(collection, and(isSame(object), isEqual(cloned))))
+			.toEqual({ [ecKeys.object]: object });
 	});
 
 	test('or returns a function to test the candidates to pass'
 	+ ' at least one among multiple predicates.', () => {
-		expect(filter(collection, or(isSame(obj), isSame(cloned))))
+		expect(filter(collection, or(isSame(object), isSame(cloned))))
 			.toEqual(collection);
 		expect(filter(collection, or(isSame(extended), isEqual(extended))))
 			.toEqual({});
@@ -168,10 +178,10 @@ describe('Predicates', () => {
 	+ ' in arrays', () => {
 		// TODO: use imported collection.filter instead. It's not used as it's buggy.
 		// TODO: Randomize the count.
-		const inArrayValues = rndValues(rndArray,
-			rndBetween(0, rndArray.length - 1));
+		const inArrayValues = rndValues(array,
+			rndBetween(0, array.length - 1));
 
-		expect(rndArray.filter(isIn(inArrayValues)))
+		expect(array.filter(isIn(inArrayValues)))
 			.toEqual(inArrayValues);
 	});
 

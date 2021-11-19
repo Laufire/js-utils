@@ -1,7 +1,7 @@
 /* Helpers */
 import { equals, clone } from '@laufire/utils/collection';
 import { isDefined } from '@laufire/utils/reflection';
-import { rndArray, rndKey } from '../test/helpers';
+import { array, rndKey } from '../test/helpers';
 
 /* Tested */
 import { cache, value, defined, self, identity, nothing } from './fn';
@@ -11,7 +11,6 @@ test('cache caches the given function based on parameters till the next call'
 	const testCache = (qualifier, callCount) => {
 		const fn = jest.fn((...args) => args);
 		const cachedFn = cache(fn, qualifier);
-		const array = rndArray;
 		const symbolOne = Symbol('SymbolOne');
 		const SymbolTwo = Symbol('SymbolTwo');
 
@@ -37,7 +36,7 @@ test('value extracts the value from the given function or variable', () => {
 });
 
 test('defined filters the first defined value', () => {
-	const values = clone(rndArray);
+	const values = clone(array);
 
 	values[rndKey(values)] = undefined;
 

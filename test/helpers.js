@@ -1,38 +1,16 @@
 import { 
-	clone, secure, shuffle, map,
-	keys, filter, range, dict, fromEntries 
+	clone, secure, map,
+	keys, filter, range, dict, fromEntries
 } from '@laufire/utils/collection';
 import { rndValue, rndBetween, rndString } from '@laufire/utils/random';
+
 /* Config */
 const defaults = {
 	retryCount: 1000,
+	numberPrecision: 4,
+	randomNumLimits: [0, 100],
+	rndRangeMaxLimits: [5, 8],
 };
-
-/* Exports */
-/* Data */
-const truthies = [1, '2', true, [], {}];
-const falsies = [0, '', false, undefined, null];
-const getRndRange = () => range(0, rndBetween(5, 8));
-const rndRange = range(0, rndBetween(5, 8));
-const rndArray = secure(map(getRndRange(), Symbol));
-const rndObject = secure(dict(rndArray));
-const obj = secure(rndObject);
- // TODO: Revisit. 
-const cloned = secure(clone(rndObject));
-const extension = secure(fromEntries(getRndRange().map((value) => 
-	[rndString(), Symbol(value)])));
-const collection = { obj, cloned };
-const extended = secure({ ...obj, ...extension });
-const removedKey = rndValue(keys(obj));
-const contracted = filter(obj, (dummy, key) => key !== removedKey);
-const isolated = secure(fromEntries(getRndRange().map((value) => 
-	[rndString(), Symbol(value)])));
-const extendedCollection = {
-	[rndString()]: obj,
-	[rndString()]: cloned,
-	[rndString()]: extended,
-};
-const array = secure(shuffle(truthies.concat(falsies)));
 
 /* Functions */
 const sortArray = (arr) => arr.slice().sort();
@@ -50,25 +28,57 @@ const retry = (fn, retryCount = defaults.retryCount) => {
 };
 
 const strSubSet = (superStr, tested) =>
-	tested.split('').findIndex((char) => !(superStr.indexOf(char) > -1)) === -1;
+	tested.split('').findIndex((char) => 
+		!(superStr.indexOf(char) > -1)) === -1;
 
-	const isAcceptable = (
-		actual, expected, margin
-	) => Math.abs((expected - actual) / (expected || 1)) <= margin;
+const isAcceptable = (
+	actual, expected, margin
+) => Math.abs((expected - actual) / (expected || 1)) <= margin;
 
 const rndKey = (collection) => rndValue(keys(collection));
 
-const rndNumber = () => rndBetween(0, 100);
+const rndRange = (min = 0) => range(min, rndBetween(...defaults.rndRangeMaxLimits));
 
-const fixNumber = (value) => value.toFixed(4); 
+const rndNumber = () => rndBetween(...defaults.randomNumLimits);
+
+const fixNumber = (value) => value.toFixed(defaults.numberPrecision); 
 
 const expectEquals = (valOne, valtwo) => expect(valOne).toEqual(valtwo);
 
+
+/* Exports */
+/* Data */
+const array = secure(map(rndRange(), Symbol));
+const object = secure(dict(array));
+const cloned = secure(clone(object));
+//TODO: Introduce getRandomDict.
+const extension = secure(fromEntries(rndRange().map((value) => 
+	[rndString(), Symbol(value)])));
+const isolated = secure(fromEntries(rndRange().map((value) => 
+	[rndString(), Symbol(value)])));
+const removedKey = rndValue(keys(object));
+const contracted = filter(object, (dummy, key) => key !== removedKey);
+const extended = secure({ ...object, ...extension });
+const ecKeys = {
+	object: rndString(),
+	cloned: rndString(),
+	extended: rndString(),
+};
+const collection = {
+	[ecKeys.object]: object,
+	[ecKeys.cloned]: cloned,
+};
+const extendedCollection = {
+	...collection,
+	[ecKeys.extended]: extended,
+};
+
+
 export {
-	truthies, falsies, array,
-	obj, cloned, extension, extended, isolated, 
+	contracted, array, object, cloned, 
+	extension, extended, isolated, ecKeys, 
 	collection, extendedCollection, rndRange,
 	sortArray, getPredicate, retry, strSubSet,
 	isAcceptable, rndKey, rndNumber, fixNumber,
-	expectEquals, contracted, rndArray, rndObject,
+	expectEquals,
 };

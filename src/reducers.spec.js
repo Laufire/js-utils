@@ -9,15 +9,15 @@ import { avg, count, len, max, min, product, reducer, sum } from './reducers';
 
 /* Spec */
 describe('Reducers', () => {
-	const rndArray = secure(shuffle(rndRange));
-	const rndObject = secure(dict(rndArray));
-	const collections = [rndObject, rndArray];
+	const array = secure(shuffle(rndRange()));
+	const object = secure(dict(array));
+	const collections = [object, array];
 
 	const testPredicate = (
 		predicate, buildExpectation, initial
 	) => {
 		const expected = reduce(
-			rndArray, buildExpectation, initial
+			array, buildExpectation, initial
 		);
 
 		map(collections, (collection) => {
@@ -47,8 +47,8 @@ describe('Reducers', () => {
 
 	test('avg computes the average of the given candidates.', () => {
 		const expected = fixNumber(reduce(
-			rndArray, (t, c) => t + c, 0
-		) / rndArray.length);
+			array, (t, c) => t + c, 0
+		) / array.length);
 
 		map(collections, (collection) => {
 			expectEquals(fixNumber(reduce(
@@ -59,8 +59,8 @@ describe('Reducers', () => {
 
 	test('count returns the number of occurrences of the given counted'
 	+ ' among the given candidates.', () => {
-		const existing = rndValue(rndArray);
-		const nonExistent = Math.max(...rndArray) + 1;
+		const existing = rndValue(array);
+		const nonExistent = Math.max(...array) + 1;
 
 		const expectations = [
 			[existing, 1],
@@ -74,7 +74,7 @@ describe('Reducers', () => {
 	});
 
 	test('min finds the smallest of the given candidates.', () => {
-		const minValue = Math.min(...rndArray);
+		const minValue = Math.min(...array);
 
 		expect(reduce(rndValue(collections), min)).toEqual(minValue);
 		expect(reduce(
@@ -83,7 +83,7 @@ describe('Reducers', () => {
 	});
 
 	test('max finds the largest of the given candidates.', () => {
-		const maxValue = Math.max(...rndArray);
+		const maxValue = Math.max(...array);
 
 		expect(reduce(rndValue(collections), max)).toEqual(maxValue);
 		expect(reduce(
@@ -94,9 +94,9 @@ describe('Reducers', () => {
 	test('reducer derives reducers from '
 	+ 'relevant collection functions.', () => {
 		expect(reduce(
-			[rndObject, extension], reducer(merge), {}
+			[object, extension], reducer(merge), {}
 		)).toEqual(merge(
-			{}, rndObject, extension
+			{}, object, extension
 		));
 	});
 });
