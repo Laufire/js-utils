@@ -1,6 +1,7 @@
-import { equals, keys, map, range } from './collection';
-import { fix, parts, pathType, resolve } from './path';
+import { keys, map, range } from './collection';
+import { fix, parts } from './path';
 import { rndString, rndValue, rndBetween } from './random';
+import { retry } from '../test/helpers';
 
 const getRndRange = () => {
 	const lowerLimit = 0;
@@ -19,6 +20,7 @@ const randomParts = () => map(getRndRange(), () =>
 	rndValue([emptyName, rndName, relativeDots])());
 
 const emptyParts = ['.', ''];
+
 const partPrefixes = {
 	relative: (pathParts) => [relativeDots(), ...pathParts],
 
@@ -30,25 +32,29 @@ const partPrefixes = {
 	absolute: (pathParts) => pathParts,
 };
 
+const isName = (initialPart) => (/^[^\\.]*$/).test(initialPart);
+
 const prefixes = {
-	absolute: ([initialPart]) => (initialPart === '' ? '/' : ''),
+	absolute: (pathParts) => (pathParts.length ? '/' : ''),
+
 	relative: () => '',
-	lax: (fixedParts) => (equals(fixedParts.slice(0, 2), emptyParts)
-		? ''
-		: './'),
+
+	lax: ([initialPart]) => (isName(initialPart) ? './' : ''),
 };
 
-// eslint-disable-next-line complexity
-const pathDetails = (type, pathParts) => {
-	// Const pathParts = randomParts();
-	const fixedParts = partPrefixes[type](pathParts);
-	const stiched = `${ type === 'absolute' ? '/' : '' }${ fixedParts.join('/') }/`;
-	const fixed = `${ prefixes[type](fixedParts) }${ stiched }${ stiched === '/' ? '' : '/' }`;
-	const path = type !== 'lax'
-		? fixed
-		: fixed
-			.slice(equals(fixedParts.slice(0, 2), emptyParts) ? 0 : 2)
-			.slice(0, pathParts[pathParts.length - 1] === '' ? undefined : -1);
+const toLax = (fixed, pathParts) =>
+	fixed.slice((/[^\\.]/).test(pathParts[0]) ? 2 : 0)
+		.slice(0, pathParts[pathParts.length - 1] === '' ? undefined : -1);
+
+const generateCase = (type) => {
+	const pathParts = partPrefixes[type](randomParts());
+	const fixed = `${ prefixes[type](pathParts) }${ pathParts.join('/') }/`;
+	const fixedParts = [
+		...type === 'lax' && isName(pathParts[0]) ? ['.'] : [],
+		...pathParts,
+	];
+
+	const path = type !== 'lax'	? fixed	: toLax(fixed, pathParts);
 
 	return {
 		parts: fixedParts,
@@ -59,52 +65,20 @@ const pathDetails = (type, pathParts) => {
 };
 
 describe('path', () => {
-	// Const combinations = range(1, 1000).map(() =>
-	// 	PathDetails(rndValue(keys(partPrefixes))));
+	const combinations = retry(() =>
+		generateCase(rndValue(keys(partPrefixes))));
 
-	// Test('builds parts based on path', () => {
-	// 	Map(combinations, ({ path, parts: expected }) => {
-	// 		Const result = parts(path);
+	test('builds parts based on path', () => {
+		map(combinations, ({ path, parts: expected }) => {
+			const result = parts(path);
 
-	// 		Expect(result).toEqual(expected);
-	// 	});
-	// });
-
-	test.only('fixes the given path', () => {
-		// Map(combinations, ({ path, fixed: expected, type, parts }) => {
-		// 	Const result = fix(path);
-		// 	Const find = expected === result;
-
-		// 	Expect(true).toEqual(find);
-		// });
-		const result = pathDetails('lax', ['.', '', '.', '']);
-
-		expect(true).toEqual(true);
+			expect(result).toEqual(expected);
+		});
 	});
 
-	test('resolve base path based on current path', () => {
-		const result = resolve('dev/cloning/js-utils', '.././js-utils');
-
-		expect(result).toEqual(['dev', 'cloning', 'js-utils']);
-	});
-
-	test('return path type', () => {
-		// Const optionRelativePath = () => rndValue([`${ rndString() }/`, '']);
-		const expectation = [
-			[`${ '.'.repeat(rndBetween(1, 5)) }/`, 'relative'],
-			['/', 'absolute'],
-			[rndString(), 'lax'],
-		];
-
-		console.log(range(1, 10000).map(() => {
-			const { path, parts: p } = pathDetails('lax');
-
-			return path.replace(/(\/)$/, '') !== p.join('/');
-		})
-			.filter((x) => x));
-
-		expectation.forEach(([input, expected]) => {
-			const result = pathType(input);
+	test('fixes the given path', () => {
+		map(combinations, ({ path, fixed: expected }) => {
+			const result = fix(path);
 
 			expect(result).toEqual(expected);
 		});

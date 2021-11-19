@@ -434,7 +434,7 @@ describe('Collection', () => {
 		});
 	});
 
-	test.only('result returns the value for the given simple path'
+	test('result returns the value for the given simple path'
 	+ ' or escaped path', () => {
 		// Expect(result(complexObject, 'single')).toEqual(complexObject.single);
 		// Expect(result(complexObject, '/single')).toEqual(complexObject.single);
