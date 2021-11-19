@@ -4,7 +4,7 @@ import { contains, filter, shares, map, values, has, dict } from
 import { rndValue, rndValues } from '@laufire/utils/random';
 import {
 	array, object, cloned, extension, extended, isolated,
-	collection, extendedCollection, sortArray,
+	collection, extCollection, sortArray,
 	contracted, rndKey, ecKeys,
 } from '../test/helpers';
 import { secure, shuffle } from './collection';
@@ -120,7 +120,7 @@ describe('Predicates', () => {
 	+ ' of a collection.', () => {
 		const prop = rndKey(isolated);
 
-		expect(filter({ ...extendedCollection, isolated },
+		expect(filter({ ...extCollection, isolated },
 			onProp(prop, isEqual(isolated[prop]))))
 			// TODO: Randomize the key.
 			.toEqual({ isolated });
@@ -161,9 +161,9 @@ describe('Predicates', () => {
 
 	test('predicate derives predicates from relevant'
 	+ ' collection functions', () => {
-		const childKey = rndKey(extendedCollection);
-		const childCollection = extendedCollection[childKey];
-		const mockCollection = { ...extendedCollection, isolated };
+		const childKey = rndKey(extCollection);
+		const childCollection = extCollection[childKey];
+		const mockCollection = { ...extCollection, isolated };
 
 		expect(filter(mockCollection, predicate(isSame(childCollection))))
 			.toEqual({ [childKey]: childCollection });
