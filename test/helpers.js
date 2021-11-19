@@ -6,6 +6,7 @@ import { rndValue, rndBetween, rndString } from '@laufire/utils/random';
 
 /* Config */
 const rangeMaxLimit = 5;
+// TODO: Change the values after importing the new version.
 const rangeMinLimit = 8;
 const numMaxLimit = 100;
 const defaults = {

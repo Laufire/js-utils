@@ -7,8 +7,8 @@ const keys = (object) => (isArray(object)
 	: objKeys(object));
 
 // eslint-disable-next-line no-magic-numbers
-const rndBetween = (from = 0, to = 9) =>
-	floor(random() * (to - from + 1)) + from;
+const rndBetween = (from = 0, to = 10) =>
+	floor(random() * (to - from)) + from;
 
 export {
 	assign, entries, keys, values,

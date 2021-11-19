@@ -4,7 +4,7 @@ const hundred = 100;
 
 const vary = (variance) =>
 	rndBetween(hundred - (variance * hundred),
-		hundred + (variance * hundred)) / hundred;
+		hundred + (variance * hundred) + 1) / hundred;
 
 // TODO: Revisit.
 const getDR = (numOne, numTwo) =>

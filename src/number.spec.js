@@ -9,7 +9,7 @@ describe('vary', () => {
 		const variance = 1;
 		const hundred = 100;
 		const min = hundred - (variance * hundred);
-		const max = hundred + (variance * hundred);
+		const max = hundred + (variance * hundred) + 1;
 		const mockResult = rndBetween(1, 100);
 
 		jest.spyOn(random, 'rndBetween').mockReturnValue(mockResult);

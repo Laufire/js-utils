@@ -17,7 +17,7 @@ describe('rndBetween', () => {
 		value, from, to
 	) => {
 		expect(value >= from).toBe(true);
-		expect(value <= to).toBe(true);
+		expect(value < to).toBe(true);
 	};
 
 	test('rndBetween returns a random integer between two integers', () => {
@@ -29,9 +29,9 @@ describe('rndBetween', () => {
 		));
 	});
 
-	test('rndBetween defaults to 0 and 9 from and to values', () => {
+	test('rndBetween defaults to 0 and 10 from and to values', () => {
 		const from = 0;
-		const to = 9;
+		const to = 10;
 
 		retry(() => isBetween(
 			rndBetween(), from, to

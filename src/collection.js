@@ -489,7 +489,7 @@ const shuffle = (collection) => {
 	const newIxs = [];
 
 	while(ixs.length)
-		newIxs.push(ixs.splice(rndBetween(0, ixs.length - 1), 1)[0]);
+		newIxs.push(ixs.splice(rndBetween(0, ixs.length), 1)[0]);
 
 	return newIxs.reduce(isArray(collection)
 		// eslint-disable-next-line no-return-assign

@@ -35,7 +35,7 @@ const rndBetween = rb;
 // eslint-disable-next-line no-magic-numbers
 const rndString = (length = 8, seed = 'char') => {
 	const seedString = stringSeeds[seed] || seed;
-	const seedCharCount = seedString.length - 1;
+	const seedCharCount = seedString.length;
 	let ret = '';
 
 	// eslint-disable-next-line no-param-reassign
@@ -57,7 +57,7 @@ const rndOfString = (string) =>
 const rndValue = (collection) => {
 	const items = values(collection);
 
-	return items[rndBetween(0, items.length - 1)];
+	return items[rndBetween(0, items.length)];
 };
 
 const rndValues = (() => {
@@ -68,7 +68,7 @@ const rndValues = (() => {
 	};
 
 	return (iterable, count) => {
-		const length = defined(count, rndBetween(0, iterable.length - 1));
+		const length = defined(count, rndBetween(0, iterable.length));
 
 		return reduce(
 			iterable, (t) => (keys(t).length > length
@@ -84,7 +84,7 @@ const rndValueWeighted = (weights) => {
 		+ candidates.slice(0, candidates.indexOf(key))
 			.reduce((t, c) => t + weights[c], 0)));
 	const start = 0;
-	const end = (boundaries.slice(-1)[0] || 1) - 1;
+	const end = boundaries.slice(-1)[0] || 1;
 
 	return () => {
 		const marker = rndBetween(start, end);
@@ -98,7 +98,7 @@ const rndValueWeighted = (weights) => {
 const withProb = (prob) => {
 	// NOTE: Precision is not dynamic to avoid js floating point arithmetic.
 	const precision = 1000;
-	const inverse = (1 / prob * precision) - 1;
+	const inverse = 1 / prob * precision;
 
 	return () => rndBetween(0, inverse) < precision;
 };
