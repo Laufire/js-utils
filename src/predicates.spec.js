@@ -1,14 +1,14 @@
 /* Helpers */
-import { contains, filter, shares, map, values } from
+import { contains, filter, shares, map, values, has, dict } from
 	'@laufire/utils/collection';
 import { rndValue, rndValues } from '@laufire/utils/random';
 import {
-	object, cloned, extension, extended, isolated,
+	array, object, cloned, extension, extended, isolated,
 	collection, extendedCollection, sortArray,
 	contracted, rndKey, ecKeys,
 } from '../test/helpers';
 import { secure, shuffle } from './collection';
-import { rndBetween } from './lib';
+import { keys, rndBetween } from './lib';
 
 /* Tested */
 import { isEqual, isSame, isPart, doesContain,
@@ -21,7 +21,7 @@ import { isEqual, isSame, isPart, doesContain,
 describe('Predicates', () => {
 	const truthies = [1, '2', true, [], {}];
 	const falsies = [0, '', false, undefined, null];
-	const array = secure(shuffle(truthies.concat(falsies)));
+	const tAndFArray = secure(shuffle(truthies.concat(falsies)));
 
 	test('isEqual returns a function to test value equality'
 		+ ' between the candidates.', () => {
@@ -49,21 +49,24 @@ describe('Predicates', () => {
 	});
 
 	test('truthy tests for truthy values', () => {
-		expect(sortArray(array.filter(truthy))).toEqual(sortArray(truthies));
+		expect(sortArray(tAndFArray.filter(truthy)))
+			.toEqual(sortArray(truthies));
 		expect(sortArray(falsies.filter(truthy))).toEqual([]);
 	});
 
 	test('falsy tests for falsy values', () => {
-		expect(sortArray(array.filter(falsy))).toEqual(sortArray(falsies));
+		expect(sortArray(tAndFArray.filter(falsy)))
+			.toEqual(sortArray(falsies));
 		expect(sortArray(truthies.filter(falsy))).toEqual([]);
 	});
 
 	test('everything allows everything through the filter.', () => {
-		expect(sortArray(array.filter(everything))).toEqual(sortArray(array));
+		expect(sortArray(tAndFArray.filter(everything)))
+			.toEqual(sortArray(tAndFArray));
 	});
 
 	test('nothing allows nothing through the filter.', () => {
-		expect(sortArray(array.filter(nothing))).toEqual([]);
+		expect(sortArray(tAndFArray.filter(nothing))).toEqual([]);
 	});
 
 	test('first tests for the first occurrence of the element in '
@@ -86,12 +89,12 @@ describe('Predicates', () => {
 		const expectations = [
 			[truthy, falsies],
 			[falsy, truthies],
-			[nothing, array],
+			[nothing, tAndFArray],
 			[everything, []],
 		];
 
 		map(expectations, ([fn, expected]) => {
-			expect(sortArray(array.filter(not(fn))))
+			expect(sortArray(tAndFArray.filter(not(fn))))
 				.toEqual(sortArray(expected));
 		});
 	});
@@ -175,14 +178,20 @@ describe('Predicates', () => {
 	});
 
 	test('isIn returns a predicate to check for a given values'
-	+ ' in arrays', () => {
-		// TODO: use imported collection.filter instead. It's not used as it's buggy.
-		// TODO: Randomize the count.
-		const inArrayValues = rndValues(array,
-			rndBetween(0, array.length - 1));
+	+ ' in collections', () => {
+		map([array, object], (iterable) => {
+			const haystackObject = dict(rndValues(values(iterable),
+				rndBetween(0, keys(iterable).length - 1)));
+			const haystackArray = values(haystackObject);
+			const predicateFn = (left) => (right) => has(left, right);
 
-		expect(array.filter(isIn(inArrayValues)))
-			.toEqual(inArrayValues);
+			map([haystackArray, haystackObject], (haystack) => {
+				const expectation = filter(iterable, predicateFn(haystack));
+
+				expect(filter(iterable, isIn(haystack)))
+					.toEqual(expectation);
+			});
+		});
 	});
 
 	test('key passes the keys of iterated iterables'

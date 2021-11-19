@@ -30,7 +30,7 @@ const first = (
 
 const unique = first;
 
-const isIn = (predicate) => (value) => predicate.includes(value);
+const isIn = (predicate) => (value) => values(predicate).includes(value);
 
 const key = (predicate) => (dummy, value) => predicate(value);
 
