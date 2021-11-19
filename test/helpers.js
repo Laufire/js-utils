@@ -15,17 +15,8 @@ const defaults = {
 /* Functions */
 const sortArray = (arr) => arr.slice().sort();
 
-const getPredicate = (check) => (val) => val === check;
-
-const retry = (fn, retryCount = defaults.retryCount) => {
-	const ret = [];
-	let i = 0;
-
-	while(i < retryCount)
-		ret.push(fn(i++));
-
-	return ret;
-};
+const retry =  (fn, retryCount = defaults.retryCount) =>
+	map(range(0, retryCount), (value) => fn(value));
 
 const strSubSet = (superStr, tested) =>
 	tested.split('').findIndex((char) => 
@@ -37,7 +28,8 @@ const isAcceptable = (
 
 const rndKey = (collection) => rndValue(keys(collection));
 
-const rndRange = (min = 0) => range(min, rndBetween(...defaults.rndRangeMaxLimits));
+const rndRange = (min = 0) => 
+	range(min, rndBetween(...defaults.rndRangeMaxLimits));
 
 const rndNumber = () => rndBetween(...defaults.randomNumLimits);
 
@@ -45,17 +37,16 @@ const fixNumber = (value) => value.toFixed(defaults.numberPrecision);
 
 const expectEquals = (valOne, valtwo) => expect(valOne).toEqual(valtwo);
 
+const getRndDict = (min = 1) => fromEntries(map(rndRange(min), (value) => 
+	[rndString(), Symbol(value)]));
 
 /* Exports */
 /* Data */
 const array = secure(map(rndRange(), Symbol));
 const object = secure(dict(array));
 const cloned = secure(clone(object));
-//TODO: Introduce getRandomDict.
-const extension = secure(fromEntries(rndRange().map((value) => 
-	[rndString(), Symbol(value)])));
-const isolated = secure(fromEntries(rndRange().map((value) => 
-	[rndString(), Symbol(value)])));
+const extension = secure(getRndDict());
+const isolated = secure(getRndDict());
 const removedKey = rndValue(keys(object));
 const contracted = filter(object, (dummy, key) => key !== removedKey);
 const extended = secure({ ...object, ...extension });
@@ -73,12 +64,11 @@ const extendedCollection = {
 	[ecKeys.extended]: extended,
 };
 
-
 export {
+	sortArray, retry, strSubSet,
+	isAcceptable, rndKey, rndNumber, rndRange,
+	fixNumber, expectEquals,  
 	contracted, array, object, cloned, 
 	extension, extended, isolated, ecKeys, 
-	collection, extendedCollection, rndRange,
-	sortArray, getPredicate, retry, strSubSet,
-	isAcceptable, rndKey, rndNumber, fixNumber,
-	expectEquals,
+	collection, extendedCollection,
 };
