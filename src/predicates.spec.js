@@ -164,7 +164,8 @@ describe('Predicates', () => {
 			.toEqual({ isolated });
 	});
 
-	test('isIn', () => {
+	test('isIn returns a predicate to check for a given values'
+	+ ' in arrays', () => {
 		// TODO: use imported collection.filter instead. It's not used as it's buggy.
 		// TODO: Randomize the count.
 		const inArrayValues = rndValues(rndArray,
@@ -174,14 +175,16 @@ describe('Predicates', () => {
 			.toEqual(inArrayValues);
 	});
 
-	test('passes key to predicate function.', () => {
+	test('key passes the keys of iterated iterables'
+	+ ' to the given predicate.', () => {
 		const collectionKey = rndKey(collection);
 
 		expect(filter(collection, key(isEqual(collectionKey))))
 			.toEqual({ [collectionKey]: collection[collectionKey] });
 	});
 
-	test('passes value to predicate function', () => {
+	test('value passes the values of iterated iterables'
+	+ ' to the given predicate', () => {
 		const extensionKey = rndKey(extension);
 
 		expect(filter(extended, value(isEqual(extension[extensionKey]))))
