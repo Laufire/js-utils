@@ -90,7 +90,7 @@ const keys = libKeys;
  */
 const shell = (collection) => (isArray(collection) ? [] : {});
 
-const fromEntries = (kvPairs) => kvPairs.reduce((agg, pair) => {
+const fromEntries = (kvPairs) => libValues(kvPairs).reduce((agg, pair) => {
 	agg[pair[0]] = pair[1];
 	return agg;
 }, {});

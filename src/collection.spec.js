@@ -15,8 +15,8 @@ import { isDefined, inferType } from '@laufire/utils/reflection';
 import { ascending, descending } from '@laufire/utils/sorters';
 import { sum } from '@laufire/utils/reducers';
 import { dict as tDict, select as tSelect, map as tMap, keys as tKeys,
-	values as tValues, secure as tSecure, range as tRange }
-	from '@laufire/utils/collection';
+	values as tValues, secure as tSecure,
+	range as tRange, entries as tEntries } from '@laufire/utils/collection';
 import { isEqual } from '@laufire/utils/predicates';
 
 /* Tested */
@@ -451,9 +451,12 @@ describe('Collection', () => {
 		expect(rename(data, renameMap)).toEqual({ depth: 1 });
 	});
 
-	// TODO: Fix this test.
 	test('fromEntries builds an object out of entries', () => {
-		expect(fromEntries(entries(simpleObj))).toEqual(simpleObj);
+		map([hArray, hObject], (iterable) => {
+			const expectation = tDict(values(iterable));
+
+			expect(fromEntries(tEntries(iterable))).toEqual(expectation);
+		});
 	});
 
 	test('entries', () => {
