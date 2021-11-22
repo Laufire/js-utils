@@ -1,3 +1,5 @@
+import { findKey } from './collection';
+
 const initialSlash = /^\//;
 
 const fix = (path) => [
@@ -18,7 +20,16 @@ const parts = (() => {
 		.map((part) => part.replace(escapedSequence, '$1').slice(0, -1));
 })();
 
+const matchers = {
+	absolute: /^(\/)(?:.+\/$)?/,
+	relative: /^(\.+\/)(?:.*\/$)?$/,
+	lax: /(^(?:(?!\.+\/)|\/).+)|(.+[^\\/]$)/,
+};
+
+const pathType = (path) => findKey(matchers, (matcher) => matcher.test(path));
+
 export {
 	parts,
 	fix,
+	pathType,
 };

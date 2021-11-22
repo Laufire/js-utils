@@ -1,5 +1,5 @@
 import { keys, map, range } from './collection';
-import { fix, parts } from './path';
+import { fix, parts, pathType } from './path';
 import { rndString, rndValue, rndBetween } from './random';
 import { retry } from '../test/helpers';
 
@@ -19,17 +19,26 @@ const emptyName = () => '';
 const randomParts = () => map(getRndRange(), () =>
 	rndValue([emptyName, rndName, relativeDots])());
 
-const emptyParts = ['.', ''];
+const emptyParts = () => ['.', ''];
 
-const partPrefixes = {
+const nonEmptyParts = () => [rndValue([relativeDots(), rndString()])];
+
+const partFixers = {
+	absolute: (pathParts) => pathParts,
+
 	relative: (pathParts) => [relativeDots(), ...pathParts],
 
-	lax: (pathParts) => [
-		...rndValue([[rndString()], emptyParts, [relativeDots()]]),
-		...pathParts,
-	],
+	lax: (pathParts) => {
+		const initialParts = rndValue([emptyParts, nonEmptyParts])();
+		const laxParts = [...initialParts, ...pathParts];
+		const suffix = (/^\.+$/).test(laxParts[0])
+			&& laxParts[laxParts.length - 1] === '';
 
-	absolute: (pathParts) => pathParts,
+		return [
+			...laxParts,
+			...suffix ? nonEmptyParts() : [],
+		];
+	},
 };
 
 const isName = (initialPart) => (/^[^\\.]*$/).test(initialPart);
@@ -47,7 +56,7 @@ const toLax = (fixed, pathParts) =>
 		.slice(0, pathParts[pathParts.length - 1] === '' ? undefined : -1);
 
 const generateCase = (type) => {
-	const pathParts = partPrefixes[type](randomParts());
+	const pathParts = partFixers[type](randomParts());
 	const fixed = `${ prefixes[type](pathParts) }${ pathParts.join('/') }/`;
 	const fixedParts = [
 		...type === 'lax' && isName(pathParts[0]) ? ['.'] : [],
@@ -66,21 +75,23 @@ const generateCase = (type) => {
 
 describe('path', () => {
 	const combinations = retry(() =>
-		generateCase(rndValue(keys(partPrefixes))));
+		generateCase(rndValue(keys(partFixers))));
 
-	test('builds parts based on path', () => {
+	test('parts splits the given path into parts array', () => {
 		map(combinations, ({ path, parts: expected }) => {
-			const result = parts(path);
-
-			expect(result).toEqual(expected);
+			expect(parts(path)).toEqual(expected);
 		});
 	});
 
-	test('fixes the given path', () => {
+	test('fix fixes the given path', () => {
 		map(combinations, ({ path, fixed: expected }) => {
-			const result = fix(path);
+			expect(fix(path)).toEqual(expected);
+		});
+	});
 
-			expect(result).toEqual(expected);
+	test('pathType identifies the path type of the given path', () => {
+		map(combinations, ({ path, type: expected }) => {
+			expect(pathType(path)).toEqual(expected);
 		});
 	});
 });
