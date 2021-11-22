@@ -10,6 +10,7 @@ const rangeMaxLimit = 5;
 const rangeMinLimit = 8;
 const numMaxLimit = 100;
 const defaults = {
+	numberArrayMax: 100,
 	numberPrecision: 4,
 	randomNumLimits: [0, numMaxLimit],
 	retryCount: 1000,
@@ -60,6 +61,7 @@ const ecKeys = {
 	cloned: rndString(),
 	extended: rndString(),
 };
+const numberArray = secure(range(1, defaults.numberArrayMax));
 const collection = {
 	[ecKeys.object]: object,
 	[ecKeys.cloned]: cloned,
@@ -75,5 +77,5 @@ export {
 	rndRange, fixNumber, expectEquals,
 	contracted, array, object, cloned,
 	extension, extended, isolated, ecKeys,
-	collection, extCollection,
+	collection, extCollection, numberArray,
 };

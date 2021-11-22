@@ -5,9 +5,8 @@
 
 /* Helpers */
 import {
-	sortArray, rndKey,
-	// TODO: Rename after renaming the local shadow variables
-	array as hArray, object as hObject,
+	sortArray, rndKey, numberArray,
+	array, object, expectEquals,
 } from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
@@ -15,7 +14,7 @@ import { isDefined, inferType } from '@laufire/utils/reflection';
 import { ascending, descending } from '@laufire/utils/sorters';
 import { sum } from '@laufire/utils/reducers';
 import { dict as tDict, select as tSelect, map as tMap, keys as tKeys,
-	values as tValues, secure as tSecure,
+	values as tValues, secure as tSecure, reduce as tReduce,
 	range as tRange, entries as tEntries } from '@laufire/utils/collection';
 import { isEqual } from '@laufire/utils/predicates';
 
@@ -452,7 +451,7 @@ describe('Collection', () => {
 	});
 
 	test('fromEntries builds an object out of entries', () => {
-		map([hArray, hObject], (iterable) => {
+		map([array, object], (iterable) => {
 			const expectation = tDict(values(iterable));
 
 			expect(fromEntries(tEntries(iterable))).toEqual(expectation);
@@ -465,8 +464,8 @@ describe('Collection', () => {
 			object: String,
 		};
 
-		map([hArray, hObject], (iterable) => {
-			const expectation = values(map(iterable, (value, key) =>
+		tMap([array, object], (iterable) => {
+			const expectation = tValues(tMap(iterable, (value, key) =>
 				[converters[inferType(iterable)](key), value]));
 
 			expect(entries(iterable)).toEqual(expectation);
@@ -714,7 +713,18 @@ describe('Collection', () => {
 	});
 
 	test('dict converts the given collection into a dictionary', () => {
-		expect(dict(simpleArray)).toEqual({ 0: 1, 1: 2 });
+		tMap([array, object], (iterable) => {
+			const expectation = tReduce(
+				iterable, (
+					acc, value, key
+				) => {
+					acc[key] = value;
+					return acc;
+				}, {}
+			);
+
+			expect(dict(iterable)).toEqual(expectation);
+		});
 	});
 
 	test('adopt copies values from extensions into the base', () => {
@@ -832,12 +842,10 @@ describe('Collection', () => {
 
 	describe('shuffle shuffles the given collection', () => {
 		test('shuffle shuffles arrays', () => {
-			const array = range(1, 100);
+			const shuffled = shuffle(numberArray);
 
-			const shuffled = shuffle(array);
-
-			expect(shuffled).not.toEqual(array);
-			expect(sortArray(shuffled)).toEqual(sortArray(array));
+			expect(shuffled).not.toEqual(numberArray);
+			expect(sortArray(shuffled)).toEqual(sortArray(numberArray));
 		});
 
 		test('shuffle shuffles objects', () => {
@@ -854,14 +862,13 @@ describe('Collection', () => {
 
 	describe('sort sorts the given collection', () => {
 		test('sort sorts arrays', () => {
-			const array = range(1, 100);
-			const reversed = array.slice().reverse();
+			const reversed = numberArray.slice().reverse();
 
-			const shuffled = shuffle(array);
+			const shuffled = shuffle(numberArray);
 			const sorted = sort(shuffled, descending);
 
 			expect(sorted).toEqual(reversed);
-			expect(sorted).not.toBe(array);
+			expect(sorted).not.toBe(numberArray);
 		});
 
 		test('sort sorts objects', () => {
@@ -877,19 +884,15 @@ describe('Collection', () => {
 		});
 
 		test('sort uses ascending as the default sorter', () => {
-			const array = range(1, 100);
-
-			const shuffled = shuffle(array);
+			const shuffled = shuffle(numberArray);
 			const sorted = sort(shuffled);
 
-			expect(sorted).toEqual(array);
-			expect(sorted).not.toBe(array);
+			expect(sorted).toEqual(numberArray);
+			expect(sorted).not.toBe(numberArray);
 		});
 	});
 
 	describe('keys', () => {
-		const array = range(0, rndBetween(5, 8));
-		const object = fromEntries(Object.entries(array));
 		const expectations = [
 			['array', 'number', array],
 			['object', 'string', object],
@@ -902,14 +905,13 @@ describe('Collection', () => {
 		test.each(expectations)('returns %p keys as %ps', (
 			dummy, itemType, input
 		) => {
-			const inputKeys = Object.entries(input).map(([dummyOne, value]) =>
-				converters[itemType](value));
+			const expectedKeys = Object.keys(input).map((key) =>
+				converters[itemType](key));
 
 			const resultKeys = keys(input);
 
-			expect(resultKeys.length).toEqual(inputKeys.length);
-			resultKeys.forEach((dummyOne, index) =>
-				expect(resultKeys[index]).toEqual(inputKeys[index]));
+			expectEquals(resultKeys.length, expectedKeys.length);
+			expectEquals(resultKeys, expectedKeys);
 		});
 	});
 });
