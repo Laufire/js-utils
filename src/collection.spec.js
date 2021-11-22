@@ -4,10 +4,14 @@
 //	- mutations the mock objects.
 
 /* Helpers */
-import { sortArray, rndKey } from '../test/helpers';
+import {
+	sortArray, rndKey,
+	// TODO: Rename after renaming the local shadow variables
+	array as hArray, object as hObject,
+} from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
-import { isDefined } from '@laufire/utils/reflection';
+import { isDefined, inferType } from '@laufire/utils/reflection';
 import { ascending, descending } from '@laufire/utils/sorters';
 import { sum } from '@laufire/utils/reducers';
 import { dict as tDict, select as tSelect, map as tMap, keys as tKeys,
@@ -447,8 +451,23 @@ describe('Collection', () => {
 		expect(rename(data, renameMap)).toEqual({ depth: 1 });
 	});
 
+	// TODO: Fix this test.
 	test('fromEntries builds an object out of entries', () => {
 		expect(fromEntries(entries(simpleObj))).toEqual(simpleObj);
+	});
+
+	test('entries', () => {
+		const converters = {
+			array: Number,
+			object: String,
+		};
+
+		map([hArray, hObject], (iterable) => {
+			const expectation = values(map(iterable, (value, key) =>
+				[converters[inferType(iterable)](key), value]));
+
+			expect(entries(iterable)).toEqual(expectation);
+		});
 	});
 
 	test('props returns an array of values for the given properties'

@@ -1,9 +1,11 @@
 /**
  * Reflection
  */
+import { isArray as libIsArray } from './lib';
 
 /* Helpers */
-const { isArray } = Array;
+
+const isArray = libIsArray;
 
 const constructorName = (value) =>
 	value?.constructor.name || undefined;
