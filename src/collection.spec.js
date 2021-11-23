@@ -6,16 +6,17 @@
 /* Helpers */
 import {
 	sortArray, rndKey, numberArray,
-	array, object, expectEquals, extension,
+	array, object, expectEquals, extension, getRndDictA, removeGivenKey,
 } from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
 import { isDefined, inferType } from '@laufire/utils/reflection';
 import { ascending, descending } from '@laufire/utils/sorters';
 import { sum } from '@laufire/utils/reducers';
-import { dict as tDict, select as tSelect, map as tMap, keys as tKeys,
-	values as tValues, secure as tSecure,
-	entries as tEntries } from '@laufire/utils/collection';
+import { select as tSelect, map as tMap, keys as tKeys,
+	values as tValues, secure as tSecure, entries as tEntries,
+	fromEntries as tFromEntries, dict as tDict }
+	from '@laufire/utils/collection';
 import { isEqual } from '@laufire/utils/predicates';
 
 /* Tested */
@@ -182,16 +183,44 @@ describe('Collection', () => {
 		expect(shell(array)).toEqual([]);
 	});
 
-	test('clean removes undefined props', () => {
-		expect(clean(complexObject)).not.toHaveProperty('undefinedProperty');
-		expect(clean([undefined, 1])).toEqual([1]);
+	test('clean removes undefined props from the given iterable', () => {
+		const shuffledArray = shuffle([...array, undefined]);
+		const expectationArray = shuffledArray.filter((value) =>
+			value !== undefined);
+		const shuffledObject = tFromEntries(shuffle([
+			...tEntries(getRndDictA(rndBetween(1, array.length - 1))),
+			[rndString(), undefined],
+		]));
+		const expectationObj = tSelect(shuffledObject, keys(shuffledObject)
+			.filter((key) => shuffledObject[key] !== undefined));
+
+		expect(clean(shuffledObject))
+			.toEqual(expectationObj);
+		expect(clean(shuffledArray)).toEqual(expectationArray);
 	});
 
-	test('sanitize removes undefined props recursively', () => {
-		const sanitized = sanitize(complexObject);
+	test('sanitize removes undefined props recursively from the'
+	+ 'given iterable', () => {
+		// TODO: Use imported function after publishing.
+		const self = (x) => x;
+		const rndDict = getRndDictA(10);
+		const [undefinedKey, childKey] = shuffle(tKeys(rndDict));
+		const childDict = rndValue([self, values])(getRndDictA(10));
+		const undefinedCdKey = rndKey(childDict);
 
-		expect(sanitized).not.toHaveProperty('undefinedProperty');
-		expect(sanitized.complexArray[0].dirtyArray).toEqual([1]);
+		childDict[undefinedCdKey] = undefined;
+		rndDict[childKey] = childDict;
+		rndDict[undefinedKey] = undefined;
+		const rndArray = values(rndDict);
+
+		const expectationChild = removeGivenKey(childDict, undefinedCdKey);
+
+		rndDict[childKey] = expectationChild;
+		const expectatedDict = removeGivenKey(rndDict, undefinedKey);
+		const expectatedArray = values(expectatedDict);
+
+		expectEquals(sanitize(rndDict), expectatedDict);
+		expectEquals(sanitize(rndArray), expectatedArray);
 	});
 
 	test('each is an alias for map', () => {
@@ -469,7 +498,11 @@ describe('Collection', () => {
 
 	test('props returns an array of values for the given properties'
 	+ ' from the given object', () => {
-		expect(props(simpleObj, ['a', 'b'])).toEqual([1, 2]);
+		const randomKeys = rndValues(keys(object), rndBetween(1,
+			keys(object)).len - 1);
+		const expectation = randomKeys.map((key) => object[key]);
+
+		expect(props(object, randomKeys)).toEqual(expectation);
 	});
 
 	describe('select helps building sub-objects with selectors', () => {

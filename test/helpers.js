@@ -3,6 +3,7 @@ import {
 	keys, filter, range, dict, fromEntries,
 } from '@laufire/utils/collection';
 import { rndValue, rndBetween, rndString } from '@laufire/utils/random';
+import { isArray } from '@laufire/utils/reflection';
 
 /* Config */
 const rangeMaxLimit = 5;
@@ -15,6 +16,8 @@ const defaults = {
 	randomNumLimits: [0, numMaxLimit],
 	retryCount: 1000,
 	rndRangeLimits: [rangeMaxLimit, rangeMinLimit],
+	// eslint-disable-next-line id-length
+	rndRangeCountLimits: [0, rangeMaxLimit],
 };
 
 /* Functions */
@@ -35,6 +38,9 @@ const rndKey = (collection) => rndValue(keys(collection));
 
 const rndRange = (min = 0) =>
 	range(min, rndBetween(...defaults.rndRangeLimits));
+
+const rndRangeA = (minCount = 0) =>
+	range(0, minCount + rndBetween(...defaults.rndRangeCountLimits));
 
 const rndNumber = () => rndBetween(...defaults.randomNumLimits);
 
@@ -71,6 +77,15 @@ const extCollection = {
 	[ecKeys.extended]: extended,
 };
 
+/* Functions */
+const getRndDictA = (minCount = 1) =>
+	fromEntries(map(rndRangeA(minCount), (value) =>
+		[rndString(), Symbol(value)]));
+const removeGivenKey = (iterable, selectorKey) => (isArray(iterable)
+	// TODO: Use imported filter after publishing.
+	? iterable.filter((dummy, key) => String(key) !== selectorKey)
+	: filter(iterable, (dummy, key) => String(key) !== selectorKey));
+
 export {
 	sortArray, retry, strSubSet,
 	isAcceptable, rndKey, rndNumber,
@@ -78,4 +93,5 @@ export {
 	contracted, array, object, cloned,
 	extension, extended, isolated, ecKeys,
 	collection, extCollection, numberArray,
+	getRndDict, getRndDictA, removeGivenKey,
 };
