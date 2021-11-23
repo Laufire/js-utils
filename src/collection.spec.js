@@ -6,7 +6,7 @@
 /* Helpers */
 import {
 	sortArray, rndKey, numberArray,
-	array, object, expectEquals,
+	array, object, expectEquals, extension,
 } from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
@@ -14,8 +14,8 @@ import { isDefined, inferType } from '@laufire/utils/reflection';
 import { ascending, descending } from '@laufire/utils/sorters';
 import { sum } from '@laufire/utils/reducers';
 import { dict as tDict, select as tSelect, map as tMap, keys as tKeys,
-	values as tValues, secure as tSecure, reduce as tReduce,
-	range as tRange, entries as tEntries } from '@laufire/utils/collection';
+	values as tValues, secure as tSecure,
+	entries as tEntries } from '@laufire/utils/collection';
 import { isEqual } from '@laufire/utils/predicates';
 
 /* Tested */
@@ -84,15 +84,102 @@ describe('Collection', () => {
 		e: [0, 1],
 		f: 'only in compared',
 	});
+	const expectationBase = tSecure(tMap(object, (dummy, key) =>
+		Symbol(key)));
 
 	/* Helpers */
 	const stitch = (val, key) => String(key) + String(val);
+	const testForArguments = (fn) => {
+		// TODO: Use imported nothing after publishing.
+		const mockPredicate = jest.fn(() => false);
+
+		tMap([array, object], (collection) => {
+			fn(collection, mockPredicate);
+			// TODO: Use imported Keys after publishing.
+			tMap(keys(collection), (key) =>
+				expect(mockPredicate).toHaveBeenCalledWith(
+					collection[key], key, collection
+				));
+		});
+	};
+
+	const testIterator = ({ fn, predicate, data }) => {
+		tMap(data, ([collection, expectation]) =>
+			expect(fn(collection, predicate)).toEqual(expectation));
+		testForArguments(fn);
+	};
 
 	/* Tests */
+	test('map transforms the given iterable using the given callback', () => {
+		const fn = map;
+		const predicate = (dummy, key) => expectationBase[key];
+		const expectation = expectationBase;
+		const data = [
+			[array, tValues(expectation)],
+			[object, expectation],
+		];
+
+		testIterator({ fn, predicate, data });
+	});
+
+	test('filter filters the given iterable using the given callback', () => {
+		const fn = filter;
+		// TODO: Use imported rndValues after publishing.
+		const rndKeys = rndValues(tKeys(expectationBase), rndBetween(1,
+			tKeys(expectationBase).length - 1));
+		const predicate = (dummy, key) => rndKeys.includes(String(key));
+		const expectation = tSelect(object, rndKeys);
+		const data = [
+			[array, tValues(expectation)],
+			[object, expectation],
+		];
+
+		testIterator({ fn, predicate, data });
+	});
+
+	test('find finds the first element from the collection chose'
+	+ ' by the predicate', () => {
+		const fn = find;
+		const randomValue = rndValue(expectationBase);
+		const predicate = (value) => isEqual(randomValue)(value);
+		const expectation = object[randomValue];
+		const data = [
+			[array, expectation],
+			[object, expectation],
+		];
+
+		testIterator({ fn, predicate, data });
+	});
+
+	test('findKey finds the key of first element from the collection chose'
+	+ ' by the predicate', () => {
+		const fn = findKey;
+		const randomKey = rndKey(expectationBase);
+		const predicate = (dummy, key) => String(key) === randomKey;
+		const expectation = randomKey;
+		const data = [
+			[array, Number(expectation)],
+			[object, expectation],
+		];
+
+		testIterator({ fn, predicate, data });
+	});
+
+	test('reduce reduces the given collection', () => {
+		const randomArray = range(0, 10);
+		const randomObject = dict(randomArray);
+
+		[randomArray, randomObject].map((obj) => {
+			expect(reduce(
+				obj, sum, 0
+			)).toEqual(values(obj).reduce((t, c) => t + c));
+		});
+	});
+
 	test('shell returns an empty container of the same type'
 	+ ' as the given iterable', () => {
-		expect(shell(simpleObj)).toEqual({});
-		expect(shell(simpleArray)).toEqual([]);
+		expect(shell(object)).toEqual({});
+		expect(shell(array)).toEqual([]);
 	});
 
 	test('clean removes undefined props', () => {
@@ -111,96 +198,6 @@ describe('Collection', () => {
 		expect(map).toEqual(each);
 	});
 
-	const sampleArray = tSecure(tMap(tRange(0, 10), () => Symbol(rndString())));
-	const sampleObject = tSecure(tDict(sampleArray));
-	const expectationBase = tSecure(tMap(sampleObject, (dummy, key) =>
-		Symbol(key)));
-	const testForArguments = (fn) => {
-		// TODO: Use imported nothing after publishing.
-		const mockPredicate = jest.fn(() => false);
-
-		tMap([simpleArray, simpleObj], (collection) => {
-			fn(collection, mockPredicate);
-			// TODO: Use imported Keys after publishing.
-			tMap(keys(collection), (key) =>
-				expect(mockPredicate).toHaveBeenCalledWith(
-					collection[key], key, collection
-				));
-		});
-	};
-
-	const testIterator = ({ fn, predicate, data }) => {
-		tMap(data, ([collection, expectation]) =>
-			expect(fn(collection, predicate)).toEqual(expectation));
-		testForArguments(fn);
-	};
-
-	test('map transforms the given iterable using the given callback', () => {
-		const fn = map;
-		const predicate = (dummy, key) => expectationBase[key];
-		const expectation = expectationBase;
-		const data = [
-			[sampleArray, tValues(expectation)],
-			[sampleObject, expectation],
-		];
-
-		testIterator({ fn, predicate, data });
-	});
-
-	test('filter filters the given iterable using the given callback', () => {
-		const fn = filter;
-		// TODO: Use imported rndValues after publishing.
-		const rndKeys = rndValues(tKeys(expectationBase), rndBetween(1,
-			tKeys(expectationBase).length - 1));
-		const predicate = (dummy, key) => rndKeys.includes(String(key));
-		const expectation = tSelect(sampleObject, rndKeys);
-		const data = [
-			[sampleArray, tValues(expectation)],
-			[sampleObject, expectation],
-		];
-
-		testIterator({ fn, predicate, data });
-	});
-
-	test('find finds the first element from the collection chose'
-	+ ' by the predicate', () => {
-		const fn = find;
-		const randomValue = rndValue(expectationBase);
-		const predicate = (value) => isEqual(randomValue)(value);
-		const expectation = sampleObject[randomValue];
-		const data = [
-			[sampleArray, expectation],
-			[sampleObject, expectation],
-		];
-
-		testIterator({ fn, predicate, data });
-	});
-
-	test('findKey finds the key of first element from the collection chose'
-	+ ' by the predicate', () => {
-		const fn = findKey;
-		const randomKey = rndKey(expectationBase);
-		const predicate = (dummy, key) => String(key) === randomKey;
-		const expectation = randomKey;
-		const data = [
-			[sampleArray, Number(expectation)],
-			[sampleObject, expectation],
-		];
-
-		testIterator({ fn, predicate, data });
-	});
-
-	test('reduce reduces the given collection', () => {
-		const randomArray = range(0, 10);
-		const randomObject = dict(randomArray);
-
-		[randomArray, randomObject].map((obj) => {
-			expect(reduce(
-				obj, sum, 0
-			)).toEqual(values(obj).reduce((t, c) => t + c));
-		});
-	});
-
 	test('traverse recursively traverses through a given object and'
 	+ ' builds a new object from its primitives', () => {
 		expect(traverse(nestedObj, stitch)).toEqual({
@@ -215,10 +212,10 @@ describe('Collection', () => {
 	});
 
 	test('has tells whether the given iterable has the given value', () => {
-		expect(has(simpleObj, 1)).toEqual(true);
-		expect(has(simpleArray, 1)).toEqual(true);
-		expect(has(simpleObj, 0)).toEqual(false);
-		expect(has(simpleArray, 0)).toEqual(false);
+		map([array, object], (iterable) => {
+			expect(has(iterable, rndValue(iterable))).toEqual(true);
+			expect(has(iterable, rndString())).toEqual(false);
+		});
 	});
 
 	test('walk recursively walks through a given object and'
@@ -233,22 +230,20 @@ describe('Collection', () => {
 	});
 
 	test('clone clones the given object', () => {
-		const cloned = clone(complexObject);
-
-		expect(cloned).toEqual(complexObject);
+		expect(clone(object)).toEqual(object);
 	});
 
 	test('squash squashes objects and object lists'
 	+ ' to a single object', () => {
-		const squashed = squash(
-			{ a: 1 }, [{ b: 2 }], { c: 3 }
-		);
+		const arrayOfObjs = values(map(object, (value, key) =>
+			({ [key]: value })));
+		const substitutionKey = rndKey(arrayOfObjs);
 
-		expect(squashed).toEqual({
-			a: 1,
-			b: 2,
-			c: 3,
-		});
+		arrayOfObjs[substitutionKey] = [arrayOfObjs[substitutionKey]];
+		const collection = shuffle(arrayOfObjs);
+		const squashed = squash(...collection);
+
+		expect(squashed).toEqual(object);
 	});
 
 	test('merge merges multiple objects into one', () => {
@@ -569,17 +564,13 @@ describe('Collection', () => {
 		});
 	});
 
+	// TODO: Revisit the test.
 	test('patch creates a new variation of a baseObject based on'
 	+ ' the given extension, while preserving them both', () => {
-		const extension = { b: 3 };
-
-		expect(patch(simpleObj, extension)).toEqual({
-			a: 1,
-			b: 3,
+		expect(patch(object, extension)).toEqual({
+			...object,
+			...extension,
 		});
-
-		expect(simpleObj).toEqual({ a: 1, b: 2 });
-		expect(extension).toEqual({ b: 3 });
 	});
 
 	test('diff returns the difference between a baseObject'
@@ -713,28 +704,16 @@ describe('Collection', () => {
 	});
 
 	test('dict converts the given collection into a dictionary', () => {
-		tMap([array, object], (iterable) => {
-			const expectation = tReduce(
-				iterable, (
-					acc, value, key
-				) => {
-					acc[key] = value;
-					return acc;
-				}, {}
-			);
-
-			expect(dict(iterable)).toEqual(expectation);
-		});
+		expect(dict(array)).toEqual(object);
+		expect(dict(object)).toEqual(object);
 	});
 
 	test('adopt copies values from extensions into the base', () => {
 		const base = {};
 
-		adopt(base, complexObject);
+		adopt(base, object);
 
-		each(base, (value, key) => {
-			expect(value === complexObject[key]).toEqual(true);
-		});
+		expect(base).toEqual(object);
 	});
 
 	test('findIndex is an alias for findIndex', () => {
