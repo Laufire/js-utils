@@ -1,6 +1,6 @@
 import { map, values, secure } from '@laufire/utils/collection';
 import { rndValue, rndString } from '@laufire/utils/random';
-import { array, rndNumber, object } from '../test/helpers';
+import { array, rndNumber, object, expectEquals } from '../test/helpers';
 
 /* Tested */
 import {
@@ -112,8 +112,9 @@ describe('Reflection', () => {
 
 	test('isDefined returns false only when the given value'
 		+ ' is undefined', () => {
-		expect(isDefined(undefined)).toEqual(false);
-		expect(isDefined(object)).toEqual(true);
+		map(allTypes, (value) => {
+			expectEquals(isDefined(value), value !== undefined);
+		});
 	});
 
 	test('isEmpty', () => {
