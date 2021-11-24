@@ -439,10 +439,10 @@ describe('Collection', () => {
 	});
 
 	test('flip swaps the keys and values of the given object', () => {
-		expect(flip(simpleObj)).toEqual({
-			1: 'a',
-			2: 'b',
-		});
+		const expectation = tFromEntries(tMap(tEntries(object),
+			([key, value]) => [value, key]));
+
+		expect(flip(object)).toEqual(expectation);
 	});
 
 	test('flipMany builds an one-to-one inverted mapping of'

@@ -368,13 +368,15 @@ const result = (() => {
 	};
 })();
 
-// Swaps the keys and values of a map.
-const flip = (obj) => {
-	const ret = {};
-
-	libKeys(obj).forEach((key) => (ret[obj[key]] = key));
-	return ret;
-};
+// Swaps the keys and values of a collection.
+const flip = (collection) => reduce(
+	collection, (
+		acc, value, key
+	) => ({
+		...acc,
+		[value]: key,
+	}), {}
+);
 
 /*
 Converts a one-to-many map (an object of array values)
