@@ -1,6 +1,6 @@
 import {
 	clone, secure, map,
-	keys, filter, range, dict, fromEntries,
+	keys, filter, range, dict, fromEntries, omit,
 } from '@laufire/utils/collection';
 import { rndValue, rndBetween, rndString } from '@laufire/utils/random';
 import { isArray } from '@laufire/utils/reflection';
@@ -19,6 +19,7 @@ const defaults = {
 	// eslint-disable-next-line id-length
 	rndRangeCountLimits: [0, rangeMaxLimit],
 };
+const minLength = 3;
 
 /* Functions */
 const sortArray = (arr) => arr.slice().sort();
@@ -81,10 +82,16 @@ const extCollection = {
 const getRndDictA = (minCount = 1) =>
 	fromEntries(map(rndRangeA(minCount), (value) =>
 		[rndString(), Symbol(value)]));
-const removeGivenKey = (iterable, selectorKey) => (isArray(iterable)
+const removeKeys = (iterable, selectorKeys) => (isArray(iterable)
 	// TODO: Use imported filter after publishing.
-	? iterable.filter((dummy, key) => String(key) !== selectorKey)
-	: filter(iterable, (dummy, key) => String(key) !== selectorKey));
+	? omit(iterable, selectorKeys).filter(() => true)
+	: omit(iterable, selectorKeys));
+const rndCollection = (minCount = 1) =>
+	rndValue([rndRangeA, getRndDictA])(minCount);
+const rndNested = (depth = 1, length = minLength) => (depth > 0
+	? map(rndCollection(length), (dummy, key) =>
+		rndValue([Symbol(key), undefined, rndNested(depth - 1)]))
+	: rndCollection());
 
 export {
 	sortArray, retry, strSubSet,
@@ -93,5 +100,6 @@ export {
 	contracted, array, object, cloned,
 	extension, extended, isolated, ecKeys,
 	collection, extCollection, numberArray,
-	getRndDict, getRndDictA, removeGivenKey,
+	getRndDict, getRndDictA, removeKeys,
+	rndCollection, rndNested,
 };
