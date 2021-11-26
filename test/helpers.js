@@ -1,8 +1,9 @@
 import {
-	clone, secure, map,
+	clone, secure, map, reduce,
 	keys, filter, range, dict, fromEntries,
 } from '@laufire/utils/collection';
-import { rndValue, rndBetween, rndString } from '@laufire/utils/random';
+import { rndValue, rndBetween, rndString, rndValues }
+	from '@laufire/utils/random';
 
 /* Config */
 const rangeMaxLimit = 5;
@@ -36,6 +37,9 @@ const isAcceptable = (
 ) => Math.abs((expected - actual) / (expected || 1)) <= margin;
 
 const rndKey = (collection) => rndValue(keys(collection));
+
+const rndKeys = (collection) => rndValues(keys(collection),
+	rndBetween(1, keys(collection).length - 1));
 
 const rndRange = (min = 0) =>
 	range(min, rndBetween(...defaults.rndRangeLimits));
@@ -108,6 +112,10 @@ const rndNested = (
 			depth, length, generators
 		))
 	: rndCollection());
+const toObject = (iterator) => reduce(
+	iterator, (acc, value) =>
+		({ ...acc, [rndString()]: value }), {}
+);
 
 export {
 	sortArray, retry, strSubSet,
@@ -118,4 +126,5 @@ export {
 	collection, extCollection, numberArray,
 	getRndDict, getRndDictA,
 	rndCollection, rndNested, simpleTypes,
+	toObject, rndKeys,
 };

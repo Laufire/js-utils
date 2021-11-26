@@ -6,8 +6,8 @@
 /* Helpers */
 import { sortArray, rndKey, numberArray, array, object, expectEquals, extension,
 	getRndDictA, rndNested, extended, isolated, cloned, simpleTypes, ecKeys,
-	extCollection, collection as hCollection, rndRange, getRndDict }
-	from '../test/helpers';
+	extCollection, collection as hCollection, rndRange, getRndDict, toObject,
+	rndKeys as hRndKeys } from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
 import { isDefined, inferType, isIterable } from '@laufire/utils/reflection';
@@ -607,64 +607,61 @@ describe('Collection', () => {
 	});
 
 	describe('select helps building sub-objects with selectors', () => {
-		const keyInSource = rndKey(simpleObj);
+		const keysInSource = hRndKeys(object);
+		const expectation = tFilter(object, (dummy, key) =>
+			keysInSource.includes(key));
 		const keyNotInSource = rndString();
 
 		test('select returns a sub-object of the given object,'
 		+ ' with the given array of properties', () => {
-			const expectation = { [keyInSource]: simpleObj[keyInSource] };
-
-			expect(select(simpleObj, [keyInSource])).toEqual(expectation);
+			expect(select(object, keysInSource)).toEqual(expectation);
 		});
 
 		test('select returns a sub-object of the given object,'
 		+ ' with the properties in the given selector object', () => {
-			const expectation = { [keyInSource]: simpleObj[keyInSource] };
-
-			expect(select(simpleObj, {
+			const selector = {
+				...toObject(keysInSource),
 				[rndString()]: keyNotInSource,
-				[rndString()]: keyInSource,
-			})).toEqual(expectation);
+			};
+
+			expect(select(object, selector)).toEqual(expectation);
 		});
 
 		test('select returns a sub-array of the given array,'
 		+ ' with the given array of properties', () => {
-			const randomKey = rndKey(simpleArray);
-			const expectation = [simpleArray[randomKey]];
+			const selector = hRndKeys(array);
+			const expectedArr = array.filter((dummy, key) =>
+				selector.includes(key));
 
-			expect(clean(select(simpleArray, [[randomKey]])))
-				.toEqual(expectation);
+			expect(select(array, selector))
+				.toEqual(expectedArr);
 		});
 	});
 
 	describe('omit helps building sub-objects through omitters', () => {
-		const keyToBeOmited = rndKey(simpleObj);
+		const keysToBeOmited = hRndKeys(object);
+		const expectation = tFilter(object, (dummy, key) =>
+			!keysToBeOmited.includes(key));
+		const selector = toObject(keysToBeOmited);
 
 		test('omit returns a sub-object of the given object,'
 		+ ' without the given array of properties', () => {
-			const expectation = filter(simpleObj, (dummy, key) =>
-				key !== keyToBeOmited);
-
-			expect(omit(simpleObj, [keyToBeOmited])).toEqual(expectation);
+			expect(omit(object, keysToBeOmited)).toEqual(expectation);
 		});
 
 		test('omit returns a sub-object of the given object,'
 		+ ' without the properties in the given selector object', () => {
-			const expectation = filter(simpleObj, (dummy, key) =>
-				key !== keyToBeOmited);
-
-			expect(omit(simpleObj, { [rndString()]: keyToBeOmited }))
-				.toEqual(expectation);
+			expect(omit(object, selector)).toEqual(expectation);
 		});
 
 		test('omit returns a sub-array of the given array,'
 		+ ' without the given array of properties', () => {
-			const randomKey = Number(rndKey(simpleArray));
+			const selectorArr = hRndKeys(array);
 			// TODO: Use imported predicates, post publishing.
-			const expectation = simpleArray.filter((dummy, key) =>
-				key !== randomKey);
+			const expectationArr = array.filter((dummy, key) =>
+				!selectorArr.includes(key));
 
-			expect(clean(omit(simpleArray, [randomKey]))).toEqual(expectation);
+			expect(omit(array, selectorArr)).toEqual(expectationArr);
 		});
 	});
 

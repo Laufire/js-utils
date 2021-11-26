@@ -226,22 +226,18 @@ const sanitize = (collection) =>
 
 const props = (obj, objProps) => objProps.map((prop) => obj[prop]);
 
-const select = (collection, selector) => values(selector)
-	.reduce((aggregate, prop) =>
-		(collection[prop] !== undefined
-		// eslint-disable-next-line no-sequences
-		&& (aggregate[prop] = collection[prop]), aggregate),
-	shell(collection));
+const select = (collection, selector) => {
+	const propsToSelect = values(selector);
+
+	return filter(collection, (dummy, key) =>
+		propsToSelect.includes(key));
+};
 
 const omit = (obj, selector) => {
 	const propsToOmit = values(selector);
 
-	return libKeys(obj).filter((prop) => !propsToOmit.includes(prop))
-		// eslint-disable-next-line no-return-assign
-		.reduce((aggregate, prop) =>
-		// eslint-disable-next-line no-sequences
-			(aggregate[prop] = obj[prop], aggregate)
-		, shell(obj));
+	return filter(obj, (dummy, key) =>
+		!propsToOmit.includes(key));
 };
 
 /**
