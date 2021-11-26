@@ -6,7 +6,7 @@
 /* Helpers */
 import { sortArray, rndKey, numberArray, array, object, expectEquals, extension,
 	getRndDictA, rndNested, extended, isolated, cloned, simpleTypes, ecKeys,
-	extCollection, collection as hCollection }
+	extCollection, collection as hCollection, rndRange, getRndDict }
 	from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
@@ -455,17 +455,33 @@ describe('Collection', () => {
 		expect(flip(object)).toEqual(expectation);
 	});
 
-	test('flipMany builds an one-to-one inverted mapping of'
+	describe('flipMany builds an one-to-one inverted mapping of'
 	+ ' a many to one object', () => {
-		const oneToMany = {
-			a: [1, 2],
-		};
-		const invertedOneToOne = {
-			1: 'a',
-			2: 'a',
-		};
+		test('example', () => {
+			const oneToMany = {
+				a: [1, 2],
+			};
+			const invertedOneToOne = {
+				1: 'a',
+				2: 'a',
+			};
 
-		expect(flipMany(oneToMany)).toEqual(invertedOneToOne);
+			expect(flipMany(oneToMany)).toEqual(invertedOneToOne);
+		});
+
+		test('randomized test', () => {
+			// TODO: Decide whether the values could be objects.
+			const data = tMap(getRndDict(), () =>
+				tMap(rndRange(), () => rndString()));
+
+			const expected = {};
+
+			tKeys(data).forEach((key) =>
+				data[key].forEach((item) =>
+					(expected[item] = key)));
+
+			expect(flipMany(data)).toEqual(expected);
+		});
 	});
 
 	test('translate gives the translation of the source based'
