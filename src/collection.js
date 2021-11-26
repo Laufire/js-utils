@@ -430,7 +430,7 @@ const diff = (base, compared) => {
 		const comparedChild = compared[key];
 
 		if(baseChild !== comparedChild) {
-			difference[key] = isIterable(comparedChild)
+			difference[key] = isIterable(comparedChild) && isIterable(baseChild)
 				?	diff(baseChild, comparedChild)
 				: comparedChild;
 		}
