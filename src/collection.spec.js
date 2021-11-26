@@ -5,7 +5,8 @@
 
 /* Helpers */
 import { sortArray, rndKey, numberArray, array, object, expectEquals, extension,
-	getRndDictA, rndNested, extended, isolated, cloned, simpleTypes }
+	getRndDictA, rndNested, extended, isolated, cloned, simpleTypes, ecKeys,
+	extCollection, collection as hCollection }
 	from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
@@ -14,7 +15,7 @@ import { ascending, descending } from '@laufire/utils/sorters';
 import { sum } from '@laufire/utils/reducers';
 import { select as tSelect, map as tMap, keys as tKeys,
 	values as tValues, secure as tSecure, entries as tEntries,
-	dict as tDict, filter as tFilter,
+	dict as tDict, filter as tFilter, reduce as tReduce,
 	clean as tClean, fromEntries as tFromEntries }
 	from '@laufire/utils/collection';
 import { isEqual, not } from '@laufire/utils/predicates';
@@ -615,25 +616,43 @@ describe('Collection', () => {
 		});
 	});
 
-	test('diff returns the difference between a baseObject'
+	describe('diff returns the difference between a baseObject'
 	+ ' and a comparedObject', () => {
-		const difference = diff(baseObject, comparedObject);
+		test('example', () => {
+			const difference = diff(baseObject, comparedObject);
 
-		expect(difference).toEqual({
-			b: 3,
-			c: {
-				d: 3,
-			},
-			d: undefined,
-			e: [
-				undefined,
-				1,
-			],
-			f: 'only in compared',
+			expect(difference).toEqual({
+				b: 3,
+				c: {
+					d: 3,
+				},
+				d: undefined,
+				e: [
+					undefined,
+					1,
+				],
+				f: 'only in compared',
+			});
+
+			// NOTE: Verify the presence of missing keys.
+			expect(difference).toHaveProperty('d');
 		});
 
-		// NOTE: Verify the presence of missing keys.
-		expect(difference).toHaveProperty('d');
+		test('randomized test', () => {
+			const properties = getRndDictA();
+			const base = { ...hCollection, ...properties };
+			const expectedProps = tReduce(
+				properties, (
+					t, dummy, key
+				) => ({ ...t, [key]: undefined }), {}
+			);
+			const expectation = { [ecKeys.extended]: extended,
+				...expectedProps };
+
+			const difference = diff(base, extCollection);
+
+			expect(difference).toEqual(expectation);
+		});
 	});
 
 	describe('diff and patch are complementary', () => {

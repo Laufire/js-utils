@@ -228,7 +228,7 @@ const props = (obj, objProps) => objProps.map((prop) => obj[prop]);
 
 const select = (collection, selector) => values(selector)
 	.reduce((aggregate, prop) =>
-		(collection[prop] !== undefined
+	(collection[prop] !== undefined
 		// eslint-disable-next-line no-sequences
 		&& (aggregate[prop] = collection[prop]), aggregate),
 	shell(collection));
@@ -240,7 +240,7 @@ const omit = (obj, selector) => {
 		// eslint-disable-next-line no-return-assign
 		.reduce((aggregate, prop) =>
 		// eslint-disable-next-line no-sequences
-			(aggregate[prop] = obj[prop], aggregate)
+		(aggregate[prop] = obj[prop], aggregate)
 		, shell(obj));
 };
 
@@ -430,7 +430,7 @@ const diff = (base, compared) => {
 		const comparedChild = compared[key];
 
 		if(baseChild !== comparedChild) {
-			difference[key] = isIterable(comparedChild)
+			difference[key] = isIterable(comparedChild) && isIterable(baseChild)
 				?	diff(baseChild, comparedChild)
 				: comparedChild;
 		}
@@ -502,7 +502,7 @@ const shuffle = (collection) => {
 		// eslint-disable-next-line no-return-assign
 		: (t, c) =>
 		// eslint-disable-next-line no-sequences
-			(t[c] = collection[c], t),
+		(t[c] = collection[c], t),
 	shell(collection));
 };
 
