@@ -4,20 +4,20 @@
 //	- mutations the mock objects.
 
 /* Helpers */
-import {
-	sortArray, rndKey, numberArray,
-	array, object, expectEquals, extension, getRndDictA, removeGivenKey,
-} from '../test/helpers';
+import { sortArray, rndKey, numberArray, array, object, expectEquals, extension,
+	getRndDictA, rndNested, extended, isolated, cloned, simpleTypes }
+	from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
-import { isDefined, inferType } from '@laufire/utils/reflection';
+import { isDefined, inferType, isIterable } from '@laufire/utils/reflection';
 import { ascending, descending } from '@laufire/utils/sorters';
 import { sum } from '@laufire/utils/reducers';
 import { select as tSelect, map as tMap, keys as tKeys,
 	values as tValues, secure as tSecure, entries as tEntries,
-	fromEntries as tFromEntries, dict as tDict }
+	dict as tDict, filter as tFilter,
+	clean as tClean, fromEntries as tFromEntries }
 	from '@laufire/utils/collection';
-import { isEqual } from '@laufire/utils/predicates';
+import { isEqual, not } from '@laufire/utils/predicates';
 
 /* Tested */
 import {
@@ -87,6 +87,10 @@ describe('Collection', () => {
 	});
 	const expectationBase = tSecure(tMap(object, (dummy, key) =>
 		Symbol(key)));
+	const simpleValues = values(simpleTypes);
+	const simpleValue = rndValue(simpleValues);
+	const anotherValue = rndValue(tFilter(simpleValues,
+		not(isEqual(simpleValue))));
 
 	/* Helpers */
 	const stitch = (val, key) => String(key) + String(val);
@@ -183,44 +187,49 @@ describe('Collection', () => {
 		expect(shell(array)).toEqual([]);
 	});
 
-	test('clean removes undefined props from the given iterable', () => {
-		const shuffledArray = shuffle([...array, undefined]);
-		const expectationArray = shuffledArray.filter((value) =>
-			value !== undefined);
-		const shuffledObject = tFromEntries(shuffle([
-			...tEntries(getRndDictA(rndBetween(1, array.length - 1))),
-			[rndString(), undefined],
-		]));
-		const expectationObj = tSelect(shuffledObject, keys(shuffledObject)
-			.filter((key) => shuffledObject[key] !== undefined));
+	describe('clean removes undefined props from the given iterable', () => {
+		test('example', () => {
+			expect(clean(complexObject)).not
+				.toHaveProperty('undefinedProperty');
+			expect(clean([undefined, 1])).toEqual([1]);
+		});
 
-		expect(clean(shuffledObject))
-			.toEqual(expectationObj);
-		expect(clean(shuffledArray)).toEqual(expectationArray);
+		test('randomized test', () => {
+			const rndDict = getRndDictA(10);
+			// TODO: Use rndValues post publishing.
+			const rndKeys = rndValues(keys(rndDict),
+				rndBetween(1, keys(rndDict).length - 1));
+			const dirtyObject = tMap(rndDict, (value, key) =>
+				(rndKeys.includes(key) ? undefined : value));
+			const expectedObject = tFilter(dirtyObject, isDefined);
+			const [dirtyArray, expectedArray] = tMap([dirtyObject,
+				expectedObject], tValues);
+
+			expect(clean(dirtyObject)).toEqual(expectedObject);
+			expect(clean(dirtyArray)).toEqual(expectedArray);
+		});
 	});
 
-	test('sanitize removes undefined props recursively from the'
+	describe('sanitize removes undefined props recursively from the'
 	+ 'given iterable', () => {
-		// TODO: Use imported function after publishing.
-		const self = (x) => x;
-		const rndDict = getRndDictA(10);
-		const [undefinedKey, childKey] = shuffle(tKeys(rndDict));
-		const childDict = rndValue([self, values])(getRndDictA(10));
-		const undefinedCdKey = rndKey(childDict);
+		test('example', () => {
+			const sanitized = sanitize(complexObject);
 
-		childDict[undefinedCdKey] = undefined;
-		rndDict[childKey] = childDict;
-		rndDict[undefinedKey] = undefined;
-		const rndArray = values(rndDict);
+			expect(sanitized).not.toHaveProperty('undefinedProperty');
+			expect(sanitized.complexArray[0].dirtyArray).toEqual([1]);
+		});
 
-		const expectationChild = removeGivenKey(childDict, undefinedCdKey);
+		test('randomized test', () => {
+			const isSanitizeEqual = (base, sanitized) =>
+				map(tClean(base), (value, key) => (isIterable(value)
+					? isSanitizeEqual(value, sanitized[key])
+					: expect(value).toEqual(sanitized[key])));
 
-		rndDict[childKey] = expectationChild;
-		const expectatedDict = removeGivenKey(rndDict, undefinedKey);
-		const expectatedArray = values(expectatedDict);
+			const data = rndNested(5, 5);
+			const processed = sanitize(data);
 
-		expectEquals(sanitize(rndDict), expectatedDict);
-		expectEquals(sanitize(rndArray), expectatedArray);
+			isSanitizeEqual(data, processed);
+		});
 	});
 
 	test('each is an alias for map', () => {
@@ -623,18 +632,30 @@ describe('Collection', () => {
 			f: 'only in compared',
 		});
 
-		// Verify the presence of missing keys.
+		// NOTE: Verify the presence of missing keys.
 		expect(difference).toHaveProperty('d');
 	});
 
-	test('diff and patch are complementary', () => {
-		const difference = diff(baseObject, comparedObject);
-		const patched = patch(baseObject, difference);
+	describe('diff and patch are complementary', () => {
+		test('example', () => {
+			const difference = diff(baseObject, comparedObject);
+			const patched = patch(baseObject, difference);
 
-		// Verify the absence of missing keys.
-		expect(patched).not.toHaveProperty('d');
+			// NOTE: Verify the absence of missing keys.
+			expect(patched).not.toHaveProperty('d');
 
-		expect(patched).toEqual(comparedObject);
+			expect(patched).toEqual(comparedObject);
+		});
+
+		test('randomized test', () => {
+			const prop = rndString();
+			const difference = diff({ ...object, [prop]: rndString() },
+				extended);
+			const patched = patch({ ...object, [prop]: rndString() },
+				difference);
+
+			expect(patched).toEqual(extended);
+		});
 	});
 
 	test('secure prevents further modifications to the given iterable', () => {
@@ -659,30 +680,31 @@ describe('Collection', () => {
 		map(actions, (action) => expect(action).toThrow());
 	});
 
-	test('contains tests the base object contains'
+	test('contains tests whether the base object contains'
 	+ ' the compared object', () => {
-		expect(contains(1, 1)).toBe(true);
-		expect(contains(1, 0)).toBe(false);
-		expect(contains(complexObject, clone(complexObject))).toBe(true);
-		expect(contains(simpleObj, {})).toBe(true);
-		expect(contains({}, simpleObj)).toBe(false);
+		expect(contains(extended, object)).toEqual(true);
+		expect(contains(isolated, object)).toEqual(false);
+		expect(contains(simpleValue, simpleValue)).toEqual(true);
+		expect(contains(simpleValue, anotherValue)).toEqual(false);
 	});
 
 	test('equals tests the value equality of primitives and'
 	+ ' complex objects', () => {
-		expect(equals(1, 1)).toBe(true);
-		expect(equals(1, 0)).toBe(false);
-		expect(equals(complexObject, clone(complexObject))).toBe(true);
-		expect(equals(simpleObj, {})).toBe(false);
-		expect(equals({}, simpleObj)).toBe(false);
+		expect(equals(simpleValue, simpleValue)).toEqual(true);
+		expect(equals(simpleValue, anotherValue)).toEqual(false);
+		expect(equals(object, cloned)).toEqual(true);
+		expect(equals(extension, object)).toEqual(false);
 	});
 
 	test('hasSame tests the given collections for having'
 	+ ' the same children', () => {
-		expect(hasSame(complexArray, [...complexArray])).toBe(true);
-		expect(hasSame(complexObject, { ...complexObject })).toBe(true);
-		expect(hasSame(complexArray, clone(complexArray))).toBe(false);
-		expect(hasSame(complexObject, clone(complexObject))).toBe(false);
+		const nested = rndNested(
+			2, 2, ['nested']
+		);
+
+		expect(hasSame(object, cloned)).toEqual(true);
+
+		expect(hasSame(nested, clone(nested))).toEqual(false);
 	});
 
 	test('gather gathers the given props from the children'

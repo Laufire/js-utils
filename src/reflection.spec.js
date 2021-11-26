@@ -1,6 +1,5 @@
 import { map, values, secure } from '@laufire/utils/collection';
-import { rndValue, rndString } from '@laufire/utils/random';
-import { array, rndNumber, object, expectEquals } from '../test/helpers';
+import { array, object, expectEquals, simpleTypes } from '../test/helpers';
 
 /* Tested */
 import {
@@ -26,11 +25,6 @@ describe('Reflection', () => {
 		null: null,
 		undefined: undefined,
 		number: NaN,
-	});
-	const simpleTypes = secure({
-		number: rndNumber(),
-		string: rndString(16),
-		boolean: rndValue([true, false]),
 	});
 	const iterableTypes = secure({
 		array: array,
