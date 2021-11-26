@@ -29,7 +29,7 @@ test('isProbable returns true based on given probability', () => {
 });
 
 test('possibilities', () => {
-	const inputs = map(range(1, rndBetween(2, 6)), () =>
+	const inputs = map(range(1, rndBetween(3, 6)), () =>
 		map(range(1, rndBetween(2, 6)), Symbol));
 
 	const expectedLength = reduce(
