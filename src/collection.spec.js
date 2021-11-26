@@ -445,17 +445,33 @@ describe('Collection', () => {
 		expect(flip(object)).toEqual(expectation);
 	});
 
-	test('flipMany builds an one-to-one inverted mapping of'
+	describe('flipMany builds an one-to-one inverted mapping of'
 	+ ' a many to one object', () => {
-		const oneToMany = {
-			a: [1, 2],
-		};
-		const invertedOneToOne = {
-			1: 'a',
-			2: 'a',
-		};
+		test('example', () => {
+			const oneToMany = {
+				a: [1, 2],
+			};
+			const invertedOneToOne = {
+				1: 'a',
+				2: 'a',
+			};
 
-		expect(flipMany(oneToMany)).toEqual(invertedOneToOne);
+			expect(flipMany(oneToMany)).toEqual(invertedOneToOne);
+		});
+
+		test('randomized test', () => {
+			// TODO: Decide whether the values could be objects.
+			const object = tMap(getRndDict(), () =>
+				tMap(rndRange(), () => rndString()));
+
+			const	expected = {};
+
+			tKeys(object).forEach((key) =>
+				object[key].forEach((item) =>
+					(expected[item] = key)));
+
+			expect(flipMany(object)).toEqual(expected);
+		});
 	});
 
 	test('translate gives the translation of the source based'

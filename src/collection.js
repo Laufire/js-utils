@@ -383,13 +383,15 @@ Converts a one-to-many map (an object of array values)
 as an one-to-one inverted map, to ease reverse lookups.
 IE: {'a': ['b', 'c']} => {'b': 'a', 'c': 'a'}.
 */
-const flipMany = (obj) => {
-	const ret = {};
-
-	libKeys(obj).forEach((key) => obj[key].forEach((item) =>
-		(ret[item] = key)));
-	return ret;
-};
+const flipMany = (obj) => reduce(
+	obj, (
+		a, items, key
+	) =>
+		reduce(
+			items, (acc, item) =>
+				({ ...acc, [item]: key }), a
+		), {}
+);
 
 const translate = (source, translationMap) =>
 	entries(source).reduce((ret, [key, value]) =>
