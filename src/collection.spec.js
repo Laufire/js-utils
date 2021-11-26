@@ -426,33 +426,71 @@ describe('Collection', () => {
 		expect(combine([0, 1], [1])).toEqual([0, 1, 1]);
 	});
 
-	test('fill fills the missing properties of the given base'
+	// TODO: Don't mutate the base.
+	describe('fill fills the missing properties of the given base'
 	+ ' from those of the extensions', () => {
-		const baseProp = Symbol('baseProp');
-		const underlayProp = Symbol('underlayProp');
-		const overlayProp = Symbol('overlayProp');
+		test('example', () => {
+			const baseProp = Symbol('baseProp');
+			const underlayProp = Symbol('underlayProp');
+			const overlayProp = Symbol('overlayProp');
 
-		const base = mockObj(['a'], baseProp);
-		const layerOne = secure(mockObj(['a', 'b'], underlayProp));
-		const layerTwo = secure(mockObj(['c'], overlayProp));
+			const base = mockObj(['a'], baseProp);
+			const layerOne = secure(mockObj(['a', 'b'], underlayProp));
+			const layerTwo = secure(mockObj(['b', 'c'], overlayProp));
 
-		const filled = fill(
-			base, layerOne, layerTwo
-		);
+			const filled = fill(
+				base, layerOne, layerTwo
+			);
 
-		expect(filled).toEqual(base);
-		expect(base).toEqual({
-			a: baseProp,
-			b: underlayProp,
-			c: overlayProp,
+			expect(filled).toEqual(base);
+			expect(base).toEqual({
+				a: baseProp,
+				b: underlayProp,
+				c: overlayProp,
+			});
+		});
+
+		// TODO: Use nested objects.
+		test('randomized test', () => {
+			const rndDictionaries = map(rndRange(),
+				() => getRndDict());
+			const rndLayer = rndValue(rndDictionaries);
+			const base = getRndDict();
+
+			tMap(rndValues(tKeys(base)), (key) =>
+				(rndLayer[key] = Symbol(key)));
+
+			const randomLayers = tReduce(
+				rndDictionaries,
+				(acc, dictionary) =>
+					({ ...dictionary, ...acc }), {}
+			);
+
+			const expected = { ...randomLayers, ...base };
+
+			const filled = fill(
+				base, rndLayer, ...rndDictionaries,
+			);
+
+			expect(filled).toEqual(base);
+			expect(base).toEqual(expected);
 		});
 	});
 
-	test('flip swaps the keys and values of the given object', () => {
-		const expectation = tFromEntries(tMap(tEntries(object),
-			([key, value]) => [value, key]));
+	describe('flip swaps the keys and values of the given object', () => {
+		test('example', () => {
+			expect(flip(simpleObj)).toEqual({
+				1: 'a',
+				2: 'b',
+			});
+		});
 
-		expect(flip(object)).toEqual(expectation);
+		test('randomized test', () => {
+			const expectation = tFromEntries(tMap(tEntries(object),
+				([key, value]) => [value, key]));
+
+			expect(flip(object)).toEqual(expectation);
+		});
 	});
 
 	describe('flipMany builds an one-to-one inverted mapping of'
@@ -484,20 +522,57 @@ describe('Collection', () => {
 		});
 	});
 
-	test('translate gives the translation of the source based'
+	describe('translate gives the translation of the source based'
 	+ ' on a translation map', () => {
-		const translationMap = { welcome: 'hello', farewell: 'bye' };
-		const data = { hola: 'welcome' };
+		test('example', () => {
+			const translationMap = { welcome: 'hello', farewell: 'bye' };
+			const data = { hola: 'welcome' };
 
-		expect(translate(data, translationMap)).toEqual({ hola: 'hello' });
+			expect(translate(data, translationMap)).toEqual({ hola: 'hello' });
+		});
+
+		test('randmized test', () => {
+			const translationMap = getRndDict();
+			const keysArr = rndValues(tKeys(translationMap));
+			const data = tReduce(
+				keysArr, (acc, key) =>
+					({ ...acc, [rndString()]: key }), {}
+			);
+
+			const expected = tMap(data, (value) => translationMap[value]);
+
+			expect(translate(data, translationMap)).toEqual(expected);
+		});
 	});
 
-	test('rename renames the source keys based on'
+	// TODO: Revisit the implementation.
+	describe('rename renames the source keys based on'
 	+ ' the given rename map', () => {
-		const data = { length: 1, breadth: 2 };
-		const renameMap = { length: 'depth' };
+		test('example', () => {
+			const data = { length: 1, breadth: 2 };
+			const renameMap = { length: 'depth' };
 
-		expect(rename(data, renameMap)).toEqual({ depth: 1 });
+			expect(rename(data, renameMap)).toEqual({ depth: 1 });
+		});
+
+		test('randomized test', () => {
+			const data = getRndDict();
+			const keysArr = rndValues(tKeys(data));
+			const renameMap = tReduce(
+				keysArr, (acc, key) =>
+					({ ...acc, [key]: rndString() }), {}
+			);
+
+			const expected = tReduce(
+				renameMap, (
+					acc, val, key
+				) => ({
+					...acc, [val]: data[key],
+				}), {}
+			);
+
+			expect(rename(data, renameMap)).toEqual(expected);
+		});
 	});
 
 	test('fromEntries builds an object out of entries', () => {
