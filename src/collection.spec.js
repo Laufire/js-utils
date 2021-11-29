@@ -16,7 +16,7 @@ import { sum } from '@laufire/utils/reducers';
 import { select as tSelect, map as tMap, keys as tKeys,
 	values as tValues, secure as tSecure, entries as tEntries,
 	dict as tDict, filter as tFilter, reduce as tReduce,
-	clean as tClean, fromEntries as tFromEntries }
+	clean as tClean, fromEntries as tFromEntries, find as tFind }
 	from '@laufire/utils/collection';
 import { isEqual, not } from '@laufire/utils/predicates';
 
@@ -95,6 +95,8 @@ describe('Collection', () => {
 
 	/* Helpers */
 	const stitch = (val, key) => String(key) + String(val);
+	const rndDicts = () => map(rndRange(),
+		() => getRndDict());
 	const testForArguments = (fn) => {
 		// TODO: Use imported nothing after publishing.
 		const mockPredicate = jest.fn(() => false);
@@ -285,37 +287,56 @@ describe('Collection', () => {
 		expect(squashed).toEqual(object);
 	});
 
-	test('merge merges multiple objects into one', () => {
-		const base = clone(complexObject);
-		const bottomLevelBase = clone(complexObject);
-		const topLevelBase = clone(complexObject);
-		const propToDelete = 'single';
-		const newValue = 'new value';
+	describe('merge merges multiple objects into one', () => {
+		test('example', () => {
+			const base = clone(complexObject);
+			const bottomLevelBase = clone(complexObject);
+			const topLevelBase = clone(complexObject);
+			const propToDelete = 'single';
+			const newValue = 'new value';
 
-		bottomLevelBase.primitiveOverlay = 0;
-		bottomLevelBase.iterableOverlay = {};
-		const bottomLevel = secure(bottomLevelBase);
+			bottomLevelBase.primitiveOverlay = 0;
+			bottomLevelBase.iterableOverlay = {};
+			const bottomLevel = secure(bottomLevelBase);
 
-		delete topLevelBase[propToDelete];
-		topLevelBase.newProperty = newValue;
-		topLevelBase.parent.child.grandChild = newValue;
-		topLevelBase.complexArray[0].innerArray = [0];
-		topLevelBase.primitiveOverlay = simpleObj;
-		topLevelBase.iterableOverlay = simpleObj;
-		const topLevel = secure(topLevelBase);
+			delete topLevelBase[propToDelete];
+			topLevelBase.newProperty = newValue;
+			topLevelBase.parent.child.grandChild = newValue;
+			topLevelBase.complexArray[0].innerArray = [0];
+			topLevelBase.primitiveOverlay = simpleObj;
+			topLevelBase.iterableOverlay = simpleObj;
+			const topLevel = secure(topLevelBase);
 
-		const merged = merge(
-			base, bottomLevel, topLevel
-		);
+			const merged = merge(
+				base, bottomLevel, topLevel
+			);
 
-		expect(base).not.toEqual(complexObject);
-		expect(merged).toHaveProperty(propToDelete);
-		expect(merged.newProperty).toEqual(newValue);
-		expect(merged.parent.child.grandChild).toEqual(newValue);
-		expect(merged.primitiveOverlay).toEqual(simpleObj);
-		expect(topLevelBase.iterableOverlay).toEqual(simpleObj);
-		expect(merged.complexArray !== topLevel.complexArray).toEqual(true);
-		expect(merged.complexArray[0].innerArray[0]).toEqual(0);
+			expect(base).not.toEqual(complexObject);
+			expect(merged).toHaveProperty(propToDelete);
+			expect(merged.newProperty).toEqual(newValue);
+			expect(merged.parent.child.grandChild).toEqual(newValue);
+			expect(merged.primitiveOverlay).toEqual(simpleObj);
+			expect(topLevelBase.iterableOverlay).toEqual(simpleObj);
+			expect(merged.complexArray !== topLevel.complexArray).toEqual(true);
+			expect(merged.complexArray[0].innerArray[0]).toEqual(0);
+		});
+
+		test('randomized test', () => {
+			const testMerge = (base, ...collections) => {
+				tMap(base, (value, key) => {
+					expectEquals(tFind(collections, (collection) =>
+						isDefined(collection[key]))[key], value);
+				});
+			};
+
+			const dicts = rndDicts();
+
+			const base = {};
+
+			merge(base, ...dicts);
+
+			testMerge(base, ...dicts);
+		});
 	});
 
 	test('overlay overlays multiple objects into one', () => {
@@ -450,18 +471,47 @@ describe('Collection', () => {
 			});
 		});
 
+		test.only('fill', () => {
+			const base = {
+				a: 1, b: 2,
+				c: {
+					d: {
+						e: 5,
+					},
+				},
+			};
+			const layerOne = {
+				c: {
+					d: {
+						e: 5,
+					},
+				},
+			};
+			const layerTwo = {
+				c: {
+					d: {
+						e: 5,
+						f: 7,
+					},
+					g: 8,
+				},
+			};
+			const filled = fill(
+				base, layerOne, layerTwo
+			);
+		});
+
 		// TODO: Use nested objects.
 		test('randomized test', () => {
-			const rndDictionaries = map(rndRange(),
-				() => getRndDict());
-			const rndLayer = rndValue(rndDictionaries);
+			const dicts = rndDicts();
+			const rndLayer = rndValue(dicts);
 			const base = getRndDict();
 
 			tMap(rndValues(tKeys(base)), (key) =>
 				(rndLayer[key] = Symbol(key)));
 
 			const randomLayers = tReduce(
-				rndDictionaries,
+				dicts,
 				(acc, dictionary) =>
 					({ ...dictionary, ...acc }), {}
 			);
@@ -469,7 +519,7 @@ describe('Collection', () => {
 			const expected = { ...randomLayers, ...base };
 
 			const filled = fill(
-				base, rndLayer, ...rndDictionaries,
+				base, rndLayer, ...dicts,
 			);
 
 			expect(filled).toEqual(base);
