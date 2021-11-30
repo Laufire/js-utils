@@ -116,6 +116,7 @@ const toObject = (iterator) => reduce(
 	iterator, (acc, value) =>
 		({ ...acc, [rndString()]: value }), {}
 );
+const rndArray = (minCount) => rndRangeA(minCount).map(() => rndString());
 
 export {
 	sortArray, retry, strSubSet,
@@ -124,7 +125,7 @@ export {
 	contracted, array, object, cloned,
 	extension, extended, isolated, ecKeys,
 	collection, extCollection, numberArray,
-	getRndDict, getRndDictA,
+	getRndDict, getRndDictA, rndRangeA,
 	rndCollection, rndNested, simpleTypes,
-	toObject, rndKeys,
+	toObject, rndKeys, rndArray,
 };
