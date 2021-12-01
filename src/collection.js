@@ -477,9 +477,9 @@ const range = (
 const count = (collection) => libKeys(collection).length;
 
 const shares = (
-	left, right, prop = 'id'
+	left, right, props = ['id']
 ) =>
-	left[prop] === right[prop];
+	count(filter(props, (prop) => left[prop] === right[prop])) === props.length;
 
 const shuffle = (collection) => {
 	const ixs = libKeys(collection);

@@ -994,18 +994,24 @@ describe('Collection', () => {
 		});
 	});
 
-	test('shares tests whether the given objects share the same value'
-	+ ' on a given property', () => {
-		expect(shares(
-			simpleObj, nestedObj, 'a'
-		)).toBe(true);
-		expect(shares(
-			simpleObj, complexObject, 'a'
-		)).toBe(false);
-	});
+	describe('shares', () => {
+		describe('example', () => {
+			test('shares uses \'id\' as the default property compare', () => {
+				expect(shares({ id: 1 }, { id: 1 })).toBe(true);
+			});
+		});
 
-	test('shares uses \'id\' as the default property compare', () => {
-		expect(shares({ id: 1 }, { id: 1 })).toBe(true);
+		describe('randomized test', () => {
+			test('shares tests whether the given objects share the same value'
+			+ ' on a given property', () => {
+				expect(shares(
+					object, cloned, rndKeys(object)
+				)).toBe(true);
+				expect(shares(
+					object, isolated, rndKeys(object)
+				)).toBe(false);
+			});
+		});
 	});
 
 	describe('shuffle shuffles the given collection', () => {
