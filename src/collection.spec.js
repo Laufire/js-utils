@@ -929,9 +929,10 @@ describe('Collection', () => {
 	test('adopt copies values from extensions into the base', () => {
 		const base = {};
 
-		adopt(base, object);
+		const adoptedObject = adopt(base, object);
 
 		expect(base).toEqual(object);
+		expect(adoptedObject).toEqual(base);
 	});
 
 	test('findIndex is an alias for findIndex', () => {

@@ -464,8 +464,10 @@ const dict = (collection) =>
 	fromEntries(map(collection, (value, key) => [key, value]));
 
 const adopt = (base, ...extensions) =>
-	each(extensions, (extension) =>
-		each(extension, (value, key) => (base[key] = value)));
+	(each(extensions, (extension) =>
+		each(extension, (value, key) => (base[key] = value)))
+	// eslint-disable-next-line no-sequences
+	, base);
 
 const range = (
 	// eslint-disable-next-line no-magic-numbers
