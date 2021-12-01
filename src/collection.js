@@ -224,8 +224,6 @@ const sanitize = (collection) =>
 	clean(map(collection,
 		(value) => (isIterable(value) ? sanitize(value) : value)));
 
-const props = (obj, objProps) => objProps.map((prop) => obj[prop]);
-
 const select = (collection, selector) => {
 	const propsToSelect = values(selector);
 
@@ -509,7 +507,7 @@ const sort = (collection, sorter = ascending) => (isArray(collection)
 	: fromEntries(entries(collection).sort((a, b) => sorter(a[1], b[1]))));
 
 export {
-	keys, values, entries, fromEntries, props,
+	keys, values, entries, fromEntries,
 	each, map, filter, reduce,
 	traverse, walk, has,
 	clean, sanitize, omit, select, result,

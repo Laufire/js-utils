@@ -25,7 +25,7 @@ import {
 	adopt, shares, clean, clone, compose, combine, contains, dict, diff,
 	each, entries, equals, find, findKey, fill, filter, flip,
 	flipMany, fromEntries, gather, has, hasSame, map, merge, overlay,
-	patch, pick, omit, props, range, reduce, rename, result,
+	patch, pick, omit, range, reduce, rename, result,
 	sanitize, secure, select, shell, shuffle, spread, sort, squash,
 	translate, traverse, walk, values, keys,
 } from './collection';
@@ -598,15 +598,6 @@ describe('Collection', () => {
 
 			expect(entries(iterable)).toEqual(expectation);
 		});
-	});
-
-	test('props returns an array of values for the given properties'
-	+ ' from the given object', () => {
-		const randomKeys = rndValues(keys(object), rndBetween(1,
-			keys(object)).len - 1);
-		const expectation = randomKeys.map((key) => object[key]);
-
-		expect(props(object, randomKeys)).toEqual(expectation);
 	});
 
 	describe('select helps building sub-objects with selectors', () => {
