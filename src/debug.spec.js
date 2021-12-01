@@ -49,17 +49,25 @@ describe('pretty - returns the pretty JSON of the given value', () => {
 	});
 });
 
-// TODO: Mock the test instead of testing the implementation, in order to save time.
-// TODO: Spyon global setTimeout and Promise for parameters.
-test('sleep stalls the flow for 1000ms by default.', async () => {
-	// eslint-disable-next-line no-undef
-	const startedAt = performance.now();
+test('sleep', () => {
+	const resolve = Symbol('resolve');
+	const ms = Symbol('ms');
+	const defaultMs = 1000;
+	const mockSetTimeout = jest.fn()
+		.mockImplementation((arg, sec) => ({ arg, sec }));
+	const mockPromise = jest.fn().mockImplementation((cb) => cb(resolve));
 
-	await sleep();
+	jest.spyOn(global, 'Promise').mockImplementation(mockPromise);
+	jest.spyOn(global, 'setTimeout').mockImplementation(mockSetTimeout);
 
-	// eslint-disable-next-line no-undef
-	const resumedAt = performance.now();
+	const expectations = [
+		[ms, ms],
+		[undefined, defaultMs],
+	];
 
-	expect(resumedAt - startedAt >= 1000).toBe(true);
-	expect(resumedAt - startedAt < 1100).toBe(true);
+	expectations.map(([time, expectation]) => {
+		sleep(time);
+
+		expect(mockSetTimeout).toHaveBeenCalledWith(resolve, expectation);
+	});
 });
