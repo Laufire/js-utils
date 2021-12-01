@@ -7,7 +7,7 @@
 import { sortArray, rndKey, numberArray, array, object, expectEquals, extension,
 	getRndDictA, rndNested, extended, isolated, cloned, simpleTypes, ecKeys,
 	extCollection, collection as hCollection, rndRange, getRndDict, toObject,
-	rndKeys as hRndKeys, rndArray } from '../test/helpers';
+	rndKeys, rndArray } from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
 import { isDefined, inferType, isIterable } from '@laufire/utils/reflection';
@@ -134,10 +134,9 @@ describe('Collection', () => {
 	test('filter filters the given iterable using the given callback', () => {
 		const fn = filter;
 		// TODO: Use imported rndValues after publishing.
-		const rndKeys = rndValues(tKeys(expectationBase), rndBetween(1,
-			tKeys(expectationBase).length - 1));
-		const predicate = (dummy, key) => rndKeys.includes(String(key));
-		const expectation = tSelect(object, rndKeys);
+		const randomKeys = rndKeys(expectationBase);
+		const predicate = (dummy, key) => randomKeys.includes(String(key));
+		const expectation = tSelect(object, randomKeys);
 		const data = [
 			[array, tValues(expectation)],
 			[object, expectation],
@@ -201,10 +200,9 @@ describe('Collection', () => {
 		test('randomized test', () => {
 			const rndDict = getRndDictA(10);
 			// TODO: Use rndValues post publishing.
-			const rndKeys = rndValues(keys(rndDict),
-				rndBetween(1, keys(rndDict).length - 1));
+			const randomKeys = rndKeys(rndDict);
 			const dirtyObject = tMap(rndDict, (value, key) =>
-				(rndKeys.includes(key) ? undefined : value));
+				(randomKeys.includes(key) ? undefined : value));
 			const expectedObject = tFilter(dirtyObject, isDefined);
 			const [dirtyArray, expectedArray] = tMap([dirtyObject,
 				expectedObject], tValues);
@@ -624,7 +622,7 @@ describe('Collection', () => {
 			// TODO: Try to combine array and object test.
 			test('select returns a sub-object of the given object,'
 			+ ' with the properties in the given selector collection', () => {
-				const keysInSource = hRndKeys(object);
+				const keysInSource = rndKeys(object);
 				const keysToSelect = secure(shuffle([
 					...keysInSource, ...rndArray(5),
 				]));
@@ -641,7 +639,7 @@ describe('Collection', () => {
 
 			test('select returns a sub-array of the given array,'
 			+ ' with the given selector collection', () => {
-				const keysInSource = hRndKeys(array).map(Number);
+				const keysInSource = rndKeys(array).map(Number);
 				const { length } = array;
 				const keysToSelect = secure(shuffle([
 					...keysInSource,
@@ -680,7 +678,7 @@ describe('Collection', () => {
 		describe('randomized tests', () => {
 			test('omit returns a sub-object of the given object,'
 		+ ' without the properties in the given selector collection', () => {
-				const keysInSource = hRndKeys(object);
+				const keysInSource = rndKeys(object);
 				const keysToBeOmited = secure(shuffle([
 					...keysInSource,
 					...rndArray(5),
@@ -701,7 +699,7 @@ describe('Collection', () => {
 
 			test('omit returns a sub-array of the given array,'
 		+ ' without the given collection of properties', () => {
-				const keysInSource = hRndKeys(array).map(Number);
+				const keysInSource = rndKeys(array).map(Number);
 				const { length } = array;
 				const keysToBeOmited = secure(shuffle([
 					...keysInSource,
