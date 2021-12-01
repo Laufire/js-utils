@@ -391,11 +391,6 @@ const translate = (source, translationMap) =>
 	entries(source).reduce((ret, [key, value]) =>
 		assign(ret, { [key]: translationMap[value] }), shell(source));
 
-// Ex: ([3, 5], {1: 'a'}) => {a: 5}
-const rename = (source, renameMap) =>
-	entries(renameMap).reduce((ret, [key, value]) =>
-		assign(ret, { [value]: source[key] }), shell(source));
-
 const compose = (...objects) => {
 	const keysToPick = libKeys(objects[0]);
 	const keysLength = keysToPick.length;
@@ -513,7 +508,7 @@ export {
 	each, map, filter, reduce,
 	traverse, walk, has,
 	clean, sanitize, omit, select, result,
-	flip, flipMany, rename, translate,
+	flip, flipMany, translate,
 	shell, assign, clone, squash, combine, merge, overlay, compose, fill,
 	patch, diff, secure, equals, contains,
 	gather, pick, spread, dict, adopt,

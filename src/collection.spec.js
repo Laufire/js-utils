@@ -25,7 +25,7 @@ import {
 	adopt, shares, clean, clone, compose, combine, contains, dict, diff,
 	each, entries, equals, find, findKey, fill, filter, flip,
 	flipMany, fromEntries, gather, has, hasSame, map, merge, overlay,
-	patch, pick, omit, range, reduce, rename, result,
+	patch, pick, omit, range, reduce, result,
 	sanitize, secure, select, shell, shuffle, spread, sort, squash,
 	translate, traverse, walk, values, keys,
 } from './collection';
@@ -543,36 +543,6 @@ describe('Collection', () => {
 			const expected = tMap(data, (value) => translationMap[value]);
 
 			expect(translate(data, translationMap)).toEqual(expected);
-		});
-	});
-
-	// TODO: Revisit the implementation.
-	describe('rename renames the source keys based on'
-	+ ' the given rename map', () => {
-		test('example', () => {
-			const data = { length: 1, breadth: 2 };
-			const renameMap = { length: 'depth' };
-
-			expect(rename(data, renameMap)).toEqual({ depth: 1 });
-		});
-
-		test('randomized test', () => {
-			const data = rndDict();
-			const keysArr = rndValues(tKeys(data));
-			const renameMap = tReduce(
-				keysArr, (acc, key) =>
-					({ ...acc, [key]: rndString() }), {}
-			);
-
-			const expected = tReduce(
-				renameMap, (
-					acc, val, key
-				) => ({
-					...acc, [val]: data[key],
-				}), {}
-			);
-
-			expect(rename(data, renameMap)).toEqual(expected);
 		});
 	});
 
