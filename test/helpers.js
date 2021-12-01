@@ -16,8 +16,6 @@ const defaults = {
 	randomNumLimits: [0, numMaxLimit],
 	retryCount: 1000,
 	rndRangeLimits: [rangeMaxLimit, rangeMinLimit],
-	// eslint-disable-next-line id-length
-	rndRangeCountLimits: [0, rangeMaxLimit],
 };
 const minLength = 3;
 const stringLength = 16;
@@ -41,20 +39,14 @@ const rndKey = (collection) => rndValue(keys(collection));
 const rndKeys = (collection) => rndValues(keys(collection),
 	rndBetween(1, keys(collection).length - 1));
 
-const rndRange = (min = 0) =>
-	range(min, rndBetween(...defaults.rndRangeLimits));
-
-const rndRangeA = (minCount = 0) =>
-	range(0, minCount + rndBetween(...defaults.rndRangeCountLimits));
+const rndRange = (minCount = 0) =>
+	range(0, minCount + rndBetween(...defaults.rndRangeLimits));
 
 const rndNumber = () => rndBetween(...defaults.randomNumLimits);
 
 const fixNumber = (value) => value.toFixed(defaults.numberPrecision);
 
 const expectEquals = (valOne, valtwo) => expect(valOne).toEqual(valtwo);
-
-const getRndDict = (min = 1) => fromEntries(map(rndRange(min), (value) =>
-	[rndString(), Symbol(value)]));
 
 const valueGenerators = {
 	symbol: () => Symbol(rndString()),
@@ -67,13 +59,17 @@ const valueGenerators = {
 	),
 };
 
+const rndDict = (minCount = 1) =>
+	fromEntries(map(rndRange(minCount), (value) =>
+		[rndString(), Symbol(value)]));
+
 /* Exports */
 /* Data */
 const array = secure(map(rndRange(), Symbol));
 const object = secure(dict(array));
 const cloned = secure(clone(object));
-const extension = secure(getRndDict());
-const isolated = secure(getRndDict());
+const extension = secure(rndDict());
+const isolated = secure(rndDict());
 const removedKey = rndValue(keys(object));
 const contracted = filter(object, (dummy, key) => key !== removedKey);
 const extended = secure({ ...object, ...extension });
@@ -99,11 +95,8 @@ const simpleTypes = secure({
 });
 
 /* Functions */
-const getRndDictA = (minCount = 1) =>
-	fromEntries(map(rndRangeA(minCount), (value) =>
-		[rndString(), Symbol(value)]));
 const rndCollection = (minCount = 1) =>
-	rndValue([rndRangeA, getRndDictA])(minCount);
+	rndValue([rndRange, rndDict])(minCount);
 const rndNested = (
 	depth = 1, length = minLength, generators = keys(valueGenerators)
 ) => (depth > 0
@@ -116,16 +109,13 @@ const toObject = (iterator) => reduce(
 	iterator, (acc, value) =>
 		({ ...acc, [rndString()]: value }), {}
 );
-const rndArray = (minCount) => rndRangeA(minCount).map(() => rndString());
+const rndArray = (minCount) => rndRange(minCount).map(() => rndString());
 
 export {
-	sortArray, retry, strSubSet,
-	isAcceptable, rndKey, rndNumber,
-	rndRange, fixNumber, expectEquals,
 	contracted, array, object, cloned,
 	extension, extended, isolated, ecKeys,
-	collection, extCollection, numberArray,
-	getRndDict, getRndDictA, rndRangeA,
-	rndCollection, rndNested, simpleTypes,
-	toObject, rndKeys, rndArray,
+	collection, extCollection, numberArray, simpleTypes,
+	rndRange, rndDict, rndArray, rndCollection, rndNested,
+	rndNumber, fixNumber, toObject, rndKey, rndKeys,
+	sortArray, strSubSet, retry, isAcceptable, expectEquals,
 };

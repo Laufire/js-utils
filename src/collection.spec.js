@@ -5,9 +5,9 @@
 
 /* Helpers */
 import { sortArray, rndKey, numberArray, array, object, expectEquals, extension,
-	getRndDictA, rndNested, extended, isolated, cloned, simpleTypes, ecKeys,
-	extCollection, collection as hCollection, rndRange, getRndDict, toObject,
-	rndKeys, rndArray } from '../test/helpers';
+	rndDict, rndNested, extended, isolated, cloned, simpleTypes, ecKeys,
+	extCollection, collection as hCollection, toObject,
+	rndKeys, rndArray, rndRange } from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
 import { isDefined, inferType, isIterable } from '@laufire/utils/reflection';
@@ -198,10 +198,10 @@ describe('Collection', () => {
 		});
 
 		test('randomized test', () => {
-			const rndDict = getRndDictA(10);
+			const randomDict = rndDict(10);
 			// TODO: Use rndValues post publishing.
-			const randomKeys = rndKeys(rndDict);
-			const dirtyObject = tMap(rndDict, (value, key) =>
+			const randomKeys = rndKeys(randomDict);
+			const dirtyObject = tMap(randomDict, (value, key) =>
 				(randomKeys.includes(key) ? undefined : value));
 			const expectedObject = tFilter(dirtyObject, isDefined);
 			const [dirtyArray, expectedArray] = tMap([dirtyObject,
@@ -454,9 +454,9 @@ describe('Collection', () => {
 		// TODO: Use nested objects.
 		test('randomized test', () => {
 			const rndDictionaries = map(rndRange(),
-				() => getRndDict());
+				() => rndDict());
 			const rndLayer = rndValue(rndDictionaries);
-			const base = getRndDict();
+			const base = rndDict();
 
 			tMap(rndValues(tKeys(base)), (key) =>
 				(rndLayer[key] = Symbol(key)));
@@ -510,7 +510,7 @@ describe('Collection', () => {
 
 		test('randomized test', () => {
 			// TODO: Decide whether the values could be objects.
-			const data = tMap(getRndDict(), () =>
+			const data = tMap(rndDict(), () =>
 				tMap(rndRange(), () => rndString()));
 
 			const expected = {};
@@ -533,7 +533,7 @@ describe('Collection', () => {
 		});
 
 		test('randmized test', () => {
-			const translationMap = getRndDict();
+			const translationMap = rndDict();
 			const keysArr = rndValues(tKeys(translationMap));
 			const data = tReduce(
 				keysArr, (acc, key) =>
@@ -557,7 +557,7 @@ describe('Collection', () => {
 		});
 
 		test('randomized test', () => {
-			const data = getRndDict();
+			const data = rndDict();
 			const keysArr = rndValues(tKeys(data));
 			const renameMap = tReduce(
 				keysArr, (acc, key) =>
@@ -783,7 +783,7 @@ describe('Collection', () => {
 		});
 
 		test('randomized test', () => {
-			const properties = getRndDictA();
+			const properties = rndDict();
 			const base = { ...hCollection, ...properties };
 			const expectedProps = tReduce(
 				properties, (
