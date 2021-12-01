@@ -110,7 +110,7 @@ describe('Collection', () => {
 	};
 
 	const testIterator = ({ fn, predicate, data }) => {
-		tMap(data, ([collection, expectation]) =>
+		tEntries(data).map(([dummy, [collection, expectation]]) =>
 			expect(fn(collection, predicate)).toEqual(expectation));
 		testForArguments(fn);
 	};
