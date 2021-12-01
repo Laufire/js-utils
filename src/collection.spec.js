@@ -27,7 +27,7 @@ import {
 	flipMany, fromEntries, gather, has, hasSame, map, merge, overlay,
 	patch, pick, omit, range, reduce, result,
 	sanitize, secure, select, shell, shuffle, spread, sort, squash,
-	translate, traverse, walk, values, keys,
+	translate, traverse, walk, values, keys, count,
 } from './collection';
 
 const mockObj = (objKeys, value) =>
@@ -1081,5 +1081,10 @@ describe('Collection', () => {
 			expectEquals(resultKeys.length, expectedKeys.length);
 			expectEquals(resultKeys, expectedKeys);
 		});
+	});
+
+	test('count returns the length of given collection', () => {
+		tMap([array, object], (collection) =>
+			expect(count(collection)).toEqual(tValues(collection).length));
 	});
 });

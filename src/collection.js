@@ -474,6 +474,8 @@ const range = (
 },
 (dummy, i) => (i * step) + start);
 
+const count = (collection) => libKeys(collection).length;
+
 const shares = (
 	left, right, prop = 'id'
 ) =>
@@ -512,5 +514,5 @@ export {
 	shell, assign, clone, squash, combine, merge, overlay, compose, fill,
 	patch, diff, secure, equals, contains,
 	gather, pick, spread, dict, adopt,
-	find, findKey, findIndex, range, hasSame, shares, shuffle, sort,
+	find, findKey, findIndex, range, hasSame, shares, shuffle, sort, count,
 };
