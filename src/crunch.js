@@ -2,8 +2,8 @@
 import { combine, map, merge, values } from './collection';
 
 /* Exports */
-const index = (collection, ...indexKeys) => {
-	indexKeys.reverse();
+const index = (collection, indexes) => {
+	const indexKeys = values(indexes).reverse();
 
 	return combine(...values(map(collection, (item) =>
 		indexKeys.reduce((
@@ -12,9 +12,9 @@ const index = (collection, ...indexKeys) => {
 };
 
 const summarize = (
-	collection, summarizer, ...indexKeys
+	collection, summarizer, indexes
 ) => {
-	indexKeys.reverse();
+	const indexKeys = values(indexes).reverse();
 
 	return merge(...values(map(collection, (item) =>
 		indexKeys.reduce((agg, key) =>

@@ -41,9 +41,7 @@ describe('Crunch', () => {
 		};
 
 		types.forEach((item) => {
-			const result = index(
-				item, rndKeyOne, rndKeyTwo
-			);
+			const result = index(item, [rndKeyOne, rndKeyTwo]);
 
 			expect(result).toEqual(expected);
 		});
@@ -61,7 +59,7 @@ describe('Crunch', () => {
 
 		types.forEach((item) => {
 			const result = summarize(
-				item, summarizer, rndKeyOne, rndKeyTwo
+				item, summarizer, [rndKeyOne, rndKeyTwo]
 			);
 
 			expect(result).toEqual(expected);
