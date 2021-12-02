@@ -52,17 +52,17 @@ describe('pretty - returns the pretty JSON of the given value', () => {
 test('sleep', () => {
 	const resolve = Symbol('resolve');
 	const ms = Symbol('ms');
-	const defaultMs = 1000;
+	const defaultMS = 1000;
+	const mockPromise = jest.fn().mockImplementation((cb) => cb(resolve));
 	const mockSetTimeout = jest.fn()
 		.mockImplementation((arg, sec) => ({ arg, sec }));
-	const mockPromise = jest.fn().mockImplementation((cb) => cb(resolve));
 
 	jest.spyOn(global, 'Promise').mockImplementation(mockPromise);
 	jest.spyOn(global, 'setTimeout').mockImplementation(mockSetTimeout);
 
 	const expectations = [
 		[ms, ms],
-		[undefined, defaultMs],
+		[undefined, defaultMS],
 	];
 
 	expectations.map(([time, expectation]) => {

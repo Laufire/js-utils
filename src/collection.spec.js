@@ -635,26 +635,6 @@ describe('Collection', () => {
 	describe('translate gives the translation of the source based'
 	+ ' on a translation map', () => {
 		test('example', () => {
-			const source = { welcome: 'hello', farewell: 'bye' };
-			const selector = { hola: 'welcome' };
-
-			expect(translate(source, selector)).toEqual({ hola: 'hello' });
-		});
-
-		test('randmized test', () => {
-			const source = rndDict();
-			const keysArr = rndValues(tKeys(source));
-			const selector = tReduce(
-				keysArr, (acc, key) =>
-					({ ...acc, [rndString()]: key }), {}
-			);
-
-			const expected = tMap(selector, (value) => source[value]);
-
-			expect(translate(source, selector)).toEqual(expected);
-		});
-
-		test('example', () => {
 			// TODO: Randomize test using rndNested.
 			const expectations = [
 				{
@@ -672,6 +652,19 @@ describe('Collection', () => {
 			expectations.map(({ source, selector, expectation }) =>
 				expect(translate(source, selector))
 					.toEqual(expectation));
+		});
+
+		test('randmized test', () => {
+			const source = rndDict();
+			const keysArr = rndValues(tKeys(source));
+			const selector = tReduce(
+				keysArr, (acc, key) =>
+					({ ...acc, [rndString()]: key }), {}
+			);
+
+			const expected = tMap(selector, (value) => source[value]);
+
+			expect(translate(source, selector)).toEqual(expected);
 		});
 	});
 
@@ -1126,7 +1119,17 @@ describe('Collection', () => {
 	});
 
 	describe('shares', () => {
-		describe('example', () => {
+		describe('examples', () => {
+			test('shares tests whether the given objects share the same value'
+	+ ' on given properties', () => {
+				expect(shares(
+					simpleObj, nestedObj, ['a']
+				)).toBe(true);
+				expect(shares(
+					simpleObj, complexObject, ['a']
+				)).toBe(false);
+			});
+
 			test('shares uses \'id\' as the default property compare', () => {
 				expect(shares({ id: 1 }, { id: 1 })).toBe(true);
 			});
@@ -1134,7 +1137,7 @@ describe('Collection', () => {
 
 		describe('randomized test', () => {
 			test('shares tests whether the given objects share the same value'
-			+ ' on a given property', () => {
+			+ ' on given properties', () => {
 				expect(shares(
 					object, cloned, rndKeys(object)
 				)).toBe(true);
