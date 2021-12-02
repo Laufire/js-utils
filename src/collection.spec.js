@@ -984,16 +984,14 @@ describe('Collection', () => {
 			// Arrays do hold references to undefined values, to preserve indices.
 		});
 
-		expect(gather(
-			arrayOfObjects, 'a', 'b', 'c'
-		)).toEqual(objectOfArrays);
-		expect(gather(
-			objectOfArrays, 0, 1, 2
-		)).toEqual(arrayOfObjects);
+		expect(gather(arrayOfObjects, ['a', 'b', 'c']))
+			.toEqual(objectOfArrays);
+		expect(gather(objectOfArrays, { a: 0, b: 1, c: 2 }))
+			.toEqual(arrayOfObjects);
 	});
 
-	test('pick picks the given prop from the children of the given iterable,'
-	+ ' as an iterable', () => {
+	test('pick picks the given prop from the children,'
+	+ ' of the given iterable as an iterable', () => {
 		const arrayOfObjects = secure([
 			{ a: 1 },
 			{ a: 2, b: 3 },

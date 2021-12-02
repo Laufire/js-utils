@@ -246,11 +246,11 @@ const omit = (obj, selector) => {
  * of the collection.
  */
 // eslint-disable-next-line no-shadow
-const gather = (collection, ...props) => {
+const gather = (collection, props) => {
 	const propShell = shell(collection);
 	const ret = shell(values(collection)[0]);
 
-	props.forEach((prop) => {
+	values(props).forEach((prop) => {
 		const child = shell(propShell);
 
 		map(collection, (value, key) =>
@@ -268,7 +268,7 @@ const gather = (collection, ...props) => {
  * @param {any} props The props to collect from the children of the collection.
  */
 const pick = (collection, prop) =>
-	gather(collection, prop)[prop];
+	gather(collection, [prop])[prop];
 
 // TODO: Fix the description.
 /**
