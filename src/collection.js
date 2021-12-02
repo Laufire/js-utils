@@ -387,9 +387,13 @@ const flipMany = (obj) => reduce(
 		), {}
 );
 
-const translate = (source, translationMap) =>
-	entries(source).reduce((ret, [key, value]) =>
-		assign(ret, { [key]: translationMap[value] }), shell(source));
+const translate = (source, selector) =>
+	// eslint-disable-next-line no-return-assign
+	entries(selector).reduce((acc, [key, value]) =>
+		(acc[key] = isIterable(value)
+			? translate(source, value)
+			// eslint-disable-next-line no-sequences
+			: result(source, value), acc), shell(source));
 
 const compose = (...objects) => {
 	const keysToPick = libKeys(objects[0]);

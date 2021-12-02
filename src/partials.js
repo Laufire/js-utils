@@ -4,7 +4,7 @@
  * Using partials with array iterators improves readability.
  */
 
-import { translate as transCollection, merge, reduce } from './collection';
+import { translate as cTranslate, merge, reduce } from './collection';
 import { values } from './lib';
 import { inferType } from './reflection';
 
@@ -33,7 +33,7 @@ const partial = (() => {
 
 				return values(placeholders).length
 					? (dynamic) => merge(
-						[], fixed, transCollection(placeholders, dynamic)
+						[], fixed, cTranslate(dynamic, placeholders)
 					)
 					: (dynamic) => fixed.concat(dynamic);
 			},

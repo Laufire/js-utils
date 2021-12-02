@@ -526,23 +526,43 @@ describe('Collection', () => {
 	describe('translate gives the translation of the source based'
 	+ ' on a translation map', () => {
 		test('example', () => {
-			const translationMap = { welcome: 'hello', farewell: 'bye' };
-			const data = { hola: 'welcome' };
+			const source = { welcome: 'hello', farewell: 'bye' };
+			const selector = { hola: 'welcome' };
 
-			expect(translate(data, translationMap)).toEqual({ hola: 'hello' });
+			expect(translate(source, selector)).toEqual({ hola: 'hello' });
 		});
 
 		test('randmized test', () => {
-			const translationMap = rndDict();
-			const keysArr = rndValues(tKeys(translationMap));
-			const data = tReduce(
+			const source = rndDict();
+			const keysArr = rndValues(tKeys(source));
+			const selector = tReduce(
 				keysArr, (acc, key) =>
 					({ ...acc, [rndString()]: key }), {}
 			);
 
-			const expected = tMap(data, (value) => translationMap[value]);
+			const expected = tMap(selector, (value) => source[value]);
 
-			expect(translate(data, translationMap)).toEqual(expected);
+			expect(translate(source, selector)).toEqual(expected);
+		});
+
+		test('example', () => {
+			// TODO: Randomize test using rndNested.
+			const expectations = [
+				{
+					source: { a: 1, b: { c: 2 }, d: 3 },
+					selector: { x: 'a', y: '/b/c', z: { w: 'd' }},
+					expectation: { x: 1, y: 2, z: { w: 3 }},
+				},
+				{
+					source: ['a', 'b', ['c'], 'd'],
+					selector: ['1', '2/0', ['3']],
+					expectation: ['b', 'c', ['d']],
+				},
+			];
+
+			expectations.map(({ source, selector, expectation }) =>
+				expect(translate(source, selector))
+					.toEqual(expectation));
 		});
 	});
 
