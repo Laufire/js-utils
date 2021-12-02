@@ -152,6 +152,12 @@ describe('Collection', () => {
 	const arrayOrObject = (collection) =>
 		rndValue([tValues, toObject])(collection);
 
+	// TODO: Remove the converters after using published functions.
+	const converters = {
+		array: Number,
+		object: (x) => x,
+	};
+
 	/* Tests */
 	test('map transforms the given iterable using the given callback', () => {
 		const fn = map;
@@ -218,12 +224,6 @@ describe('Collection', () => {
 		});
 
 		test('randomized test', () => {
-			// TODO: Remove the converters after using published functions.
-			const converters = {
-				array: Number,
-				object: (x) => x,
-			};
-
 			tMap([array, object], (collection) => {
 				const initial = Symbol('initial');
 				const collectionKeys = tKeys(collection);
@@ -710,11 +710,6 @@ describe('Collection', () => {
 	});
 
 	test('entries', () => {
-		const converters = {
-			array: Number,
-			object: String,
-		};
-
 		tMap([array, object], (iterable) => {
 			const expectation = tValues(tMap(iterable, (value, key) =>
 				[converters[inferType(iterable)](key), value]));
@@ -1235,19 +1230,15 @@ describe('Collection', () => {
 
 	describe('keys', () => {
 		const expectations = [
-			['array', 'number', array],
-			['object', 'string', object],
+			['array', 'numbers', array],
+			['object', 'strings', object],
 		];
-		const converters = {
-			number: Number,
-			string: String,
-		};
 
-		test.each(expectations)('returns %p keys as %ps', (
-			dummy, itemType, input
+		test.each(expectations)('returns %p keys as %p', (
+			dummy, dummyOne, input
 		) => {
 			const expectedKeys = Object.keys(input).map((key) =>
-				converters[itemType](key));
+				converters[inferType(input)](key));
 
 			const resultKeys = keys(input);
 
