@@ -24,7 +24,7 @@ import { isEqual, not } from '@laufire/utils/predicates';
 
 /* Tested */
 import {
-	adopt, shares, clean, clone, compose, combine, contains, dict, diff,
+	adopt, shares, clean, clone, compose, combine, contains, toDict, diff,
 	each, entries, equals, find, findKey, fill, filter, flip,
 	flipMany, fromEntries, gather, has, hasSame, map, merge, overlay,
 	patch, pick, omit, range, reduce, result,
@@ -209,7 +209,7 @@ describe('Collection', () => {
 
 	test('reduce reduces the given collection', () => {
 		const randomArray = range(0, 10);
-		const randomObject = dict(randomArray);
+		const randomObject = toDict(randomArray);
 
 		[randomArray, randomObject].map((obj) => {
 			expect(reduce(
@@ -1018,9 +1018,9 @@ describe('Collection', () => {
 		expect(seeded).toEqual(base);
 	});
 
-	test('dict converts the given collection into a dictionary', () => {
-		expect(dict(array)).toEqual(object);
-		expect(dict(object)).toEqual(object);
+	test('toDict converts the given collection into a dictionary', () => {
+		expect(toDict(array)).toEqual(object);
+		expect(toDict(object)).toEqual(object);
 	});
 
 	test('adopt copies values from extensions into the base', () => {

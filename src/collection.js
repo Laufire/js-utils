@@ -459,7 +459,7 @@ const hasSame = (base, compared) =>
 	libKeys(base).length === libKeys(compared).length
 	&& findKey(base, (value, key) => value !== compared[key]) === undefined;
 
-const dict = (collection) =>
+const toDict = (collection) =>
 	fromEntries(map(collection, (value, key) => [key, value]));
 
 const adopt = (base, ...extensions) =>
@@ -517,6 +517,6 @@ export {
 	flip, flipMany, translate,
 	shell, assign, clone, squash, combine, merge, overlay, compose, fill,
 	patch, diff, secure, equals, contains,
-	gather, pick, spread, dict, adopt,
+	gather, pick, spread, toDict, adopt,
 	find, findKey, findIndex, range, hasSame, shares, shuffle, sort, count,
 };
