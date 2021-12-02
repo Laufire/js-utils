@@ -22,7 +22,7 @@ import { ascending } from './sorters';
 */
 const { abs, ceil, sign } = Math;
 
-const toArray = (value) => (isArray(value) ? value : [value]);
+const wrapAsArray = (value) => (isArray(value) ? value : [value]);
 
 const combineObjects = (base, extension) =>
 	(isArray(base) && isArray(extension)
@@ -331,7 +331,7 @@ const fill = (base, ...extensions) =>
 // Merges an array of objects / object-arrays into a single object.
 const squash = (...objects) =>
 	assign({}, ...objects.reduce((aggregate, value) =>
-		[...aggregate, ...toArray(value)], []));
+		[...aggregate, ...wrapAsArray(value)], []));
 
 /**
  * Retrieves the value, notified by a path, from a nested map.
@@ -459,6 +459,8 @@ const hasSame = (base, compared) =>
 	libKeys(base).length === libKeys(compared).length
 	&& findKey(base, (value, key) => value !== compared[key]) === undefined;
 
+const toArray = values;
+
 const toDict = (collection) =>
 	fromEntries(map(collection, (value, key) => [key, value]));
 
@@ -517,6 +519,6 @@ export {
 	flip, flipMany, translate,
 	shell, assign, clone, squash, combine, merge, overlay, compose, fill,
 	patch, diff, secure, equals, contains,
-	gather, pick, spread, toDict, adopt,
+	gather, pick, spread, toArray, toDict, adopt,
 	find, findKey, findIndex, range, hasSame, shares, shuffle, sort, count,
 };

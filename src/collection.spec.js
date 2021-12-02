@@ -29,7 +29,7 @@ import {
 	flipMany, fromEntries, gather, has, hasSame, map, merge, overlay,
 	patch, pick, omit, range, reduce, result,
 	sanitize, secure, select, shell, shuffle, spread, sort, squash,
-	translate, traverse, walk, values, keys, count,
+	translate, traverse, walk, values, keys, count, toArray,
 } from './collection';
 
 const mockObj = (objKeys, value) =>
@@ -1016,6 +1016,10 @@ describe('Collection', () => {
 			b: { propOne: 2, propTwo: 4 },
 		});
 		expect(seeded).toEqual(base);
+	});
+
+	test('toArray is an alias for values', () => {
+		expect(toArray).toEqual(values);
 	});
 
 	test('toDict converts the given collection into a dictionary', () => {
