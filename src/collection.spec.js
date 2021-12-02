@@ -10,13 +10,15 @@ import { sortArray, rndKey, numberArray, array, object, expectEquals, extension,
 	rndKeys, rndArray, rndRange } from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
-import { isDefined, inferType, isIterable } from '@laufire/utils/reflection';
-import { ascending, descending } from '@laufire/utils/sorters';
+import { isDefined, inferType, isIterable,
+	isDict, isArray } from '@laufire/utils/reflection';
+import { ascending, descending, reverse } from '@laufire/utils/sorters';
 import { sum } from '@laufire/utils/reducers';
 import { select as tSelect, map as tMap, keys as tKeys,
 	values as tValues, secure as tSecure, entries as tEntries,
 	dict as tDict, filter as tFilter, reduce as tReduce,
-	clean as tClean, fromEntries as tFromEntries, range as tRange }
+	clean as tClean, fromEntries as tFromEntries,
+	range as tRange, pick as tPick }
 	from '@laufire/utils/collection';
 import { isEqual, not } from '@laufire/utils/predicates';
 
@@ -86,6 +88,37 @@ describe('Collection', () => {
 		e: [0, 1],
 		f: 'only in compared',
 	});
+
+	const mcoCollections = [
+		{
+			a: 1, b: 2,
+			c: {
+				d: {
+					e: [1, 3],
+				},
+			},
+		},
+		{
+			a: 2,
+			c: {
+				d: {
+					e: [6, 9],
+					f: 7,
+				},
+				g: 8,
+			},
+		},
+		{
+			b: 1,
+			c: {
+				d: {
+					e: [8, 2],
+					h: 9,
+				},
+			},
+		},
+	];
+
 	const expectationBase = tSecure(tMap(object, (dummy, key) =>
 		Symbol(key)));
 	const simpleValues = values(simpleTypes);
@@ -95,6 +128,7 @@ describe('Collection', () => {
 
 	/* Helpers */
 	const stitch = (val, key) => String(key) + String(val);
+	const reverseArray = (input) => sort(input, reverse);
 	const testForArguments = (fn) => {
 		// TODO: Use imported nothing after publishing.
 		const mockPredicate = jest.fn(() => false);
@@ -286,110 +320,183 @@ describe('Collection', () => {
 		expect(squashed).toEqual(object);
 	});
 
-	test('merge merges multiple objects into one', () => {
-		const base = clone(complexObject);
-		const bottomLevelBase = clone(complexObject);
-		const topLevelBase = clone(complexObject);
-		const propToDelete = 'single';
-		const newValue = 'new value';
+	describe('merge merges multiple objects into one', () => {
+		test('example', () => {
+			const base = clone(complexObject);
+			const bottomLevelBase = clone(complexObject);
+			const topLevelBase = clone(complexObject);
+			const propToDelete = 'single';
+			const newValue = 'new value';
 
-		bottomLevelBase.primitiveOverlay = 0;
-		bottomLevelBase.iterableOverlay = {};
-		const bottomLevel = secure(bottomLevelBase);
+			bottomLevelBase.primitiveOverlay = 0;
+			bottomLevelBase.iterableOverlay = {};
+			const bottomLevel = secure(bottomLevelBase);
 
-		delete topLevelBase[propToDelete];
-		topLevelBase.newProperty = newValue;
-		topLevelBase.parent.child.grandChild = newValue;
-		topLevelBase.complexArray[0].innerArray = [0];
-		topLevelBase.primitiveOverlay = simpleObj;
-		topLevelBase.iterableOverlay = simpleObj;
-		const topLevel = secure(topLevelBase);
+			delete topLevelBase[propToDelete];
+			topLevelBase.newProperty = newValue;
+			topLevelBase.parent.child.grandChild = newValue;
+			topLevelBase.complexArray[0].innerArray = [0];
+			topLevelBase.primitiveOverlay = simpleObj;
+			topLevelBase.iterableOverlay = simpleObj;
+			const topLevel = secure(topLevelBase);
 
-		const merged = merge(
-			base, bottomLevel, topLevel
-		);
+			const merged = merge(
+				base, bottomLevel, topLevel
+			);
 
-		expect(base).not.toEqual(complexObject);
-		expect(merged).toHaveProperty(propToDelete);
-		expect(merged.newProperty).toEqual(newValue);
-		expect(merged.parent.child.grandChild).toEqual(newValue);
-		expect(merged.primitiveOverlay).toEqual(simpleObj);
-		expect(topLevelBase.iterableOverlay).toEqual(simpleObj);
-		expect(merged.complexArray !== topLevel.complexArray).toEqual(true);
-		expect(merged.complexArray[0].innerArray[0]).toEqual(0);
+			expect(base).not.toEqual(complexObject);
+			expect(merged).toHaveProperty(propToDelete);
+			expect(merged.newProperty).toEqual(newValue);
+			expect(merged.parent.child.grandChild).toEqual(newValue);
+			expect(merged.primitiveOverlay).toEqual(simpleObj);
+			expect(topLevelBase.iterableOverlay).toEqual(simpleObj);
+			expect(merged.complexArray !== topLevel.complexArray).toEqual(true);
+			expect(merged.complexArray[0].innerArray[0]).toEqual(0);
+		});
+
+		// TODO: Use getNested from testHelpers and randomized.
+		test('nested test', () => {
+			const testMerge = (merged, ...collections) => {
+				tMap(merged, (value, key) => {
+					const children = tClean(tPick(collections, key));
+					const [firstChild] = children;
+
+					isIterable(value)
+						? testMerge(value, ...children)
+						: expectEquals(value, firstChild);
+				});
+			};
+
+			const merged = merge({}, ...mcoCollections);
+
+			testMerge(merged, ...reverseArray(mcoCollections));
+		});
 	});
 
-	test('overlay overlays multiple objects into one', () => {
-		const base = clone(complexObject);
-		const bottomLevelBase = clone(complexObject);
-		const topLevelBase = clone(complexObject);
-		const propToDelete = 'single';
-		const newValue = 'new value';
+	describe('overlay overlays multiple objects into one', () => {
+		test('example', () => {
+			const base = clone(complexObject);
+			const bottomLevelBase = clone(complexObject);
+			const topLevelBase = clone(complexObject);
+			const propToDelete = 'single';
+			const newValue = 'new value';
 
-		bottomLevelBase.primitiveOverlay = 0;
-		bottomLevelBase.iterableOverlay = {};
-		const bottomLevel = secure(bottomLevelBase);
+			bottomLevelBase.primitiveOverlay = 0;
+			bottomLevelBase.iterableOverlay = {};
+			const bottomLevel = secure(bottomLevelBase);
 
-		delete topLevelBase[propToDelete];
-		topLevelBase.newProperty = newValue;
-		topLevelBase.parent.child.grandChild = newValue;
-		topLevelBase.complexArray.innerArray = [0];
-		topLevelBase.primitiveOverlay = simpleObj;
-		topLevelBase.iterableOverlay = simpleObj;
-		const topLevel = secure(topLevelBase);
+			delete topLevelBase[propToDelete];
+			topLevelBase.newProperty = newValue;
+			topLevelBase.parent.child.grandChild = newValue;
+			topLevelBase.complexArray.innerArray = [0];
+			topLevelBase.primitiveOverlay = simpleObj;
+			topLevelBase.iterableOverlay = simpleObj;
+			const topLevel = secure(topLevelBase);
 
-		const overlaid = overlay(
-			base, bottomLevel, topLevel
-		);
+			const overlaid = overlay(
+				base, bottomLevel, topLevel
+			);
 
-		expect(base).not.toEqual(complexObject);
-		expect(overlaid).toHaveProperty(propToDelete);
-		expect(overlaid.newProperty).toEqual(newValue);
-		expect(overlaid.parent.child.grandChild).toEqual(newValue);
-		expect(overlaid.primitiveOverlay).toEqual(simpleObj);
-		expect(topLevelBase.iterableOverlay).toEqual(simpleObj);
-		expect(overlaid.complexArray === topLevel.complexArray).toEqual(true);
-		expect(overlaid.complexArray.innerArray
+			expect(base).not.toEqual(complexObject);
+			expect(overlaid).toHaveProperty(propToDelete);
+			expect(overlaid.newProperty).toEqual(newValue);
+			expect(overlaid.parent.child.grandChild).toEqual(newValue);
+			expect(overlaid.primitiveOverlay).toEqual(simpleObj);
+			expect(topLevelBase.iterableOverlay).toEqual(simpleObj);
+			expect(overlaid.complexArray === topLevel.complexArray)
+				.toEqual(true);
+			expect(overlaid.complexArray.innerArray
 			=== topLevel.complexArray.innerArray).toEqual(true);
+		});
+
+		// TODO: Use getNested from testHelpers and randomized.
+		test('nested test', () => {
+			const testOverlay = (overlaid, ...collections) => {
+				tMap(overlaid, (value, key) => {
+					const children = tClean(tPick(collections, key));
+					const [firstChild] = children;
+
+					isDict(value)
+						? testOverlay(value, ...children)
+						: expectEquals(value, firstChild);
+				});
+			};
+
+			const overlaid = overlay({}, ...mcoCollections);
+
+			testOverlay(overlaid, ...reverseArray(mcoCollections));
+		});
 	});
 
-	test('combine combines multiple objects into one', () => {
-		const base = clone(complexObject);
-		const underlayBase = clone(complexObject);
-		const overlayBase = clone(complexObject);
-		const propToDelete = 'single';
-		const newValue = 'new value';
+	describe('combine combines multiple objects into one', () => {
+		test('example', () => {
+			const base = clone(complexObject);
+			const underlayBase = clone(complexObject);
+			const overlayBase = clone(complexObject);
+			const propToDelete = 'single';
+			const newValue = 'new value';
 
-		underlayBase.primitiveOverlay = 0;
-		underlayBase.iterableOverlay = {};
-		const layerOne = secure(underlayBase);
+			underlayBase.primitiveOverlay = 0;
+			underlayBase.iterableOverlay = {};
+			const layerOne = secure(underlayBase);
 
-		delete overlayBase[propToDelete];
-		overlayBase.newProperty = newValue;
-		overlayBase.parent.child.grandChild = newValue;
-		overlayBase.complexArray[0].innerArray = [0];
-		overlayBase.primitiveOverlay = simpleObj;
-		overlayBase.iterableOverlay = simpleObj;
-		const layerTwo = secure(overlayBase);
+			delete overlayBase[propToDelete];
+			overlayBase.newProperty = newValue;
+			overlayBase.parent.child.grandChild = newValue;
+			overlayBase.complexArray[0].innerArray = [0];
+			overlayBase.primitiveOverlay = simpleObj;
+			overlayBase.iterableOverlay = simpleObj;
+			const layerTwo = secure(overlayBase);
 
-		const combined = combine(
-			base, layerOne, layerTwo
-		);
+			const combined = combine(
+				base, layerOne, layerTwo
+			);
 
-		expect(base).not.toEqual(complexObject);
-		expect(combined).toHaveProperty(propToDelete);
-		expect(combined.newProperty).toEqual(newValue);
-		expect(combined.parent.child.grandChild).toEqual(newValue);
-		expect(combined.array)
-			.toEqual(complexObject.array.concat(underlayBase.array)
-				.concat(overlayBase.array));
-		expect(combined.primitiveOverlay).toEqual(simpleObj);
-		expect(overlayBase.iterableOverlay).toEqual(simpleObj);
-		expect(combined.complexArray).toEqual([
-			complexObject.complexArray[0],
-			underlayBase.complexArray[0],
-			overlayBase.complexArray[0],
-		]);
+			expect(base).not.toEqual(complexObject);
+			expect(combined).toHaveProperty(propToDelete);
+			expect(combined.newProperty).toEqual(newValue);
+			expect(combined.parent.child.grandChild).toEqual(newValue);
+			expect(combined.array)
+				.toEqual(complexObject.array.concat(underlayBase.array)
+					.concat(overlayBase.array));
+			expect(combined.primitiveOverlay).toEqual(simpleObj);
+			expect(overlayBase.iterableOverlay).toEqual(simpleObj);
+			expect(combined.complexArray).toEqual([
+				complexObject.complexArray[0],
+				underlayBase.complexArray[0],
+				overlayBase.complexArray[0],
+			]);
+		});
+
+		// TODO: Use getNested from testHelpers and randomized.
+		test('nested test', () => {
+			const combineChildren = (children) => {
+				const index = reverseArray(children).findIndex((element) =>
+					!isArray(element)) + 1;
+
+				return reverseArray(children)
+					.slice(index)
+					.flat();
+			};
+
+			const testCombine = (combined, ...collections) => {
+				tMap(combined, (value, key) => {
+					const children = tClean(tPick(collections, key));
+					const [firstChild] = children;
+
+					isDict(value)
+						? testCombine(value, ...children)
+						: isArray(value)
+							? expectEquals(value,
+								combineChildren(children))
+							: expectEquals(value, firstChild);
+				});
+			};
+
+			const combined = combine({}, ...mcoCollections);
+
+			testCombine(combined, ...reverseArray(mcoCollections));
+		});
 	});
 
 	test('merge and combine work with multiple extensions', () => {
