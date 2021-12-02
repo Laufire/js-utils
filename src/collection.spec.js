@@ -499,39 +499,41 @@ describe('Collection', () => {
 		});
 	});
 
-	test('merge and combine work with multiple extensions', () => {
-		expect(merge(
-			{ a: 1 }, { b: 2 }, { c: 3 }
-		)).toEqual({
-			a: 1,
-			b: 2,
-			c: 3,
+	describe('merge, combine and overlay shares some behaviors', () => {
+		test('they work with multiple extensions', () => {
+			expect(merge(
+				{ a: 1 }, { b: 2 }, { c: 3 }
+			)).toEqual({
+				a: 1,
+				b: 2,
+				c: 3,
+			});
+
+			expect(combine({ a: [1] }, { a: [2], c: 3 })).toEqual({
+				a: [1, 2],
+				c: 3,
+			});
 		});
 
-		expect(combine({ a: [1] }, { a: [2], c: 3 })).toEqual({
-			a: [1, 2],
-			c: 3,
-		});
-	});
+		test('they ignore undefined values as extensions', () => {
+			expect(merge(
+				{ a: 1 }, undefined, { c: 3 }
+			)).toEqual({
+				a: 1,
+				c: 3,
+			});
 
-	test('merge and combine ignore undefined values as extensions', () => {
-		expect(merge(
-			{ a: 1 }, undefined, { c: 3 }
-		)).toEqual({
-			a: 1,
-			c: 3,
+			expect(combine(
+				{ a: [1] }, undefined, { a: [2] }
+			)).toEqual({
+				a: [1, 2],
+			});
 		});
 
-		expect(combine(
-			{ a: [1] }, undefined, { a: [2] }
-		)).toEqual({
-			a: [1, 2],
+		test('they work with simple arrays', () => {
+			expect(merge([0, 1], [1])).toEqual([1, 1]);
+			expect(combine([0, 1], [1])).toEqual([0, 1, 1]);
 		});
-	});
-
-	test('merge and combine work with simple arrays', () => {
-		expect(merge([0, 1], [1])).toEqual([1, 1]);
-		expect(combine([0, 1], [1])).toEqual([0, 1, 1]);
 	});
 
 	// TODO: Don't mutate the base.
