@@ -13,7 +13,7 @@ import { rndBetween, rndString, rndValue, rndValues }
 import { isDefined, inferType, isIterable,
 	isDict, isArray } from '@laufire/utils/reflection';
 import { ascending, descending, reverse } from '@laufire/utils/sorters';
-import { sum } from '@laufire/utils/reducers';
+import { sum, product } from '@laufire/utils/reducers';
 import { select as tSelect, map as tMap, keys as tKeys,
 	values as tValues, secure as tSecure, entries as tEntries,
 	dict as tDict, filter as tFilter, reduce as tReduce,
@@ -207,14 +207,47 @@ describe('Collection', () => {
 		testIterator({ fn, predicate, data });
 	});
 
-	test('reduce reduces the given collection', () => {
-		const randomArray = range(0, 10);
-		const randomObject = toDict(randomArray);
-
-		[randomArray, randomObject].map((obj) => {
+	describe('reduce reduces the given collection.', () => {
+		test('example', () => {
 			expect(reduce(
-				obj, sum, 0
-			)).toEqual(values(obj).reduce((t, c) => t + c));
+				simpleObj, sum, 0
+			)).toEqual(3);
+			expect(reduce(
+				simpleArray, product, 1
+			)).toEqual(2);
+		});
+
+		test('randomized test', () => {
+			// TODO: Remove the converters after using published functions.
+			const converters = {
+				array: Number,
+				object: (x) => x,
+			};
+
+			tMap([array, object], (collection) => {
+				const initial = Symbol('initial');
+				const collectionKeys = tKeys(collection);
+				const accumlators = [initial,
+					...tMap(collectionKeys, Symbol)];
+				const expectation = accumlators[accumlators.length - 1];
+
+				const predicate = jest.fn().mockImplementation((
+					dummy, dummyOne, key
+				) => accumlators[collectionKeys.findIndex((cKey) =>
+					cKey === String(key)) + 1]);
+
+				expect(reduce(
+					collection, predicate, initial
+				)).toEqual(expectation);
+
+				tMap(collectionKeys, (key) =>
+					expect(predicate.mock.calls[key]).toEqual([
+						accumlators[key],
+						collection[key],
+						converters[inferType(collection)](key),
+						collection,
+					]));
+			});
 		});
 	});
 
