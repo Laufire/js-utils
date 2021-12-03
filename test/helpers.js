@@ -1,6 +1,6 @@
 import {
 	clone, secure, map, reduce,
-	keys, filter, range, dict, fromEntries,
+	keys, filter, range, dict, fromEntries, values,
 } from '@laufire/utils/collection';
 import { rndValue, rndBetween, rndString, rndValues }
 	from '@laufire/utils/random';
@@ -18,6 +18,7 @@ const defaults = {
 	rndRangeLimits: [rangeMaxLimit, rangeMinLimit],
 };
 const minLength = 3;
+const maxLength = 5;
 const stringLength = 16;
 
 /* Functions */
@@ -63,6 +64,9 @@ const rndDict = (minCount = 1) =>
 	fromEntries(map(rndRange(minCount), (value) =>
 		[rndString(), Symbol(value)]));
 
+const fn = function () {};
+const Constructor = fn;
+
 /* Exports */
 /* Data */
 const array = secure(map(rndRange(), Symbol));
@@ -88,7 +92,7 @@ const extCollection = {
 	...collection,
 	[ecKeys.extended]: extended,
 };
-const simpleTypes = secure({
+const simpleTypes = () => secure({
 	number: rndNumber(),
 	string: rndString(stringLength),
 	boolean: rndValue([true, false]),
@@ -110,6 +114,35 @@ const toObject = (iterator) => reduce(
 		({ ...acc, [rndString()]: value }), {}
 );
 const rndArray = (minCount) => rndRange(minCount).map(() => rndString());
+const emptyTypes = () => secure({
+	null: null,
+	undefined: undefined,
+	number: NaN,
+});
+const iterableTypes = () => secure({
+	array: rndArray(rndNumber()),
+	object: rndDict(rndNumber()),
+	map: new Map(),
+});
+const constructedTypes = () => secure({
+	date: new Date(),
+	map: new Map(),
+	object: new Constructor(),
+});
+const complexTypes = () => secure({
+	...constructedTypes(),
+	...iterableTypes(),
+	function: fn,
+});
+const allTypes = () => secure({
+	...emptyTypes(),
+	...simpleTypes(),
+	...complexTypes(),
+});
+const rnd = () => rndValue([
+	...values(allTypes()),
+	rndNested(rndBetween(minLength, maxLength)),
+]);
 
 export {
 	contracted, array, object, cloned,
@@ -118,4 +151,5 @@ export {
 	rndRange, rndDict, rndArray, rndCollection, rndNested,
 	rndNumber, fixNumber, toObject, rndKey, rndKeys,
 	sortArray, strSubSet, retry, isAcceptable, expectEquals,
+	allTypes, emptyTypes, rnd,
 };

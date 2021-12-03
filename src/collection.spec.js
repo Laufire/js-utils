@@ -121,7 +121,7 @@ describe('Collection', () => {
 
 	const expectationBase = tSecure(tMap(object, (dummy, key) =>
 		Symbol(key)));
-	const simpleValues = values(simpleTypes);
+	const simpleValues = values(simpleTypes());
 	const simpleValue = rndValue(simpleValues);
 	const anotherValue = rndValue(tFilter(simpleValues,
 		not(isEqual(simpleValue))));

@@ -1,5 +1,6 @@
-import { map, values, secure } from '@laufire/utils/collection';
-import { array, object, expectEquals, simpleTypes } from '../test/helpers';
+import { map, values } from '@laufire/utils/collection';
+import { array, object, expectEquals, simpleTypes, allTypes, emptyTypes }
+	from '../test/helpers';
 
 /* Tested */
 import {
@@ -21,31 +22,6 @@ describe('Reflection', () => {
 	const fn = function () {};
 	const Constructor = fn;
 	const constructed = new Constructor();
-	const emptyTypes = secure({
-		null: null,
-		undefined: undefined,
-		number: NaN,
-	});
-	const iterableTypes = secure({
-		array: array,
-		object: object,
-		map: new Map(),
-	});
-	const constructedTypes = secure({
-		date: new Date(),
-		map: new Map(),
-		object: constructed,
-	});
-	const complexTypes = secure({
-		...iterableTypes,
-		...constructedTypes,
-		function: fn,
-	});
-	const allTypes = secure({
-		...emptyTypes,
-		...simpleTypes,
-		...complexTypes,
-	});
 
 	/* Tests */
 	test('constructorName returns the constructor name'
@@ -68,7 +44,7 @@ describe('Reflection', () => {
 	});
 
 	test('inferType infers the type of the given value', () => {
-		const expectations = allTypes;
+		const expectations = allTypes();
 
 		map(expectations, (value, type) =>
 			expect(inferType(value)).toEqual(type));
@@ -106,23 +82,25 @@ describe('Reflection', () => {
 
 	test('isDefined returns false only when the given value'
 		+ ' is undefined', () => {
-		map(allTypes, (value) => {
+		map(allTypes(), (value) => {
 			expectEquals(isDefined(value), value !== undefined);
 		});
 	});
 
 	test('isEmpty', () => {
-		const emptyValues = values(emptyTypes);
+		const emptyValues = values(emptyTypes());
 
-		map(allTypes, (value) =>
+		map(allTypes(), (value) =>
 			expect(isEmpty(value)).toEqual(emptyValues.includes(value)));
 	});
 
 	test('isSimple', () => {
-		const simpleValues = values(simpleTypes);
+		const simpleValues = simpleTypes();
+		const collection = { ...allTypes(), ...simpleValues };
 
-		map(allTypes, (value) =>
-			expect(isSimple(value)).toEqual(simpleValues.includes(value)));
+		map(collection, (value) =>
+			expect(isSimple(value))
+				.toEqual(values(simpleValues).includes(value)));
 		expect(isSimple(NaN)).toEqual(false);
 	});
 });
