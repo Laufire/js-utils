@@ -7,7 +7,7 @@
 import { sortArray, rndKey, numberArray, array, object, expectEquals, extension,
 	rndDict, rndNested, extended, isolated, cloned, simpleTypes, ecKeys,
 	extCollection, collection as hCollection, toObject,
-	rndKeys, rndArray, rndRange } from '../test/helpers';
+	rndKeys, rndArray, rndRange, rnd } from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
 import { isDefined, inferType, isIterable,
@@ -305,16 +305,37 @@ describe('Collection', () => {
 		expect(map).toEqual(each);
 	});
 
-	test('traverse recursively traverses through a given object and'
+	describe('traverse recursively traverses through a given object and'
 	+ ' builds a new object from its primitives', () => {
-		expect(traverse(nestedObj, stitch)).toEqual({
-			a: 'a1',
-			b: 'b2',
-			c: {
-				d: {
-					e: 'e5',
+		test('example', () => {
+			expect(traverse(nestedObj, stitch)).toEqual({
+				a: 'a1',
+				b: 'b2',
+				c: {
+					d: {
+						e: 'e5',
+					},
 				},
-			},
+			});
+		});
+
+		test('randomized test', () => {
+			const obj = rnd();
+			const convey = (...args) => args;
+
+			const testTraversed = (base, traversed) => (isIterable(base)
+				? tMap(base, (value, key) => (isIterable(value)
+					? testTraversed(value, traversed[key])
+					: expect(traversed[key]).toEqual([
+						value,
+						converters[inferType(base)](key),
+						base,
+					])))
+				: expect(traversed).toEqual([base]));
+
+			const traversed = traverse(obj, convey);
+
+			testTraversed(obj, traversed);
 		});
 	});
 

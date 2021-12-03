@@ -161,12 +161,14 @@ const findIndex = findKey;
 * Recursively passes all the primitives in the given collection
 * to the given callback.
 */
-const traverse = (obj, cb) => map(obj, (value, key) =>
-	(isIterable(value)
-		? traverse(value, cb)
-		: cb(
-			value, key, obj
-		)));
+const traverse = (obj, cb) => (isIterable(obj)
+	? map(obj, (value, key) =>
+		(isIterable(value)
+			? traverse(value, cb)
+			: cb(
+				value, key, obj
+			)))
+	: cb(obj));
 
 /*
 * Recursively passes all the props of the given collections
