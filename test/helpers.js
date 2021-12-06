@@ -64,6 +64,7 @@ const rndDict = (minCount = 1) =>
 		[rndString(), Symbol(value)]));
 
 const fn = function () {};
+
 const Constructor = fn;
 
 /* Exports */
@@ -100,6 +101,7 @@ const simpleTypes = () => secure({
 /* Functions */
 const rndCollection = (minCount = 1) =>
 	rndValue([rndRange, rndDict])(minCount);
+
 const rndNested = (
 	depth = 1, length = minLength, generators = keys(valueGenerators)
 ) => (depth > 0
@@ -108,36 +110,45 @@ const rndNested = (
 			depth, length, generators
 		))
 	: rndCollection());
+
 const toObject = (iterator) => reduce(
 	iterator, (acc, value) =>
 		({ ...acc, [rndString()]: value }), {}
 );
-const rndArray = (minCount = 1) => rndRange(minCount).map(() => rndString());
+
+const rndArray = (minCount = 1) =>
+	rndRange(minCount).map(() => rndString());
+
 const emptyTypes = () => secure({
 	null: null,
 	undefined: undefined,
 	number: NaN,
 });
+
 const iterableTypes = () => secure({
 	array: rndArray(),
 	object: rndDict(),
 	map: new Map(),
 });
+
 const constructedTypes = () => secure({
 	date: new Date(),
 	map: new Map(),
 	object: new Constructor(),
 });
+
 const complexTypes = () => secure({
 	...constructedTypes(),
 	...iterableTypes(),
 	function: fn,
 });
+
 const allTypes = () => secure({
 	...emptyTypes(),
 	...simpleTypes(),
 	...complexTypes(),
 });
+
 const rnd = () => rndValue([
 	...values(allTypes()),
 	rndNested(),
