@@ -482,12 +482,13 @@ const range = (
 },
 (dummy, i) => (i * step) + start);
 
-const count = (collection) => libKeys(collection).length;
+const length = (collection) => libKeys(collection).length;
 
 const shares = (
 	left, right, props = ['id']
 ) =>
-	count(filter(props, (prop) => left[prop] === right[prop])) === props.length;
+	length(filter(props, (prop) => left[prop] === right[prop]))
+		=== props.length;
 
 const shuffle = (collection) => {
 	const ixs = libKeys(collection);
@@ -522,5 +523,5 @@ export {
 	shell, assign, clone, squash, combine, merge, overlay, compose, fill,
 	patch, diff, secure, equals, contains,
 	gather, pick, spread, toArray, toDict, adopt,
-	find, findKey, findIndex, range, hasSame, shares, shuffle, sort, count,
+	find, findKey, findIndex, range, hasSame, shares, shuffle, sort, length,
 };

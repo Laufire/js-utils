@@ -29,7 +29,7 @@ import {
 	flipMany, fromEntries, gather, has, hasSame, map, merge, overlay,
 	patch, pick, omit, range, reduce, result,
 	sanitize, secure, select, shell, shuffle, spread, sort, squash,
-	translate, traverse, walk, values, keys, count, toArray,
+	translate, traverse, walk, values, keys, length, toArray,
 } from './collection';
 
 const mockObj = (objKeys, value) =>
@@ -781,10 +781,11 @@ describe('Collection', () => {
 			test('select returns a sub-array of the given array,'
 			+ ' with the given selector collection', () => {
 				const keysInSource = rndKeys(array).map(Number);
-				const { length } = array;
+				const { length: childCount } = array;
 				const keysToSelect = secure(shuffle([
 					...keysInSource,
-					...tRange(rndBetween(length + 1, length * 2), length * 2),
+					...tRange(rndBetween(childCount + 1, childCount * 2),
+						childCount * 2),
 				]));
 				const selector = secure(arrayOrObject(keysToSelect));
 				const expectation = tReduce(
@@ -841,10 +842,11 @@ describe('Collection', () => {
 			test('omit returns a sub-array of the given array,'
 		+ ' without the given collection of properties', () => {
 				const keysInSource = rndKeys(array).map(Number);
-				const { length } = array;
+				const { length: childCount } = array;
 				const keysToBeOmited = secure(shuffle([
 					...keysInSource,
-					...tRange(rndBetween(length + 1, length * 2), length * 2),
+					...tRange(rndBetween(childCount + 1, childCount * 2),
+						childCount * 2),
 				]));
 				const selector = secure(arrayOrObject(keysToBeOmited));
 				const expectation = tReduce(
@@ -1090,14 +1092,14 @@ describe('Collection', () => {
 		const testRange = (
 			resultedRange, start, end, step
 		) => {
-			const length = getLength(
+			const childCount = getLength(
 				start, end, step
 			);
 
-			expect(resultedRange.length).toBe(length);
+			expect(resultedRange.length).toBe(childCount);
 			expect(resultedRange[0]).toBe(start);
-			expect(resultedRange[length - 1])
-				.toBe(start + ((length - 1) * step));
+			expect(resultedRange[childCount - 1])
+				.toBe(start + ((childCount - 1) * step));
 		};
 		const buildRange = (
 			starts, ends, steps
@@ -1268,8 +1270,8 @@ describe('Collection', () => {
 		});
 	});
 
-	test('count returns the length of given collection', () => {
+	test('length returns the length of given collection', () => {
 		tMap([array, object], (collection) =>
-			expect(count(collection)).toEqual(tValues(collection).length));
+			expect(length(collection)).toEqual(tValues(collection).length));
 	});
 });
