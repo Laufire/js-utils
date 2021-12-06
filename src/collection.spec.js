@@ -13,7 +13,7 @@ import { rndBetween, rndString, rndValue, rndValues }
 import { isDefined, inferType, isIterable,
 	isDict, isArray } from '@laufire/utils/reflection';
 import { ascending, descending, reverse } from '@laufire/utils/sorters';
-import { sum, product } from '@laufire/utils/reducers';
+import { product } from '@laufire/utils/reducers';
 import { select as tSelect, map as tMap, keys as tKeys,
 	values as tValues, secure as tSecure, entries as tEntries,
 	dict as tDict, filter as tFilter, reduce as tReduce,
@@ -21,6 +21,8 @@ import { select as tSelect, map as tMap, keys as tKeys,
 	range as tRange, pick as tPick }
 	from '@laufire/utils/collection';
 import { isEqual, not } from '@laufire/utils/predicates';
+import { sum } from './reducers';
+import { pretty } from '@laufire/utils/debug';
 
 /* Tested */
 import {
@@ -385,14 +387,36 @@ describe('Collection', () => {
 		});
 	});
 
-	test('walk recursively walks through a given object and'
-	+ ' builds a new object from its primitives and iterables', () => {
-		const classify = (value) => typeof value;
+	describe('walk recursively walks through a given object and'
+	+ ' returns the reduced value', () => {
+		const walker = (digest, value) => (!isDefined(digest)
+			? { type: 'file', size: value }
+			: { type: 'dir', size: tReduce(
+				digest, (acc, { size }) => acc + size, 0
+			), children: digest });
 
-		expect(walk(nestedObj, classify)).toEqual({
-			a: 'number',
-			b: 'number',
-			c: 'object',
+		test('example', () => {
+			const dirStructure = {
+				a: 1,
+				b: { c: 2 },
+			};
+
+			const report = {
+				type: 'dir', size: 3, children: {
+					a: { type: 'file', size: 1 },
+					b: { type: 'dir', size: 2, children: {
+						c: { type: 'file', size: 2 },
+					}},
+				},
+			};
+
+			expect(walk(dirStructure, walker)).toEqual(report);
+		});
+
+		test('randomized test', () => {
+			const obj = rndNested(
+				2, 2, ['nested']
+			);
 		});
 	});
 
