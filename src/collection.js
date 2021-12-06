@@ -269,6 +269,7 @@ const gather = (collection, props) => {
  * @param {*} collection The collection to collect the values from.
  * @param {any} props The props to collect from the children of the collection.
  */
+// TODO: Rewrite for performance.
 const pick = (collection, prop) =>
 	gather(collection, [prop])[prop];
 

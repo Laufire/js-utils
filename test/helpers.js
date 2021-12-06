@@ -1,6 +1,6 @@
 import {
-	clone, secure, map, reduce,
-	keys, filter, range, dict, fromEntries, values,
+	clone, secure, map, reduce, shuffle, values,
+	keys, filter, range, dict, fromEntries, shell,
 } from '@laufire/utils/collection';
 import { rndValue, rndBetween, rndString, rndValues }
 	from '@laufire/utils/random';
@@ -143,6 +143,23 @@ const rnd = () => rndValue([
 	rndNested(),
 ]);
 
+const similarCols = () => {
+	const child = rndValue([rndDict, rndArray]);
+	const rndCollections = map(rndCollection(), () => child());
+	const rndColl = rndValue(rndCollections);
+
+	const partialObject = reduce(
+		// eslint-disable-next-line no-return-assign
+		rndColl, (
+			acc, dummy, key
+		// eslint-disable-next-line no-sequences
+		) => (acc[key] = Symbol(key), acc), shell(rndColl)
+	);
+
+	return map(rndCollections, (value) =>
+		shuffle({ ...value, ...partialObject }));
+};
+
 export {
 	contracted, array, object, cloned,
 	extension, extended, isolated, ecKeys,
@@ -151,4 +168,5 @@ export {
 	rndNumber, fixNumber, toObject, rndKey, rndKeys,
 	sortArray, strSubSet, retry, isAcceptable, expectEquals,
 	allTypes, emptyTypes, rnd,
+	similarCols,
 };

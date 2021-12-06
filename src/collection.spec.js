@@ -7,7 +7,7 @@
 import { sortArray, rndKey, numberArray, array, object, expectEquals, extension,
 	rndDict, rndNested, extended, isolated, cloned, simpleTypes, ecKeys,
 	extCollection, collection as hCollection, toObject,
-	rndKeys, rndArray, rndRange, rnd } from '../test/helpers';
+	rndKeys, rndArray, rndRange, rnd, similarCols } from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
 import { isDefined, inferType, isIterable,
@@ -1014,36 +1014,70 @@ describe('Collection', () => {
 		expect(hasSame(nested, clone(nested))).toEqual(false);
 	});
 
-	test('gather gathers the given props from the children'
+	describe('gather gathers the given props from the children'
 	+ ' of the given iterable, as an iterable', () => {
-		const arrayOfObjects = secure([
-			{ a: 1, b: 2 },
-			{ a: 2, b: 1 },
-			// Objects do not hold references to undefined values.
-			{ c: 3 },
-		]);
-		const objectOfArrays = secure({
-			a: [1, 2],
-			b: [2, 1],
-			c: [undefined, undefined, 3],
-			// Arrays do hold references to undefined values, to preserve indices.
+		test('example', () => {
+			const arrayOfObjects = secure([
+				{ a: 1, b: 2 },
+				{ a: 2, b: 1 },
+				// NOTE: Objects do not hold references to undefined values.
+				{ c: 3 },
+			]);
+			const objectOfArrays = secure({
+				a: [1, 2],
+				b: [2, 1],
+				c: [undefined, undefined, 3],
+				// NOTE: Arrays do hold references to undefined values, to preserve indices.
+			});
+
+			expect(gather(arrayOfObjects, ['a', 'b', 'c']))
+				.toEqual(objectOfArrays);
+			expect(gather(objectOfArrays, { a: 0, b: 1, c: 2 }))
+				.toEqual(arrayOfObjects);
 		});
 
-		expect(gather(arrayOfObjects, ['a', 'b', 'c']))
-			.toEqual(objectOfArrays);
-		expect(gather(objectOfArrays, { a: 0, b: 1, c: 2 }))
-			.toEqual(arrayOfObjects);
+		test('randomized test', () => {
+			const collections = similarCols();
+			const rndChild = rndValue(collections);
+			const selector = rndKeys(rndChild);
+
+			const expectation = shell(rndChild);
+
+			tMap(selector, (selectorKey) => {
+				const expectedChild = shell(collections);
+
+				tMap(collections, (child, childKey) =>
+					isDefined(child[selectorKey])
+					&& (expectedChild[childKey] = child[selectorKey]));
+
+				expectation[selectorKey] = expectedChild;
+			});
+
+			expect(gather(collections, selector)).toEqual(expectation);
+		});
 	});
 
-	test('pick picks the given prop from the children,'
+	describe('pick picks the given prop from the children,'
 	+ ' of the given iterable as an iterable', () => {
-		const arrayOfObjects = secure([
-			{ a: 1 },
-			{ a: 2, b: 3 },
-			{ c: 4 },
-		]);
+		test('example', () => {
+			const arrayOfObjects = secure([
+				{ a: 1 },
+				{ a: 2, b: 3 },
+				{ c: 4 },
+			]);
 
-		expect(pick(arrayOfObjects, 'a')).toEqual([1, 2]);
+			expect(pick(arrayOfObjects, 'a')).toEqual([1, 2]);
+		});
+
+		test('randomized test', () => {
+			const collections = similarCols();
+			const prop = rndKey(rndValue(collections));
+
+			const expectation = tClean(tMap(collections,
+				(child) => child[prop]));
+
+			expect(pick(collections, prop)).toEqual(expectation);
+		});
 	});
 
 	test('spread spreads the children of given iterables'
