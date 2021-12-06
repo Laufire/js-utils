@@ -155,7 +155,7 @@ describe('Collection', () => {
 	// TODO: Remove the converters after using published functions.
 	const converters = {
 		array: Number,
-		object: (x) => x,
+		object: String,
 	};
 
 	/* Tests */
@@ -307,6 +307,8 @@ describe('Collection', () => {
 
 	describe('traverse recursively traverses through a given object and'
 	+ ' builds a new object from its primitives', () => {
+		const convey = (...args) => args;
+
 		test('example', () => {
 			expect(traverse(nestedObj, stitch)).toEqual({
 				a: 'a1',
@@ -317,12 +319,11 @@ describe('Collection', () => {
 					},
 				},
 			});
+			expect(traverse(1, convey)).toEqual([1]);
 		});
 
 		test('randomized test', () => {
 			const obj = rnd();
-			const convey = (...args) => args;
-
 			const testTraversed = (base, traversed) => (isIterable(base)
 				? tMap(base, (value, key) => (isIterable(value)
 					? testTraversed(value, traversed[key])

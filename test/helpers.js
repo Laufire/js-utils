@@ -18,7 +18,6 @@ const defaults = {
 	rndRangeLimits: [rangeMaxLimit, rangeMinLimit],
 };
 const minLength = 3;
-const maxLength = 5;
 const stringLength = 16;
 
 /* Functions */
@@ -113,15 +112,15 @@ const toObject = (iterator) => reduce(
 	iterator, (acc, value) =>
 		({ ...acc, [rndString()]: value }), {}
 );
-const rndArray = (minCount) => rndRange(minCount).map(() => rndString());
+const rndArray = (minCount = 1) => rndRange(minCount).map(() => rndString());
 const emptyTypes = () => secure({
 	null: null,
 	undefined: undefined,
 	number: NaN,
 });
 const iterableTypes = () => secure({
-	array: rndArray(rndNumber()),
-	object: rndDict(rndNumber()),
+	array: rndArray(),
+	object: rndDict(),
 	map: new Map(),
 });
 const constructedTypes = () => secure({
@@ -141,7 +140,7 @@ const allTypes = () => secure({
 });
 const rnd = () => rndValue([
 	...values(allTypes()),
-	rndNested(rndBetween(minLength, maxLength)),
+	rndNested(),
 ]);
 
 export {
