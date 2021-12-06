@@ -141,6 +141,20 @@ const reduce = (
 	return acc;
 };
 
+const nReduce = (
+	obj, reducer, initial
+) => reduce(
+	obj, (
+		acc, value, key, collection
+	) => (isIterable(value)
+		? nReduce(
+			value, reducer, acc
+		)
+		: reducer(
+			acc, value, key, collection
+		)), initial
+);
+
 const find = (collection, predicate) =>
 	collection[libKeys(collection).find((key) =>
 		predicate(
@@ -517,7 +531,7 @@ const sort = (collection, sorter = ascending) => (isArray(collection)
 
 export {
 	keys, values, entries, fromEntries,
-	each, map, filter, reduce,
+	each, map, filter, reduce, nReduce,
 	traverse, walk, has,
 	clean, sanitize, omit, select, result,
 	flip, flipMany, translate,

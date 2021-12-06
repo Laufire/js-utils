@@ -29,7 +29,7 @@ import {
 	flipMany, fromEntries, gather, has, hasSame, map, merge, overlay,
 	patch, pick, omit, range, reduce, result,
 	sanitize, secure, select, shell, shuffle, spread, sort, squash,
-	translate, traverse, walk, values, keys, length, toArray,
+	translate, traverse, walk, values, keys, length, toArray, nReduce,
 } from './collection';
 
 const mockObj = (objKeys, value) =>
@@ -158,6 +158,8 @@ describe('Collection', () => {
 		object: String,
 	};
 
+	const convey = (...args) => args;
+
 	/* Tests */
 	test('map transforms the given iterable using the given callback', () => {
 		const fn = map;
@@ -251,6 +253,44 @@ describe('Collection', () => {
 		});
 	});
 
+	describe('reduceN reduce the given nested collection.', () => {
+		test('example', () => {
+			expect(nReduce(
+				{ a: 2, b: { c: { d: 8 }}}, product, 1
+			)).toEqual(16);
+		});
+		test('randomized test', () => {
+			const obj = rndNested();
+			const initial = Symbol('initial');
+			const acc = [initial];
+			const reducer = jest.fn().mockImplementation((
+				dummy, dummyOne, key
+			) => {
+				const ret = Symbol(key);
+
+				acc.push(ret);
+				return ret;
+			});
+
+			const reduced = nReduce(
+				obj, reducer, initial
+			);
+
+			const testReduce = (branch) => tMap(branch, (value, key) =>
+				(isIterable(value)
+					? testReduce(value)
+					: expect(reducer).toHaveBeenCalledWith(
+						acc.shift(),
+						value,
+						converters[inferType(branch)](key),
+						branch
+					)));
+
+			testReduce(obj);
+			expect(reduced).toEqual(acc.shift());
+		});
+	});
+
 	test('shell returns an empty container of the same type'
 	+ ' as the given iterable', () => {
 		expect(shell(object)).toEqual({});
@@ -307,8 +347,6 @@ describe('Collection', () => {
 
 	describe('traverse recursively traverses through a given object and'
 	+ ' builds a new object from its primitives', () => {
-		const convey = (...args) => args;
-
 		test('example', () => {
 			expect(traverse(nestedObj, stitch)).toEqual({
 				a: 'a1',
