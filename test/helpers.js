@@ -48,9 +48,22 @@ const fixNumber = (value) => value.toFixed(defaults.numberPrecision);
 
 const expectEquals = (valOne, valtwo) => expect(valOne).toEqual(valtwo);
 
+const rndDict = (minCount = 1) =>
+	fromEntries(map(rndRange(minCount), (value) =>
+		[rndString(), Symbol(value)]));
+
+const rndArray = (minCount = 1) =>
+	rndRange(minCount).map(() => rndString());
+
+const rndCollection = (minCount = 1) =>
+	rndValue([rndRange, rndDict])(minCount);
+
 const valueGenerators = {
 	symbol: () => Symbol(rndString()),
 	undefined: () => undefined,
+	array: () => rndArray(),
+	object: () => rndDict(),
+	collection: () => rndCollection(),
 	nested: (
 		depth, length, generators
 		// eslint-disable-next-line no-use-before-define
@@ -59,9 +72,15 @@ const valueGenerators = {
 	),
 };
 
-const rndDict = (minCount = 1) =>
-	fromEntries(map(rndRange(minCount), (value) =>
-		[rndString(), Symbol(value)]));
+const iterators = [
+	'array',
+	'object',
+	'collection',
+];
+
+const getIterator = (generators) =>
+	rndValue(filter(generators, (generator) =>
+		iterators.includes(generator))) || 'collection';
 
 const fn = function () {};
 
@@ -99,13 +118,10 @@ const simpleTypes = () => secure({
 });
 
 /* Functions */
-const rndCollection = (minCount = 1) =>
-	rndValue([rndRange, rndDict])(minCount);
-
 const rndNested = (
-	depth = 1, length = minLength, generators = keys(valueGenerators)
+	depth = 1, length = minLength, generators = keys(valueGenerators),
 ) => (depth > 0
-	? map(rndCollection(length), () =>
+	? map(valueGenerators[getIterator(generators)](length), () =>
 		valueGenerators[rndValue(generators)](
 			depth, length, generators
 		))
@@ -115,9 +131,6 @@ const toObject = (iterator) => reduce(
 	iterator, (acc, value) =>
 		({ ...acc, [rndString()]: value }), {}
 );
-
-const rndArray = (minCount = 1) =>
-	rndRange(minCount).map(() => rndString());
 
 const emptyTypes = () => secure({
 	null: null,
