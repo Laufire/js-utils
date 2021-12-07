@@ -12,7 +12,7 @@ const entries = (collection) => (isArray(collection)
 	: objEntries(collection));
 
 // eslint-disable-next-line no-magic-numbers
-const rndBetween = (from = 0, to = 10) =>
+const rndBetween = (from, to) =>
 	floor(random() * (to - from)) + from;
 
 export {

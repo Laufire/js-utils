@@ -20,7 +20,16 @@ const stringSeeds = {
  * @param {Integer} [1] to - The end of the range.
  * @returns {integer} A random number between from and to.
  */
-const rndBetween = rb;
+const rndBetween = (
+	// eslint-disable-next-line no-magic-numbers
+	from = 0, to = 10, precision = 0
+) => {
+	// eslint-disable-next-line no-magic-numbers
+	const magnitude = Math.pow(10, precision);
+	const result = rb(from * magnitude, to * magnitude) / magnitude;
+
+	return Number(result.toFixed(precision));
+};
 
 /*
 	NOTE: To by-pass seed matching of predefined names, use them twice.
