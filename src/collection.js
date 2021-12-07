@@ -188,11 +188,27 @@ const traverse = (obj, cb) => (isIterable(obj)
 * Recursively passes all the props of the given collections
 * to the given callback.
 */
-const walk = (obj, cb) => map(obj, (value, key) =>
-	// eslint-disable-next-line no-sequences
-	(isIterable(value) && walk(value, cb), cb(
-		value, key, obj
-	)));
+
+const walk = (() => {
+	const walkWorker = (
+		walker, child, parentKey, parent
+	) => (isIterable(child)
+		? walker(
+			map(child, (value, key) =>
+				walkWorker(
+					walker, value, key, child
+				)), child, parentKey, parent
+		)
+		: walker(
+			undefined, child, parentKey, parent
+		));
+
+	return (obj, walker) => walker(isIterable(obj)
+		? map(obj, (value, key) => walkWorker(
+			walker, value, key, obj
+		))
+		: undefined, obj);
+})();
 
 const clone = (() => {
 	const cloneObj = (obj) => map(obj, clone);

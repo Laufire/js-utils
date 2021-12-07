@@ -18,7 +18,7 @@ import { select as tSelect, map as tMap, keys as tKeys,
 	values as tValues, secure as tSecure, entries as tEntries,
 	dict as tDict, filter as tFilter, reduce as tReduce,
 	clean as tClean, fromEntries as tFromEntries,
-	range as tRange, pick as tPick }
+	range as tRange, pick as tPick, clone as tClone }
 	from '@laufire/utils/collection';
 import { isEqual, not } from '@laufire/utils/predicates';
 
@@ -385,14 +385,57 @@ describe('Collection', () => {
 		});
 	});
 
-	test('walk recursively walks through a given object and'
-	+ ' builds a new object from its primitives and iterables', () => {
-		const classify = (value) => typeof value;
+	describe('walk recursively walks through a given object and'
+	+ ' returns the reduced value', () => {
+		test('example', () => {
+			const dirStructure = {
+				a: 1,
+				b: { c: 2 },
+			};
+			const report = {
+				type: 'dir', size: 3, children: {
+					a: { type: 'file', size: 1 },
+					b: { type: 'dir', size: 2, children: {
+						c: { type: 'file', size: 2 },
+					}},
+				},
+			};
+			const walker = (digest, value) => (!isDefined(digest)
+				? { type: 'file', size: value }
+				: { type: 'dir', size: tReduce(
+					digest, (acc, { size }) => acc + size, 0
+				), children: digest });
 
-		expect(walk(nestedObj, classify)).toEqual({
-			a: 'number',
-			b: 'number',
-			c: 'object',
+			expect(walk(dirStructure, walker)).toEqual(report);
+		});
+
+		test('randomized test', () => {
+			const nestedArr = range(1, 4).map(() => rnd());
+
+			tMap(nestedArr, (nested) => {
+				const walker = jest.fn().mockImplementation(convey);
+
+				walk(nested, walker);
+
+				const results = tClone(tPick(walker.mock.results, 'value'));
+				const testWalk = (base, ...rest) => {
+					const walked = isIterable(base)
+						? tMap(base, (value, key) => {
+							isIterable(value) && testWalk(
+								value, converters[inferType(base)](key), base
+							);
+							return results.shift();
+						})
+						: undefined;
+
+					expect(walker)
+						.toHaveBeenCalledWith(
+							walked, base, ...rest
+						);
+				};
+
+				testWalk(nested);
+			});
 		});
 	});
 
