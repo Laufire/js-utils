@@ -186,24 +186,23 @@ const traverse = (obj, cb) => (isIterable(obj)
 
 const walk = (() => {
 	const walkWorker = (
-		child, walker, parentKey, parent
+		walker, child, parentKey, parent
 	) => (isIterable(child)
 		? walker(
 			map(child, (value, key) =>
 				walkWorker(
-					value, walker, key, child
+					walker, value, key, child
 				)), child, parentKey, parent
 		)
 		: walker(
 			undefined, child, parentKey, parent
 		));
 
-	return (obj, walker) => (isIterable(obj)
-		? walker(map(obj, (value, key) =>
-			walkWorker(
-				value, walker, key, obj
-			)), obj)
-		: walker(undefined, obj));
+	return (obj, walker) => walker(isIterable(obj)
+		? map(obj, (value, key) => walkWorker(
+			walker, value, key, obj
+		))
+		: undefined, obj);
 })();
 
 const clone = (() => {
