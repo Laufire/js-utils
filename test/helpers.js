@@ -185,6 +185,11 @@ const similarCols = () => {
 		shuffle({ ...value, ...partialObject }));
 };
 
+const converters = {
+	array: Number,
+	object: String,
+};
+
 export {
 	contracted, array, object, cloned,
 	extension, extended, isolated, ecKeys,
@@ -193,5 +198,5 @@ export {
 	rndNumber, fixNumber, toObject, rndKey, rndKeys,
 	sortArray, strSubSet, retry, isAcceptable, expectEquals,
 	allTypes, emptyTypes, rnd,
-	similarCols,
+	similarCols, converters,
 };
