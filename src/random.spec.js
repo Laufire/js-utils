@@ -10,9 +10,10 @@ import {
 
 /* Helpers */
 import { retry, strSubSet } from '../test/helpers';
+import { range, reduce, sort } from './collection';
 
 /* Tests */
-describe('rndBetween', () => {
+describe('rndBetween helps in generating random numbers', () => {
 	const isBetween = (
 		value, from, to
 	) => {
@@ -20,22 +21,113 @@ describe('rndBetween', () => {
 		expect(value < to).toBe(true);
 	};
 
-	test('rndBetween returns a random integer between two integers', () => {
-		const from = -10;
-		const to = 10;
+	const getPrecision = (number) => String(number).split('.')[1]?.length || 0;
 
-		retry(() => isBetween(
-			rndBetween(from, to), from, to
-		));
+	const hasPrecision = (number, precision) =>
+		expect(getPrecision(number))
+			.toBeLessThanOrEqual(precision);
+
+	const digest = (numbers) => reduce(
+		// eslint-disable-next-line no-return-assign
+		numbers, (acc, value) =>
+		// eslint-disable-next-line no-sequences
+			(acc[value] = (acc[value] || 0) + 1, acc), {}
+	);
+
+	// TODO: Use library function post publishing.
+	const isAcceptable = (
+		actual, expected, errorMargin
+	) => {
+		const lowerMargin = expected * (1 - errorMargin);
+		const upperMargin = expected * (1 + errorMargin);
+
+		isBetween(
+			actual, lowerMargin, upperMargin
+		);
+	};
+
+	describe('examples', () => {
+		test('rndBetween returns a random number between two numbers',
+			() => {
+				const from = -10;
+				const to = 10;
+
+				retry(() => isBetween(
+					rndBetween(from, to), from, to
+				));
+			});
+
+		test('rndBetween returns a rndNumber for the given precision',
+			() => {
+				const from = 1;
+				const to = 10;
+				const precision = 2;
+
+				retry(() => hasPrecision(rndBetween(
+					from, to, precision
+				), precision));
+			});
+
+		test('rndBetween defaults to 0 for from, 10 for to and 0 for precision',
+			() => {
+				const from = 0;
+				const to = 10;
+				const precision = 0;
+
+				retry(() => {
+					const result = rndBetween();
+
+					isBetween(
+						result, from, to
+					);
+					hasPrecision(result, precision);
+				});
+			});
 	});
 
-	test('rndBetween defaults to 0 and 10 from and to values', () => {
-		const from = 0;
-		const to = 10;
+	describe('randomized tests', () => {
+		const retryCount = 100000;
 
-		retry(() => isBetween(
-			rndBetween(), from, to
-		));
+		test('testing values', () => {
+			const from = -10;
+			const to = 10;
+			const possibleValues = range(-10, 10);
+			const errorMargin = 0.1;
+			const expected = 1;
+
+			const results = retry(() => rndBetween(from, to), retryCount);
+
+			const avg = retryCount / possibleValues.length;
+			const digested = digest(results);
+
+			map(digested, (count) => isAcceptable(
+				count / avg, expected, errorMargin
+			));
+
+			const resultingValues = map(keys(digested), Number);
+
+			expect(sort(resultingValues)).toEqual(possibleValues);
+		});
+
+		test('testing precision', () => {
+			const from = 1;
+			const to = 10;
+			const precision = 2;
+			const errorMargin = 0.05;
+			const expected = 0.9;
+
+			const result = retry(() => rndBetween(
+				from, to, precision
+			), retryCount);
+
+			const precisions = map(result, getPrecision);
+			const digested = digest(precisions);
+			const actual = digested[precision] / retryCount;
+
+			isAcceptable(
+				actual, expected, errorMargin
+			);
+		});
 	});
 });
 
