@@ -1,6 +1,6 @@
 import {
-	clone, secure, map, reduce, shuffle, values,
-	keys, filter, range, dict, fromEntries, shell,
+	clone, secure, map, reduce, shuffle,
+	keys, filter, range, dict, fromEntries, shell, has,
 } from '@laufire/utils/collection';
 import { rndValue, rndBetween, rndString, rndValues }
 	from '@laufire/utils/random';
@@ -17,7 +17,6 @@ const defaults = {
 	retryCount: 1000,
 	rndRangeLimits: [rangeMaxLimit, rangeMinLimit],
 };
-const minLength = 3;
 const stringLength = 16;
 
 /* Functions */
@@ -48,9 +47,71 @@ const fixNumber = (value) => value.toFixed(defaults.numberPrecision);
 
 const expectEquals = (valOne, valtwo) => expect(valOne).toEqual(valtwo);
 
-const valueGenerators = {
+const rndDict = (minCount = 1) =>
+	fromEntries(map(rndRange(minCount), (value) =>
+		[rndString(), Symbol(value)]));
+
+const rndArray = (minCount = 1) =>
+	rndRange(minCount).map(() => rndString());
+
+const rndCollection = (minCount = 1) =>
+	rndValue([rndRange, rndDict])(minCount);
+
+const fn = function () {};
+
+const Constructor = fn;
+
+const iterableTypes = () => secure({
+	array: rndArray(),
+	object: rndDict(),
+	map: new Map(),
+});
+
+const constructedTypes = () => secure({
+	date: new Date(),
+	map: new Map(),
+	object: new Constructor(),
+});
+
+const emptyTypes = () => secure({
+	null: null,
+	undefined: undefined,
+	number: NaN,
+});
+
+const simpleTypes = () => secure({
+	number: rndNumber(),
+	string: rndString(stringLength),
+	boolean: rndValue([true, false]),
+});
+
+const complexTypes = () => secure({
+	...constructedTypes(),
+	...iterableTypes(),
+	function: fn,
+});
+
+const allTypes = () => secure({
+	...emptyTypes(),
+	...simpleTypes(),
+	...complexTypes(),
+});
+
+const itrGenerators = {
+	array: () => rndArray(),
+	object: () => rndDict(),
+	collection: () => rndCollection(),
+};
+
+const nonItrGenerators = {
+	any: () => rndValue(allTypes()),
 	symbol: () => Symbol(rndString()),
 	undefined: () => undefined,
+};
+
+const valueGenerators = {
+	...itrGenerators,
+	...nonItrGenerators,
 	nested: (
 		depth, length, generators
 		// eslint-disable-next-line no-use-before-define
@@ -59,13 +120,9 @@ const valueGenerators = {
 	),
 };
 
-const rndDict = (minCount = 1) =>
-	fromEntries(map(rndRange(minCount), (value) =>
-		[rndString(), Symbol(value)]));
-
-const fn = function () {};
-
-const Constructor = fn;
+const getIterator = (generators) =>
+	rndValue(filter(generators, (generator) =>
+		has(keys(itrGenerators), generator))) || 'collection';
 
 /* Exports */
 /* Data */
@@ -92,67 +149,24 @@ const extCollection = {
 	...collection,
 	[ecKeys.extended]: extended,
 };
-const simpleTypes = () => secure({
-	number: rndNumber(),
-	string: rndString(stringLength),
-	boolean: rndValue([true, false]),
-});
 
 /* Functions */
-const rndCollection = (minCount = 1) =>
-	rndValue([rndRange, rndDict])(minCount);
-
 const rndNested = (
-	depth = 1, length = minLength, generators = keys(valueGenerators)
+	// eslint-disable-next-line no-magic-numbers
+	depth = 3, length = 3, generators = keys(valueGenerators),
 ) => (depth > 0
-	? map(rndCollection(length), () =>
+	? map(valueGenerators[getIterator(generators)](length), () =>
 		valueGenerators[rndValue(generators)](
 			depth, length, generators
 		))
-	: rndCollection());
+	: rndValue({ ...itrGenerators, ...nonItrGenerators })());
 
 const toObject = (iterator) => reduce(
 	iterator, (acc, value) =>
 		({ ...acc, [rndString()]: value }), {}
 );
 
-const rndArray = (minCount = 1) =>
-	rndRange(minCount).map(() => rndString());
-
-const emptyTypes = () => secure({
-	null: null,
-	undefined: undefined,
-	number: NaN,
-});
-
-const iterableTypes = () => secure({
-	array: rndArray(),
-	object: rndDict(),
-	map: new Map(),
-});
-
-const constructedTypes = () => secure({
-	date: new Date(),
-	map: new Map(),
-	object: new Constructor(),
-});
-
-const complexTypes = () => secure({
-	...constructedTypes(),
-	...iterableTypes(),
-	function: fn,
-});
-
-const allTypes = () => secure({
-	...emptyTypes(),
-	...simpleTypes(),
-	...complexTypes(),
-});
-
-const rnd = () => rndValue([
-	...values(allTypes()),
-	rndNested(),
-]);
+const rnd = () => rndNested(0);
 
 const similarCols = () => {
 	const child = rndValue([rndDict, rndArray]);
