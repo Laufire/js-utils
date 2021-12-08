@@ -24,55 +24,6 @@ const { abs, ceil, sign } = Math;
 
 const wrapAsArray = (value) => (isArray(value) ? value : [value]);
 
-const combineObjects = (base, extension) =>
-	(isArray(base) && isArray(extension)
-		// eslint-disable-next-line no-sequences
-		? (base.push(...extension), base)
-		: (libKeys(extension).forEach((key) => {
-			const child = base[key];
-			const childExtension = extension[key];
-
-			base[key] = isIterable(childExtension)
-				? isIterable(child)
-					? combineObjects(child, childExtension)
-					// eslint-disable-next-line no-use-before-define
-					: clone(childExtension)
-				: childExtension;
-		}), base)
-	);
-
-const mergeObjects = (base, extension) => 	{
-	libKeys(extension).forEach((key) => {
-		const child = base[key];
-		const childExtension = extension[key];
-
-		base[key] = isIterable(childExtension)
-			? isIterable(child)
-				? mergeObjects(child, childExtension)
-				// eslint-disable-next-line no-use-before-define
-				: clone(childExtension)
-			: childExtension;
-	});
-
-	return base;
-};
-
-const overlayObjects = (base, extension) => 	{
-	libKeys(extension).forEach((key) => {
-		const child = base[key];
-		const childExtension = extension[key];
-
-		base[key] = isDict(childExtension)
-			? isDict(child)
-				? overlayObjects(child, childExtension)
-				// eslint-disable-next-line no-use-before-define
-				: clone(childExtension)
-			: childExtension;
-	});
-
-	return base;
-};
-
 // eslint-disable-next-line id-length
 const { freeze, preventExtensions,
 	// eslint-disable-next-line id-match
@@ -323,9 +274,29 @@ const spread = (base, seeds) =>
  * the extensions would be combined to.
  * @param {...collection} extensions The extensions to be combined.
  */
-const combine = (base, ...extensions) =>
-	extensions.forEach((extension) =>
-		extension !== undefined && combineObjects(base, extension)) || base;
+const combine = (() => {
+	const worker = (base, extension) =>
+		(isArray(base) && isArray(extension)
+		// eslint-disable-next-line no-sequences
+			? (base.push(...extension), base)
+			: (libKeys(extension).forEach((key) => {
+				const child = base[key];
+				const childExtension = extension[key];
+
+				base[key] = isIterable(childExtension)
+					? isIterable(child)
+						? worker(child, childExtension)
+					// eslint-disable-next-line no-use-before-define
+					// TODO: Check whether the clone is necessary.
+						: clone(childExtension)
+					: childExtension;
+			}), base)
+		);
+
+	return (base, ...extensions) =>
+		extensions.forEach((extension) =>
+			extension !== undefined && worker(base, extension)) || base;
+})();
 
 /**
  * Merges multiple objects and their descendants with to the given base object.
@@ -334,9 +305,28 @@ const combine = (base, ...extensions) =>
  * the extensions would be merged to.
  * @param {...collection} extensions The extensions to be merged.
  */
-const merge = (base, ...extensions) =>
-	extensions.forEach((extension) =>
-		extension !== undefined && mergeObjects(base, extension)) || base;
+const merge = (() => {
+	const worker = (base, extension) => {
+		libKeys(extension).forEach((key) => {
+			const child = base[key];
+			const childExtension = extension[key];
+
+			base[key] = isIterable(childExtension)
+				? isIterable(child)
+					? worker(child, childExtension)
+					// eslint-disable-next-line no-use-before-define
+					// TODO: Check whether the clone is necessary.
+					: clone(childExtension)
+				: childExtension;
+		});
+
+		return base;
+	};
+
+	return (base, ...extensions) =>
+		extensions.forEach((extension) =>
+			extension !== undefined && worker(base, extension)) || base;
+})();
 
 /**
  * Overlays multiple objects and their descendants with the given base object.
@@ -345,9 +335,28 @@ const merge = (base, ...extensions) =>
  * the extensions would be overlaid to.
  * @param {...collection} extensions The extensions to be overlaid.
  */
-const overlay = (base, ...extensions) =>
-	extensions.forEach((extension) =>
-		extension !== undefined && overlayObjects(base, extension)) || base;
+const overlay = (() => {
+	const worker = (base, extension) => {
+		libKeys(extension).forEach((key) => {
+			const child = base[key];
+			const childExtension = extension[key];
+
+			base[key] = isDict(childExtension)
+				? isDict(child)
+					? worker(child, childExtension)
+					// eslint-disable-next-line no-use-before-define
+				// TODO: Check whether the clone is necessary.
+					: clone(childExtension)
+				: childExtension;
+		});
+
+		return base;
+	};
+
+	return (base, ...extensions) =>
+		extensions.forEach((extension) =>
+			extension !== undefined && worker(base, extension)) || base;
+})();
 
 // TODO: Maintain the key order, similar to merge.
 /**
