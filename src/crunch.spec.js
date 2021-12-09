@@ -1,9 +1,10 @@
 /* Helpers */
-import { dict, secure, values } from '@laufire/utils/collection';
+import { dict, secure, values, keys, reduce, map }
+	from '@laufire/utils/collection';
 import { rndString } from '@laufire/utils/random';
-import { rndNumber } from '../test/helpers';
+import { rndNested, rndNumber } from '../test/helpers';
 /* Tested */
-import { descend, index, summarize } from './crunch';
+import { descend, index, summarize, transpose } from './crunch';
 
 const sum = (...numbers) => numbers.reduce((t, c) => t + c, 0);
 
@@ -95,6 +96,94 @@ describe('Crunch', () => {
 			);
 
 			expect(result).toEqual(expectations[i]);
+		});
+	});
+
+	describe('transpose swaps the first two levels'
+	+ ' of the given collection', () => {
+		describe('examples', () => {
+			test('transpose can transpose objects', () => {
+				const input = {
+					India: {
+						population: 1380,
+						status: 'developing',
+					},
+					UnitedStates: {
+						population: 330,
+						status: 'developed',
+					},
+					UnitedKingdom: {
+						population: 70,
+						status: 'developed',
+						regent: 'Elizabeth',
+					},
+				};
+				const transposed = {
+					population: {
+						India: 1380,
+						UnitedStates: 330,
+						UnitedKingdom: 70,
+					},
+					status: {
+						India: 'developing',
+						UnitedStates: 'developed',
+						UnitedKingdom: 'developed',
+					},
+					regent: {
+						UnitedKingdom: 'Elizabeth',
+					},
+				};
+
+				expect(transpose(input)).toEqual(transposed);
+				expect(transpose(transposed)).toEqual(input);
+			});
+
+			test('transpose can transpose arrays', () => {
+				const input = [
+					['a', 1],
+					['b', 2],
+					['c', 3],
+				];
+				const transposed = [
+					['a', 'b', 'c'],
+					[1, 2, 3],
+				];
+
+				expect(transpose(input)).toEqual(transposed);
+				expect(transpose(transposed)).toEqual(input);
+			});
+		});
+
+		describe('randomized test', () => {
+			test('transpose can transpose objects & arrays', () => {
+				const input = rndNested(
+					3, 3, ['nested']
+				);
+
+				const testTransposed = (base, result) => {
+					const levelOneKeys = keys(base);
+					const levelTwoKeys = reduce(
+						base, (acc, child) =>
+							[
+								...acc,
+								// TODO: Use collections.filter after publishing.
+								...keys(child).filter((childKey) =>
+									!acc.includes(childKey)),
+							],
+						[]
+					);
+
+					map(levelOneKeys, (levelOneKey) =>
+						map(levelTwoKeys, (levelTwoKey) =>
+							expect(base[levelOneKey][levelTwoKey])
+								.toEqual(result[levelTwoKey][levelOneKey])));
+				};
+
+				const transposed = transpose(input);
+
+				testTransposed(input, transposed);
+				testTransposed(transposed, input);
+			});
 		});
 	});
 });

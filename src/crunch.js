@@ -1,5 +1,7 @@
 /* Helpers */
-import { combine, map, merge, values } from './collection';
+import { combine, filter, gather, map, merge, values,
+	keys } from './collection';
+import { unique } from './predicates';
 
 /* Exports */
 const index = (collection, indexes) => {
@@ -29,8 +31,12 @@ const descend = (
 	))
 	: map(collection, process));
 
+const transpose = (collection) => gather(collection,
+	filter(values(map(collection, keys)).flat(), unique));
+
 export {
 	index,
 	summarize,
 	descend,
+	transpose,
 };
