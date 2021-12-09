@@ -28,7 +28,7 @@ import {
 	each, entries, equals, find, findKey, fill, filter, flip,
 	flipMany, fromEntries, gather, has, hasSame, map, merge, overlay,
 	patch, pick, omit, range, reduce, result,
-	sanitize, secure, select, shell, shuffle, spread, sort, squash,
+	sanitize, secure, select, shell, shuffle, sort, squash,
 	translate, traverse, walk, values, keys, length, toArray, nReduce,
 } from './collection';
 
@@ -1159,23 +1159,6 @@ describe('Collection', () => {
 
 			expect(pick(collections, prop)).toEqual(expectation);
 		});
-	});
-
-	test('spread spreads the children of given iterables'
-	+ ' into the base iterable', () => {
-		const base = { a: {}, b: {}};
-		const seeds = secure({
-			propOne: { a: 1, b: 2 },
-			propTwo: { a: 3, b: 4 },
-		});
-
-		const seeded = spread(base, seeds);
-
-		expect(seeded).toEqual({
-			a: { propOne: 1, propTwo: 3 },
-			b: { propOne: 2, propTwo: 4 },
-		});
-		expect(seeded).toEqual(base);
 	});
 
 	test('toArray is an alias for values', () => {

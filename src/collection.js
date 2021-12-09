@@ -264,19 +264,6 @@ const gather = (collection, props) => {
 const pick = (collection, prop) =>
 	gather(collection, [prop])[prop];
 
-// TODO: Fix the description.
-/**
- * Spreads the children of given seeds collection into
- * the given base collection.
- * @param {collection} base The collection to collect the values from.
- * @param {collection} seeds The seeds collection from where
- * the props are spread.
- */
-const spread = (base, seeds) =>
-	map(seeds, (propValues, targetProp) =>
-		map(propValues, (value, targetKey) =>
-			(base[targetKey][targetProp] = value))) && base;
-
 /**
  * Combines multiple objects and their descendants with the given base object.
  * When immutability is required, a shell could be passed as the base object.
@@ -572,6 +559,6 @@ export {
 	flip, flipMany, translate,
 	shell, assign, clone, squash, combine, merge, overlay, compose, fill,
 	patch, diff, secure, equals, contains,
-	gather, pick, spread, toArray, toDict, adopt,
+	gather, pick, toArray, toDict, adopt,
 	find, findKey, findIndex, range, hasSame, shares, shuffle, sort, length,
 };
