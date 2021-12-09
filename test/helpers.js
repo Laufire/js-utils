@@ -65,7 +65,6 @@ const Constructor = fn;
 const iterableTypes = () => secure({
 	array: rndArray(),
 	object: rndDict(),
-	map: new Map(),
 });
 
 const constructedTypes = () => secure({
@@ -194,5 +193,5 @@ export {
 	rndNumber, fixNumber, toObject, rndKey, rndKeys,
 	sortArray, strSubSet, retry, isAcceptable, expectEquals,
 	allTypes, emptyTypes, rnd,
-	similarCols,
+	similarCols, iterableTypes,
 };

@@ -191,6 +191,9 @@ const clone = (() => {
  */
 const has = (collection, value) => values(collection).indexOf(value) > -1;
 
+const hasKey = (collection, key) =>
+	isIterable(collection) && collection.hasOwnProperty(key);
+
 // NOTE: Clean does not clean recursively to allow for shallow cleaning.
 const clean = (collection) => {
 	if(isArray(collection))
@@ -554,7 +557,7 @@ const sort = (collection, sorter = ascending) => (isArray(collection)
 export {
 	keys, values, entries, fromEntries,
 	each, map, filter, reduce, nReduce,
-	traverse, walk, has,
+	traverse, walk, has, hasKey,
 	clean, sanitize, omit, select, result,
 	flip, flipMany, translate,
 	shell, assign, clone, squash, combine, merge, overlay, compose, fill,

@@ -7,7 +7,8 @@
 import { sortArray, rndKey, numberArray, array, object, expectEquals, extension,
 	rndDict, rndNested, extended, isolated, cloned, simpleTypes, ecKeys,
 	extCollection, collection as hCollection, toObject,
-	rndKeys, rndArray, rndRange, rnd, similarCols } from '../test/helpers';
+	rndKeys, rndArray, rndRange, rnd, similarCols,
+	iterableTypes, allTypes } from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
 import { isDefined, inferType, isIterable,
@@ -28,7 +29,7 @@ import {
 	each, entries, equals, find, findKey, fill, filter, flip,
 	flipMany, fromEntries, gather, has, hasSame, map, merge, overlay,
 	patch, pick, omit, range, reduce, result,
-	sanitize, secure, select, shell, shuffle, sort, squash,
+	sanitize, secure, select, shell, shuffle, sort, squash, hasKey,
 	translate, traverse, walk, values, keys, length, toArray, nReduce,
 } from './collection';
 
@@ -384,6 +385,22 @@ describe('Collection', () => {
 			expect(has(iterable, rndString())).toEqual(false);
 		});
 	});
+
+	test('hasKey tells whether the given iterable has the given key',
+		() => {
+			const iterables = iterableTypes();
+
+			const types = {
+				...allTypes(),
+				...iterables,
+			};
+
+			tMap(types, (type) => {
+				has(iterables, type)
+					&& expect(hasKey(type, rndKey(type))).toEqual(true);
+				expect(hasKey(type, rndString())).toEqual(false);
+			});
+		});
 
 	describe('walk recursively walks through a given object and'
 	+ ' returns the reduced value', () => {
