@@ -4,6 +4,7 @@ import {
 } from '@laufire/utils/collection';
 import { rndValue, rndBetween, rndString, rndValues }
 	from '@laufire/utils/random';
+import TestConfig from './config';
 
 /* Config */
 const rangeMaxLimit = 5;
@@ -22,7 +23,7 @@ const stringLength = 16;
 /* Functions */
 const sortArray = (arr) => arr.slice().sort();
 
-const retry = (fn, retryCount = defaults.retryCount) =>
+const retry = (fn, retryCount = TestConfig.retryCount) =>
 	map(range(0, retryCount), (value) => fn(value));
 
 const strSubSet = (superStr, tested) =>
