@@ -507,22 +507,27 @@ describe('Collection', () => {
 			expect(merged.complexArray[0].innerArray[0]).toEqual(0);
 		});
 
-		// TODO: Use getNested from testHelpers and randomized.
-		test('nested test', () => {
+		test('randomized test', () => {
 			const testMerge = (merged, ...collections) => {
 				tMap(merged, (value, key) => {
-					const children = tClean(tPick(collections, key));
-					const [firstChild] = children;
+				// TODO: Use library filter.
+					const getChildren = () =>
+						tMap(collections.filter((collection) =>
+							isIterable(collection)
+								&& collection.hasOwnProperty(key)), (child) =>
+							child[key]);
 
 					isIterable(value)
-						? testMerge(value, ...children)
-						: expectEquals(value, firstChild);
+						? testMerge(value, ...getChildren())
+						: expectEquals(value, getChildren()[0]);
 				});
 			};
 
-			const merged = merge({}, ...mcoCollections);
+			const mCollections = tValues(rndNested(3, 3));
 
-			testMerge(merged, ...reverseArray(mcoCollections));
+			const merged = merge({}, ...mCollections);
+
+			testMerge(merged, ...reverseArray(mCollections));
 		});
 	});
 
