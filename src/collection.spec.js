@@ -568,21 +568,27 @@ describe('Collection', () => {
 		});
 
 		// TODO: Use getNested from testHelpers and randomized.
-		test('nested test', () => {
+		test('randomized test', () => {
 			const testOverlay = (overlaid, ...collections) => {
 				tMap(overlaid, (value, key) => {
-					const children = tClean(tPick(collections, key));
-					const [firstChild] = children;
+					// TODO: Use library filter.
+					const getChildren = () =>
+						tMap(collections.filter((collection) =>
+							isIterable(collection)
+								&& collection.hasOwnProperty(key)), (child) =>
+							child[key]);
 
 					isDict(value)
-						? testOverlay(value, ...children)
-						: expectEquals(value, firstChild);
+						? testOverlay(value, ...getChildren())
+						: expectEquals(value, getChildren()[0]);
 				});
 			};
 
-			const overlaid = overlay({}, ...mcoCollections);
+			const oCollections = tValues(rndNested(3, 3));
 
-			testOverlay(overlaid, ...reverseArray(mcoCollections));
+			const overlaid = overlay({}, ...oCollections);
+
+			testOverlay(overlaid, ...reverseArray(oCollections));
 		});
 	});
 

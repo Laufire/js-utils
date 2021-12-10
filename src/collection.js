@@ -355,7 +355,7 @@ const overlay = (() => {
 
 	return (base, ...extensions) =>
 		extensions.forEach((extension) =>
-			extension !== undefined && worker(base, extension)) || base;
+			isIterable(extension) && worker(base, extension)) || base;
 })();
 
 // TODO: Maintain the key order, similar to merge.
