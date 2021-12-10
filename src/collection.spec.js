@@ -901,7 +901,7 @@ describe('Collection', () => {
 					.toEqual(expectation));
 		});
 
-		test('randmized test', () => {
+		test('randomized test', () => {
 			const source = rndDict();
 			const keysArr = rndValues(tKeys(source));
 			const selector = tReduce(
@@ -1028,11 +1028,11 @@ describe('Collection', () => {
 			test('omit returns a sub-object of the given object,'
 		+ ' without the properties in the given selector collection', () => {
 				const keysInSource = rndKeys(object);
-				const keysToBeOmited = secure(shuffle([
+				const keysToBeOmitted = secure(shuffle([
 					...keysInSource,
 					...rndArray(5),
 				]));
-				const selector = shuffle(arrayOrObject(keysToBeOmited));
+				const selector = shuffle(arrayOrObject(keysToBeOmitted));
 				const expectation = tReduce(
 					object, (
 						acc, value, key
