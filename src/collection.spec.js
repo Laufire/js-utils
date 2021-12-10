@@ -31,6 +31,7 @@ import {
 	patch, pick, omit, range, reduce, result,
 	sanitize, secure, select, shell, shuffle, sort, squash, hasKey,
 	translate, traverse, walk, values, keys, length, toArray, nReduce,
+	findIndex,
 } from './collection';
 
 const mockObj = (objKeys, value) =>
@@ -1364,8 +1365,8 @@ describe('Collection', () => {
 		});
 	});
 
-	test('findIndex is an alias for findIndex', () => {
-		expect(findKey).toBe(findKey);
+	test('findIndex is an alias for findKey', () => {
+		expect(findIndex).toBe(findKey);
 	});
 
 	describe('range helps building number-series arrays', () => {
