@@ -900,12 +900,20 @@ describe('Collection', () => {
 		});
 	});
 
-	test('entries', () => {
-		tMap([array, object], (iterable) => {
-			const expectation = tValues(tMap(iterable, (value, key) =>
-				[converters[inferType(iterable)](key), value]));
+	describe('entries builds an array of key value pairs'
+	+ ' from given collection', () => {
+		test('example', () => {
+			expect(entries(simpleArray)).toEqual([[0, 1], [1, 2]]);
+			expect(entries(simpleObj)).toEqual([['a', 1], ['b', 2]]);
+		});
 
-			expect(entries(iterable)).toEqual(expectation);
+		test('randomized test', () => {
+			tMap([array, object], (iterable) => {
+				const expectation = tValues(tMap(iterable, (value, key) =>
+					[converters[inferType(iterable)](key), value]));
+
+				expect(entries(iterable)).toEqual(expectation);
+			});
 		});
 	});
 
@@ -1295,9 +1303,16 @@ describe('Collection', () => {
 		expect(toArray).toEqual(values);
 	});
 
-	test('toDict converts the given collection into a dictionary', () => {
-		expect(toDict(array)).toEqual(object);
-		expect(toDict(object)).toEqual(object);
+	describe('toDict converts the given collection into a dictionary', () => {
+		test('example', () => {
+			expect(toDict(simpleArray)).toEqual({ 0: 1, 1: 2 });
+			expect(toDict(simpleObj)).toEqual(simpleObj);
+		});
+
+		test('randomized test', () => {
+			expect(toDict(array)).toEqual(object);
+			expect(toDict(object)).toEqual(object);
+		});
 	});
 
 	describe('adopt copies values from extensions into the base', () => {
@@ -1492,27 +1507,41 @@ describe('Collection', () => {
 		});
 	});
 
-	describe('keys', () => {
-		const expectations = [
-			['array', 'numbers', array],
-			['object', 'strings', object],
-		];
+	describe('keys returns the keys of given collection', () => {
+		test('example', () => {
+			expect(keys(['a', 'b', 'c'])).toEqual([0, 1, 2]);
+			expect(keys({ a: 1, b: 2, c: 3 })).toEqual(['a', 'b', 'c']);
+		});
 
-		test.each(expectations)('returns %p keys as %p', (
-			dummy, dummyOne, input
-		) => {
-			const expectedKeys = Object.keys(input).map((key) =>
-				converters[inferType(input)](key));
+		describe('randomized test', () => {
+			const expectations = [
+				['array', 'numbers', array],
+				['object', 'strings', object],
+			];
 
-			const resultKeys = keys(input);
+			test.each(expectations)('returns %p keys as %p', (
+				dummy, dummyOne, input
+			) => {
+				const expectedKeys = Object.keys(input).map((key) =>
+					converters[inferType(input)](key));
 
-			expectEquals(resultKeys.length, expectedKeys.length);
-			expectEquals(resultKeys, expectedKeys);
+				const resultKeys = keys(input);
+
+				expectEquals(resultKeys.length, expectedKeys.length);
+				expectEquals(resultKeys, expectedKeys);
+			});
 		});
 	});
 
-	test('length returns the length of given collection', () => {
-		tMap([array, object], (collection) =>
-			expect(length(collection)).toEqual(tValues(collection).length));
+	describe('length returns the length of given collection', () => {
+		test('example', () => {
+			expect(length([1, 2, 3])).toEqual(3);
+			expect(length({ a: 1, b: 2 })).toEqual(2);
+		});
+
+		test('randomized test', () => {
+			tMap([array, object], (collection) =>
+				expect(length(collection)).toEqual(tValues(collection).length));
+		});
 	});
 });
