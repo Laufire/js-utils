@@ -162,58 +162,104 @@ describe('Collection', () => {
 	const convey = (...args) => args;
 
 	/* Tests */
-	test('map transforms the given iterable using the given callback', () => {
-		const fn = map;
-		const predicate = (dummy, key) => expectationBase[key];
-		const expectation = expectationBase;
-		const data = [
-			[array, tValues(expectation)],
-			[object, expectation],
-		];
+	describe('map transforms the given iterable using'
+	+ ' the given callback', () => {
+		describe('examples', () => {
+			test('map works with all the properties of the object'
+			+ ' and builds a new object', () => {
+				expect(map(simpleObj, stitch)).toEqual({
+					a: 'a1',
+					b: 'b2',
+				});
+			});
 
-		testIterator({ fn, predicate, data });
+			test('map handles arrays with keys instead of indexes', () => {
+				expect(map([1, 2], stitch)).toEqual(['01', '12']);
+			});
+		});
+
+		test('randomized test', () => {
+			const fn = map;
+			const predicate = (dummy, key) => expectationBase[key];
+			const expectation = expectationBase;
+			const data = [
+				[array, tValues(expectation)],
+				[object, expectation],
+			];
+
+			testIterator({ fn, predicate, data });
+		});
 	});
 
-	test('filter filters the given iterable using the given callback', () => {
-		const fn = filter;
-		// TODO: Use imported rndValues after publishing.
-		const randomKeys = rndKeys(expectationBase);
-		const predicate = (dummy, key) => randomKeys.includes(String(key));
-		const expectation = tSelect(object, randomKeys);
-		const data = [
-			[array, tValues(expectation)],
-			[object, expectation],
-		];
+	describe('filter filters the given iterable using'
+	+ ' the given callback', () => {
+		test('example', () => {
+			expect(filter(simpleObj, isEqual(1))).toEqual({
+				a: 1,
+			});
 
-		testIterator({ fn, predicate, data });
+			expect(filter(simpleArray, isEqual(1))).toEqual([1]);
+		});
+
+		test('randomized test', () => {
+			const fn = filter;
+			// TODO: Use imported rndValues after publishing.
+			const randomKeys = rndKeys(expectationBase);
+			const predicate = (dummy, key) => randomKeys.includes(String(key));
+			const expectation = tSelect(object, randomKeys);
+			const data = [
+				[array, tValues(expectation)],
+				[object, expectation],
+			];
+
+			testIterator({ fn, predicate, data });
+		});
 	});
 
-	test('find finds the first element from the collection chose'
+	describe('find finds the first element from the collection chose'
 	+ ' by the predicate', () => {
-		const fn = find;
-		const randomValue = rndValue(expectationBase);
-		const predicate = (value) => isEqual(randomValue)(value);
-		const expectation = object[randomValue];
-		const data = [
-			[array, expectation],
-			[object, expectation],
-		];
+		test('example', () => {
+			expect(find(simpleObj, isEqual(2))).toBe(2);
+			expect(find(simpleObj, isEqual(3))).toBeUndefined();
+			expect(find(simpleArray, isEqual(2))).toBe(2);
+			expect(find(simpleArray, isEqual(3))).toBeUndefined();
+		});
 
-		testIterator({ fn, predicate, data });
+		test('randomized test', () => {
+			const fn = find;
+			const randomValue = rndValue(expectationBase);
+			const predicate = (value) => isEqual(randomValue)(value);
+			const expectation = object[randomValue];
+			const data = [
+				[array, expectation],
+				[object, expectation],
+			];
+
+			testIterator({ fn, predicate, data });
+		});
 	});
 
-	test('findKey finds the key of first element from the collection chose'
+	describe('findKey finds the key of first element from the collection chose'
 	+ ' by the predicate', () => {
-		const fn = findKey;
-		const randomKey = rndKey(expectationBase);
-		const predicate = (dummy, key) => String(key) === randomKey;
-		const expectation = randomKey;
-		const data = [
-			[array, Number(expectation)],
-			[object, expectation],
-		];
+		test('example', () => {
+			expect(findKey(simpleObj, isEqual(2))).toBe('b');
+			expect(findKey(simpleObj, isEqual(3))).toBeUndefined();
+			expect(findKey(simpleArray, isEqual(2))).toBe(1);
+			expect(findKey(simpleArray, isEqual(3))).toBeUndefined();
+		});
 
-		testIterator({ fn, predicate, data });
+		test('randomized test', () => {
+			const fn = findKey;
+			const randomKey = rndKey(expectationBase);
+			const predicate = (dummy, key) => String(key) === randomKey;
+			const expectation = randomKey;
+			const data = [
+				[array, Number(expectation)],
+				[object, expectation],
+			];
+
+			testIterator({ fn, predicate, data });
+		});
 	});
 
 	describe('reduce reduces the given collection.', () => {
@@ -292,10 +338,17 @@ describe('Collection', () => {
 		});
 	});
 
-	test('shell returns an empty container of the same type'
+	describe('shell returns an empty container of the same type'
 	+ ' as the given iterable', () => {
-		expect(shell(object)).toEqual({});
-		expect(shell(array)).toEqual([]);
+		test('example', () => {
+			expect(shell(simpleObj)).toEqual({});
+			expect(shell(simpleArray)).toEqual([]);
+		});
+
+		test('randomized test', () => {
+			expect(shell(object)).toEqual({});
+			expect(shell(array)).toEqual([]);
+		});
 	});
 
 	describe('clean removes undefined props from the given iterable', () => {
@@ -379,10 +432,19 @@ describe('Collection', () => {
 		});
 	});
 
-	test('has tells whether the given iterable has the given value', () => {
-		map([array, object], (iterable) => {
-			expect(has(iterable, rndValue(iterable))).toEqual(true);
-			expect(has(iterable, rndString())).toEqual(false);
+	describe('has tells whether the given iterable has the given value', () => {
+		test('example', () => {
+			expect(has(simpleObj, 1)).toEqual(true);
+			expect(has(simpleArray, 1)).toEqual(true);
+			expect(has(simpleObj, 0)).toEqual(false);
+			expect(has(simpleArray, 0)).toEqual(false);
+		});
+
+		test('randomized test', () => {
+			map([array, object], (iterable) => {
+				expect(has(iterable, rndValue(iterable))).toEqual(true);
+				expect(has(iterable, rndString())).toEqual(false);
+			});
 		});
 	});
 
@@ -456,21 +518,41 @@ describe('Collection', () => {
 		});
 	});
 
-	test('clone clones the given object', () => {
-		expect(clone(object)).toEqual(object);
+	describe('clone clones the given object', () => {
+		test('example', () => {
+			expect(clone(complexObject)).toEqual(complexObject);
+		});
+
+		test('randomized test', () => {
+			expect(clone(object)).toEqual(object);
+		});
 	});
 
-	test('squash squashes objects and object lists'
+	describe('squash squashes objects and object lists'
 	+ ' to a single object', () => {
-		const arrayOfObjs = values(map(object, (value, key) =>
-			({ [key]: value })));
-		const substitutionKey = rndKey(arrayOfObjs);
+		test('example', () => {
+			const squashed = squash(
+				{ a: 1 }, [{ b: 2 }], { c: 3 }
+			);
 
-		arrayOfObjs[substitutionKey] = [arrayOfObjs[substitutionKey]];
-		const collection = shuffle(arrayOfObjs);
-		const squashed = squash(...collection);
+			expect(squashed).toEqual({
+				a: 1,
+				b: 2,
+				c: 3,
+			});
+		});
 
-		expect(squashed).toEqual(object);
+		test('randomized test', () => {
+			const arrayOfObjs = values(map(object, (value, key) =>
+				({ [key]: value })));
+			const substitutionKey = rndKey(arrayOfObjs);
+
+			arrayOfObjs[substitutionKey] = [arrayOfObjs[substitutionKey]];
+			const collection = shuffle(arrayOfObjs);
+			const squashed = squash(...collection);
+
+			expect(squashed).toEqual(object);
+		});
 	});
 
 	describe('merge merges multiple objects into one', () => {
@@ -832,11 +914,17 @@ describe('Collection', () => {
 		});
 	});
 
-	test('fromEntries builds an object out of entries', () => {
-		map([array, object], (iterable) => {
-			const expectation = tDict(values(iterable));
+	describe('fromEntries builds an object out of entries', () => {
+		test('example', () => {
+			expect(fromEntries(entries(simpleObj))).toEqual(simpleObj);
+		});
 
-			expect(fromEntries(tEntries(iterable))).toEqual(expectation);
+		test('randomized test', () => {
+			map([array, object], (iterable) => {
+				const expectation = tDict(values(iterable));
+
+				expect(fromEntries(tEntries(iterable))).toEqual(expectation);
+			});
 		});
 	});
 
@@ -1004,12 +1092,26 @@ describe('Collection', () => {
 		});
 	});
 
-	// TODO: Revisit the test.
-	test('patch creates a new variation of a baseObject based on'
+	describe('patch creates a new variation of a baseObject based on'
 	+ ' the given extension, while preserving them both', () => {
-		expect(patch(object, extension)).toEqual({
-			...object,
-			...extension,
+		test('example', () => {
+			const extensionObj = { b: 3 };
+
+			expect(patch(simpleObj, extensionObj)).toEqual({
+				a: 1,
+				b: 3,
+			});
+
+			expect(simpleObj).toEqual({ a: 1, b: 2 });
+			expect(extensionObj).toEqual({ b: 3 });
+		});
+
+		// TODO: Revisit the test.
+		test('randomized test', () => {
+			expect(patch(object, extension)).toEqual({
+				...object,
+				...extension,
+			});
 		});
 	});
 
@@ -1096,31 +1198,59 @@ describe('Collection', () => {
 		map(actions, (action) => expect(action).toThrow());
 	});
 
-	test('contains tests whether the base object contains'
+	describe('contains tests whether the base object contains'
 	+ ' the compared object', () => {
-		expect(contains(extended, object)).toEqual(true);
-		expect(contains(isolated, object)).toEqual(false);
-		expect(contains(simpleValue, simpleValue)).toEqual(true);
-		expect(contains(simpleValue, anotherValue)).toEqual(false);
+		test('example', () => {
+			expect(contains(1, 1)).toBe(true);
+			expect(contains(1, 0)).toBe(false);
+			expect(contains(complexObject, clone(complexObject))).toBe(true);
+			expect(contains(simpleObj, {})).toBe(true);
+			expect(contains({}, simpleObj)).toBe(false);
+		});
+
+		test('randomized test', () => {
+			expect(contains(extended, object)).toEqual(true);
+			expect(contains(isolated, object)).toEqual(false);
+			expect(contains(simpleValue, simpleValue)).toEqual(true);
+			expect(contains(simpleValue, anotherValue)).toEqual(false);
+		});
 	});
 
-	test('equals tests the value equality of primitives and'
+	describe('equals tests the value equality of primitives and'
 	+ ' complex objects', () => {
-		expect(equals(simpleValue, simpleValue)).toEqual(true);
-		expect(equals(simpleValue, anotherValue)).toEqual(false);
-		expect(equals(object, cloned)).toEqual(true);
-		expect(equals(extension, object)).toEqual(false);
+		test('example', () => {
+			expect(equals(1, 1)).toBe(true);
+			expect(equals(1, 0)).toBe(false);
+			expect(equals(complexObject, clone(complexObject))).toBe(true);
+			expect(equals(simpleObj, {})).toBe(false);
+			expect(equals({}, simpleObj)).toBe(false);
+		});
+
+		test('randomized test', () => {
+			expect(equals(simpleValue, simpleValue)).toEqual(true);
+			expect(equals(simpleValue, anotherValue)).toEqual(false);
+			expect(equals(object, cloned)).toEqual(true);
+			expect(equals(extension, object)).toEqual(false);
+		});
 	});
 
-	test('hasSame tests the given collections for having'
+	describe('hasSame tests the given collections for having'
 	+ ' the same children', () => {
-		const nested = rndNested(
-			2, 2, ['nested']
-		);
+		test('example', () => {
+			expect(hasSame(complexArray, [...complexArray])).toBe(true);
+			expect(hasSame(complexObject, { ...complexObject })).toBe(true);
+			expect(hasSame(complexArray, clone(complexArray))).toBe(false);
+			expect(hasSame(complexObject, clone(complexObject))).toBe(false);
+		});
 
-		expect(hasSame(object, cloned)).toEqual(true);
+		test('randomized test', () => {
+			const nested = rndNested(
+				2, 2, ['nested']
+			);
 
-		expect(hasSame(nested, clone(nested))).toEqual(false);
+			expect(hasSame(object, cloned)).toEqual(true);
+			expect(hasSame(nested, clone(nested))).toEqual(false);
+		});
 	});
 
 	describe('gather gathers the given props from the children'
@@ -1198,13 +1328,25 @@ describe('Collection', () => {
 		expect(toDict(object)).toEqual(object);
 	});
 
-	test('adopt copies values from extensions into the base', () => {
-		const base = {};
+	describe('adopt copies values from extensions into the base', () => {
+		test('example', () => {
+			const base = {};
 
-		const adoptedObject = adopt(base, object);
+			adopt(base, complexObject);
 
-		expect(base).toEqual(object);
-		expect(adoptedObject).toEqual(base);
+			each(base, (value, key) => {
+				expect(value === complexObject[key]).toEqual(true);
+			});
+		});
+
+		test('randomized test', () => {
+			const base = {};
+
+			const adoptedObject = adopt(base, object);
+
+			expect(base).toEqual(object);
+			expect(adoptedObject).toEqual(base);
+		});
 	});
 
 	test('findIndex is an alias for findIndex', () => {
