@@ -1,5 +1,5 @@
 import { keys, map, range } from './collection';
-import { fix, parts } from './path';
+import { fix, parts, pathType, resolve } from './path';
 import { rndString, rndValue, rndBetween } from './random';
 import { retry } from '../test/helpers';
 
@@ -81,6 +81,21 @@ describe('path', () => {
 			const result = fix(path);
 
 			expect(result).toEqual(expected);
+		});
+	});
+
+	test.only('resolve', () => {
+		const cases = [
+			['absolute', ['/'], '/'],
+			// ['absolute', ['/a/'], '/a/'],
+			// ['absolute', ['/a/../b/'], '/b/'],
+			// ['absolute', ['/a/../b/../'], '/'],
+			// ['absolute', ['/a/.../b/'], undefined],
+			// ['relative', ['./'], '/'],
+		];
+
+		map(cases, ([type, input, expected]) => {
+			expect(resolve(input)).toEqual(expected);
 		});
 	});
 });
