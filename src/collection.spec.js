@@ -8,7 +8,7 @@ import { sortArray, rndKey, numberArray, array, object, expectEquals, extension,
 	rndDict, rndNested, extended, isolated, cloned, simpleTypes, ecKeys,
 	extCollection, collection as hCollection, toObject,
 	rndKeys, rndArray, rndRange, rnd, similarCols,
-	iterableTypes, allTypes } from '../test/helpers';
+	iterableTypes, allTypes, retry } from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
 import { isDefined, inferType, isIterable,
@@ -633,34 +633,80 @@ describe('Collection', () => {
 		});
 
 		// TODO: Use getNested from testHelpers and randomized.
-		test('nested test', () => {
-			const combineChildren = (children) => {
-				const index = reverseArray(children).findIndex((element) =>
-					!isArray(element)) + 1;
+		test.skip('randomized test', () => {
+			const combineChildren = (reversedChildren) => {
+				const sliceIndex = reversedChildren.findIndex((element) =>
+					!isArray(element));
+				const matchIndex = (index) =>
+					(index <= 0 ? reversedChildren.length : sliceIndex);
 
-				return reverseArray(children)
-					.slice(index)
+				return reverseArray(reversedChildren
+					.slice(0, matchIndex(sliceIndex)))
 					.flat();
 			};
 
 			const testCombine = (combined, ...collections) => {
 				tMap(combined, (value, key) => {
-					const children = tClean(tPick(collections, key));
-					const [firstChild] = children;
+					// TODO: Use library filter.
+					const getChildren = () =>
+						tMap(collections.filter((collection) =>
+							isIterable(collection)
+								&& collection.hasOwnProperty(key)), (child) =>
+							child[key]);
+
+					const children = getChildren();
+					const cmbChildren = combineChildren(children);
 
 					isDict(value)
-						? testCombine(value, ...children)
+						? testCombine(value, ...getChildren())
 						: isArray(value)
 							? expectEquals(value,
-								combineChildren(children))
-							: expectEquals(value, firstChild);
+								cmbChildren)
+							: expectEquals(value, getChildren()[0]);
 				});
 			};
 
-			const combined = combine({}, ...mcoCollections);
+			retry(() => {
+				const cCollections = tValues(rndNested(
+					3, 3, ['nested']
+				));
 
-			testCombine(combined, ...reverseArray(mcoCollections));
+				const JsonInputs = [
+					'[["QTEWCATD","LOGVCPLD"],[[["BQKDYRME","XTJRNCAD"],null],["FFGWWOLA","SOEYLZSZ","JRFXEAQX"],[["OGLCAFHD","XKCKULTI","LEUEOLJP"],null,0]]]',
+					JSON.stringify(cCollections),
+				];
+
+				map(JsonInputs, (input) => {
+					const mCollections = secure(JSON.parse(input));
+
+					const combined = combine({}, ...mCollections);
+
+					testCombine(combined, ...reverseArray(mCollections));
+				});
+			});
 		});
+	});
+
+	test.only('mergeTest', () => {
+		const combineChildren = (reversedChildren) => {
+			const sliceIndex = reversedChildren.findIndex((element) =>
+				!isArray(element));
+			const matchIndex = (index) =>
+				(index <= 0 ? reversedChildren.length : sliceIndex);
+
+			return reverseArray(reversedChildren
+				.slice(0, matchIndex(sliceIndex)))
+				.flat();
+		};
+		const test = JSON.parse('[[[null,null,"USHVNNOGQYIHRIHY"],[null,null]],{"KDEUNSWR":{"OVMUMHQC":false},"PGYHLSAE":{},"MPHLPQPH":{}},[{"BTMUHNOR":false,"JWVZTHIR":false},[null,null,["GCBNZPDX","KNQIRFLH","PNSWPFVU"]]]]');
+
+		// Const needed = combineChildren(JSON.parse(test));
+
+		// Const coll = 		[[9], 5, [2], [1], 3, []];
+
+		const needed = combine({}, ...test);
+
+		console.log(needed);
 	});
 
 	describe('merge, combine and overlay shares some behaviors', () => {

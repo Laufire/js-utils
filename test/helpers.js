@@ -7,9 +7,9 @@ import { rndValue, rndBetween, rndString, rndValues }
 import TestConfig from './config';
 
 /* Config */
-const rangeMaxLimit = 5;
+const rangeMaxLimit = 1;
 // TODO: Change the values after importing the new version.
-const rangeMinLimit = 8;
+const rangeMinLimit = 2;
 const numMaxLimit = 100;
 const defaults = {
 	numberArrayMax: 100,
@@ -46,7 +46,9 @@ const rndNumber = () => rndBetween(...defaults.randomNumLimits);
 
 const fixNumber = (value) => value.toFixed(defaults.numberPrecision);
 
-const expectEquals = (valOne, valtwo) => expect(valOne).toEqual(valtwo);
+const expectEquals = (received, expected) => {
+	expect(received).toEqual(expected);
+};
 
 const rndDict = (minCount = 1) =>
 	fromEntries(map(rndRange(minCount), (value) =>
@@ -159,7 +161,7 @@ const rndNested = (
 		valueGenerators[rndValue(generators)](
 			depth, length, generators
 		))
-	: rndValue({ ...itrGenerators, ...nonItrGenerators })());
+	: rndValue(nonItrGenerators)());
 
 const toObject = (iterator) => reduce(
 	iterator, (acc, value) =>
