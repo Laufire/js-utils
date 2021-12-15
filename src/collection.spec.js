@@ -1172,26 +1172,52 @@ describe('Collection', () => {
 		});
 	});
 
-	test('secure prevents further modifications to the given iterable', () => {
-		const frozenObject = secure(clone(complexObject));
-		const frozenArray = frozenObject.array;
+	describe('secure prevents further modifications to'
+	+ ' the given iterable', () => {
+		test('example', () => {
+			const frozenObject = secure(clone(complexObject));
+			const frozenArray = frozenObject.array;
 
-		const actions = {
-			objectMutation: () => {
-				frozenObject.parent.child = Symbol('objectMutation') ;
-			},
-			objectExtension: () => {
-				frozenObject.parent.childOne = Symbol('objectExtension') ;
-			},
-			objectDeletion: () => delete frozenObject.parent.child,
-			arrayMutation: () => { frozenArray[0] = Symbol('arrayMutation') ; },
-			arrayExtension: () => {
-				frozenArray.push(Symbol('arrayExtension')) ;
-			},
-			arrayDeletion: () => frozenArray.pop(),
-		};
+			const actions = {
+				objectMutation: () => {
+					frozenObject.parent.child = Symbol('objectMutation') ;
+				},
+				objectExtension: () => {
+					frozenObject.parent.childOne = Symbol('objectExtension') ;
+				},
+				objectDeletion: () => delete frozenObject.parent.child,
+				arrayMutation: () => {
+					frozenArray[0] = Symbol('arrayMutation') ;
+				},
+				arrayExtension: () => {
+					frozenArray.push(Symbol('arrayExtension')) ;
+				},
+				arrayDeletion: () => frozenArray.pop(),
+			};
 
-		map(actions, (action) => expect(action).toThrow());
+			map(actions, (action) => expect(action).toThrow());
+		});
+
+		test('randomized test', () => {
+			const obj = rndNested();
+
+			const testSecured = (data) => isIterable(data)
+				&& map(data, (value, key) => {
+					isIterable(value) && testSecured(value);
+
+					return map([
+						// eslint-disable-next-line no-return-assign
+						() => data[key] = rndString(),
+						// eslint-disable-next-line no-return-assign
+						() => data[rndString()] = rndString(),
+						() => delete data[key],
+					], (fn) => expect(fn).toThrow(TypeError));
+				});
+
+			const secured = secure(obj);
+
+			testSecured(secured);
+		});
 	});
 
 	describe('contains tests whether the base object contains'
