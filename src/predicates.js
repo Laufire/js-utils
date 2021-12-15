@@ -12,6 +12,8 @@ const isEqual = (left) => (right) => equals(left, right);
 
 const isSame = (left) => (right) => left === right;
 
+const is = isSame;
+
 const isPart = (left) => (right) => contains(left, right);
 
 const doesContain = (left) => (right) => contains(right, left);
@@ -61,7 +63,6 @@ const predicate = (
 export {
 	isEqual, isSame, isPart, doesContain,
 	truthy, falsy, everything, nothing,
-	first, unique,
-	not, and, or, onProp,
-	predicate, isIn, key, value,
+	first, unique, not, and, or, onProp,
+	predicate, isIn, key, value, is,
 };

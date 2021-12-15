@@ -15,7 +15,7 @@ import { isEqual, isSame, isPart, doesContain,
 	truthy, falsy, everything, nothing,
 	first, unique,
 	not, or, and, onProp,
-	predicate, isIn, value, key } from './predicates';
+	predicate, isIn, value, key, is } from './predicates';
 
 /* Spec */
 describe('Predicates', () => {
@@ -32,6 +32,10 @@ describe('Predicates', () => {
 		+ ' between the candidates', () => {
 		expect(filter(collection, isSame(collection.object)).object)
 			.toBe(collection.object);
+	});
+
+	test('is, an alias for isSame', () => {
+		expect(is).toBe(isSame);
 	});
 
 	test('isPart returns a function to test whether the tested object is'
