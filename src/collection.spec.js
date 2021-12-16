@@ -31,7 +31,7 @@ import {
 	patch, pick, omit, range, reduce, result,
 	sanitize, secure, select, shell, shuffle, sort, squash,
 	translate, traverse, walk, values, keys, length, toArray, nReduce,
-	findIndex, findLast,
+	findIndex, findLast, lFind,
 } from './collection';
 
 const mockObj = (objKeys, value) =>
@@ -261,6 +261,10 @@ describe('Collection', () => {
 
 			testIterator({ fn, predicate, data });
 		});
+	});
+
+	test('lFind is an alias for findLast', () => {
+		expect(lFind).toEqual(findLast);
 	});
 
 	describe('findKey finds the key of first element from the collection chose'

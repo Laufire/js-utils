@@ -128,6 +128,8 @@ const findLast = (collection, predicate) => {
 		: undefined;
 };
 
+const lFind = findLast;
+
 const findKey = (collection, predicate) => {
 	const colKeys = libKeys(collection);
 
@@ -576,6 +578,6 @@ export {
 	shell, assign, clone, squash, combine, merge, overlay, compose, fill,
 	patch, diff, secure, equals, contains,
 	gather, pick, toArray, toDict, adopt,
-	find, findLast, findKey, findIndex,
+	find, findLast, lFind, findKey, findIndex,
 	range, hasSame, shares, shuffle, sort, length,
 };
