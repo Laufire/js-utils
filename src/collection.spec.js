@@ -31,7 +31,7 @@ import {
 	patch, pick, omit, range, reduce, result,
 	sanitize, secure, select, shell, shuffle, sort, squash,
 	translate, traverse, walk, values, keys, length, toArray, nReduce,
-	findIndex,
+	findIndex, findLast,
 } from './collection';
 
 const mockObj = (objKeys, value) =>
@@ -228,6 +228,29 @@ describe('Collection', () => {
 
 		test('randomized test', () => {
 			const fn = find;
+			const randomValue = rndValue(expectationBase);
+			const predicate = (value) => isEqual(randomValue)(value);
+			const expectation = object[randomValue];
+			const data = [
+				[array, expectation],
+				[object, expectation],
+			];
+
+			testIterator({ fn, predicate, data });
+		});
+	});
+
+	describe('findLast finds the last element from the collection chose'
+		+ ' by the predicate', () => {
+		test('example', () => {
+			const collection = [999, 12, 8, 130, 44];
+			const expectation = 44;
+
+			expect(findLast(collection, (x) => x > 10)).toEqual(expectation);
+		});
+
+		test('randomized test', () => {
+			const fn = findLast;
 			const randomValue = rndValue(expectationBase);
 			const predicate = (value) => isEqual(randomValue)(value);
 			const expectation = object[randomValue];
