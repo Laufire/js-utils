@@ -2,10 +2,13 @@
 import { dict, map, merge,
 	reduce, secure, shuffle } from '@laufire/utils/collection';
 import { rndValue } from '@laufire/utils/random';
-import { rndRange, extension, fixNumber, expectEquals } from '../test/helpers';
+import { rndRange, extension, fixNumber, expectEquals,
+	rndNested } from '../test/helpers';
+import { isArray } from './lib';
 
 /* Tested */
-import { avg, count, len, max, min, product, reducer, sum } from './reducers';
+import { avg, count, flat, len, max, min, product,
+	reducer, sum } from './reducers';
 
 /* Spec */
 describe('Reducers', () => {
@@ -98,5 +101,32 @@ describe('Reducers', () => {
 		)).toEqual(merge(
 			{}, object, extension
 		));
+	});
+
+	describe('flat flattens the given collection recursively'
+	+ ' based on depth', () => {
+		test('example', () => {
+			const collection = [1, 2, [3, 4, [5, 6, 7]]];
+			const expectation = reduce(
+				collection, (acc, val) => (isArray(val)
+					? [...acc, ...val]
+					: [...acc, val]), []
+			);
+
+			expect(flat(collection)).toEqual(expectation);
+		});
+
+		test('randomized test', () => {
+			const collection = rndNested(
+				3, 3, ['nested', 'array']
+			);
+			const expectation = reduce(
+				collection, (acc, val) => (isArray(val)
+					? [...acc, ...val]
+					: [...acc, val]), []
+			);
+
+			expect(flat(collection)).toEqual(expectation);
+		});
 	});
 });

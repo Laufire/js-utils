@@ -22,6 +22,8 @@ const min = (t, c) => (t < c ? t : c);
 
 const max = (t, c) => (t > c ? t : c);
 
+const flat = (collection, depth = 1) => collection.flat(depth);
+
 /**
  * A function to derive reducers from collection functions like merge,
  * compose, squash and adopt.
@@ -38,4 +40,5 @@ export {
 	min,
 	max,
 	reducer,
+	flat,
 };
