@@ -112,7 +112,7 @@ const find = (collection, predicate) =>
 			collection[key], key, collection
 		))];
 
-const findLast = (collection, predicate) => {
+const findLastKey = (collection, predicate) => {
 	const collectionKeys = libKeys(collection);
 	let i = collectionKeys.length;
 	// eslint-disable-next-line init-declarations
@@ -122,13 +122,20 @@ const findLast = (collection, predicate) => {
 		collection[currentKey], currentKey, collection
 	)))
 		;
+	return currentKey;
+};
 
-	return collection.hasOwnProperty(currentKey)
-		? collection[currentKey]
+const findLast = (collection, predicate) => {
+	const key = findLastKey(collection, predicate);
+
+	return collection.hasOwnProperty(key)
+		? collection[key]
 		: undefined;
 };
 
 const lFind = findLast;
+
+const lFindKey = findLastKey;
 
 const findKey = (collection, predicate) => {
 	const colKeys = libKeys(collection);
@@ -578,6 +585,6 @@ export {
 	shell, assign, clone, squash, combine, merge, overlay, compose, fill,
 	patch, diff, secure, equals, contains,
 	gather, pick, toArray, toDict, adopt,
-	find, findLast, lFind, findKey, findIndex,
+	find, findLast, findLastKey, lFind, lFindKey, findKey, findIndex,
 	range, hasSame, shares, shuffle, sort, length,
 };

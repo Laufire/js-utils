@@ -31,7 +31,7 @@ import {
 	patch, pick, omit, range, reduce, result,
 	sanitize, secure, select, shell, shuffle, sort, squash,
 	translate, traverse, walk, values, keys, length, toArray, nReduce,
-	findIndex, findLast, lFind,
+	findIndex, findLast, lFind, lFindKey, findLastKey,
 } from './collection';
 
 const mockObj = (objKeys, value) =>
@@ -240,6 +240,29 @@ describe('Collection', () => {
 		});
 	});
 
+	describe('findLastKey find the key of last element from the'
+	+ ' collection chose by predicate', () => {
+		test('example', () => {
+			const collection = [999, 12, 8, 130, 44];
+			const expectation = 4;
+
+			expect(findLastKey(collection, (x) => x > 10)).toEqual(expectation);
+		});
+
+		test('randomized test', () => {
+			const fn = findLastKey;
+			const randomKey = rndKey(expectationBase);
+			const predicate = (dummy, key) => String(key) === randomKey;
+			const expectation = randomKey;
+			const data = [
+				[array, Number(expectation)],
+				[object, expectation],
+			];
+
+			testIterator({ fn, predicate, data });
+		});
+	});
+
 	describe('findLast finds the last element from the collection chose'
 		+ ' by the predicate', () => {
 		test('example', () => {
@@ -265,6 +288,10 @@ describe('Collection', () => {
 
 	test('lFind is an alias for findLast', () => {
 		expect(lFind).toEqual(findLast);
+	});
+
+	test('lFindKey is an alias for findLastKey', () => {
+		expect(lFindKey).toEqual(findLastKey);
 	});
 
 	describe('findKey finds the key of first element from the collection chose'
