@@ -1254,20 +1254,21 @@ describe('Collection', () => {
 		test('example', () => {
 			const frozenObject = secure(clone(complexObject));
 			const frozenArray = frozenObject.array;
+			const newValue = Symbol('value');
 
 			const actions = {
 				objectMutation: () => {
-					frozenObject.parent.child = Symbol('objectMutation') ;
+					frozenObject.parent.child = newValue ;
 				},
 				objectExtension: () => {
-					frozenObject.parent.childOne = Symbol('objectExtension') ;
+					frozenObject.parent.newChild = newValue ;
 				},
 				objectDeletion: () => delete frozenObject.parent.child,
 				arrayMutation: () => {
-					frozenArray[0] = Symbol('arrayMutation') ;
+					frozenArray[0] = newValue ;
 				},
 				arrayExtension: () => {
-					frozenArray.push(Symbol('arrayExtension')) ;
+					frozenArray.push(newValue) ;
 				},
 				arrayDeletion: () => frozenArray.pop(),
 			};
@@ -1284,9 +1285,9 @@ describe('Collection', () => {
 
 					return map([
 						// eslint-disable-next-line no-return-assign
-						() => data[key] = rndString(),
+						() => data[key] = rnd(),
 						// eslint-disable-next-line no-return-assign
-						() => data[rndString()] = rndString(),
+						() => data[rndString()] = rnd(),
 						() => delete data[key],
 					], (fn) => expect(fn).toThrow(TypeError));
 				});
