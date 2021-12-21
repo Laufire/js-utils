@@ -243,23 +243,46 @@ describe('Collection', () => {
 	describe('findLastKey find the key of last element from the'
 	+ ' collection chose by predicate', () => {
 		test('example', () => {
-			const collection = [999, 12, 8, 130, 44];
-			const expectation = 4;
+			const testFindLastKey = (
+				collection, predicate, expectation
+			) =>
+				expect(findLastKey(collection, predicate))
+					.toEqual(expectation);
 
-			expect(findLastKey(collection, (x) => x > 10)).toEqual(expectation);
+			testFindLastKey(
+				[999, 12, 8, 130, 44], (x) => x > 10, 4
+			);
+			testFindLastKey(
+				[999, 12, 8, 130, 44], (x) => x > 1000, undefined
+			);
 		});
 
-		test('randomized test', () => {
-			const fn = findLastKey;
-			const randomKey = rndKey(expectationBase);
-			const predicate = (dummy, key) => String(key) === randomKey;
-			const expectation = randomKey;
-			const data = [
-				[array, Number(expectation)],
-				[object, expectation],
-			];
+		describe('randomized tests', () => {
+			test('positive case', () => {
+				const fn = findLastKey;
+				const randomKey = rndKey(expectationBase);
+				const predicate = (dummy, key) => String(key) === randomKey;
+				const expectation = randomKey;
+				const data = [
+					[array, Number(expectation)],
+					[object, expectation],
+				];
 
-			testIterator({ fn, predicate, data });
+				testIterator({ fn, predicate, data });
+			});
+
+			test('negative case', () => {
+				const fn = findLastKey;
+				const randomKey = rndString();
+				const predicate = (dummy, key) => key === randomKey;
+				const expectation = undefined;
+				const data = [
+					[array, expectation],
+					[object, expectation],
+				];
+
+				testIterator({ fn, predicate, data });
+			});
 		});
 	});
 
