@@ -1,7 +1,8 @@
 import { keys, map, range } from './collection';
-import { fix, parts, pathType } from './path';
+import { fix, parts, pathType, resolve } from './path';
 import { rndString, rndValue, rndBetween } from './random';
 import { retry } from '../test/helpers';
+import { equals } from '@laufire/utils/collection';
 
 const getRndRange = () => {
 	const lowerLimit = 0;
@@ -92,6 +93,31 @@ describe('path', () => {
 	test('pathType identifies the path type of the given path', () => {
 		map(combinations, ({ path, type: expected }) => {
 			expect(pathType(path)).toEqual(expected);
+		});
+	});
+
+	// TODO: Randomize.
+	test('resolve', () => {
+		const cases = [
+			[['./a/./b/../'], './a/'],
+			[['./'], './'],
+			[['/a', '/b'], '/b/'],
+			[['/'], '/'],
+			[['/a/'], '/a/'],
+			[['/a/../b/'], '/b/'],
+			[['/a/../b/../'], '/'],
+			[['/a/.../b/'], undefined],
+			[['./a./b'], './a./b/'],
+			[['../a', '../b'], '../b/'],
+			[['../a', '../b', './c'], '../b/c/'],
+			[['../../a', './b../', './c/d'], '.../a/b../c/d/'],
+		];
+
+		map(cases, ([input, expected]) => {
+			const resolved = resolve(...input);
+			const result = equals(resolved, expected);
+
+			expect(result).toEqual(true);
 		});
 	});
 });
