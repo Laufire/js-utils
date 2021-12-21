@@ -28,25 +28,44 @@ test('isProbable returns true based on given probability', () => {
 	testCandidates(range(2, 99).map((probability) => probability / 100), 0.08);
 });
 
-test('possibilities', () => {
-	const inputs = map(range(1, rndBetween(3, 6)), () =>
-		map(range(1, rndBetween(2, 6)), Symbol));
+describe('possibilities', () => {
+	describe('example', () => {
+		test('returns possibilities of given cases', () => {
+			const result = possibilities([['a', 'b'], [1, 2, 3]]);
 
-	const expectedLength = reduce(
-		inputs, (t, c) => t * c.length, 1
-	);
+			expect(result).toEqual([
+				['a', 1],
+				['b', 1],
+				['a', 2],
+				['b', 2],
+				['a', 3],
+				['b', 3],
+			]);
+		});
+	});
 
-	const result = possibilities(inputs);
+	describe('randomized test', () => {
+		test('returns possibilities of given cases', () => {
+			const inputs = map(range(1, rndBetween(3, 6)), () =>
+				map(range(1, rndBetween(2, 6)), Symbol));
 
-	const mismatch = find(result, (possibility) =>
-		find(possibility, (value, i) => !inputs[i].includes(value)));
-	// TODO: Use collection.find post publishing.
-	const duplicate = result.find((
-		possibility, i, array
-	) =>
-		array.slice(i + 1).includes(possibility));
+			const expectedLength = reduce(
+				inputs, (t, c) => t * c.length, 1
+			);
 
-	expectEquals(result.length, expectedLength);
-	expectEquals(mismatch, undefined);
-	expectEquals(duplicate, undefined);
+			const result = possibilities(inputs);
+
+			const mismatch = find(result, (possibility) =>
+				find(possibility, (value, i) => !inputs[i].includes(value)));
+			// TODO: Use collection.find post publishing.
+			const duplicate = result.find((
+				possibility, i, array
+			) =>
+				array.slice(i + 1).includes(possibility));
+
+			expectEquals(result.length, expectedLength);
+			expectEquals(mismatch, undefined);
+			expectEquals(duplicate, undefined);
+		});
+	});
 });
