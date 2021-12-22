@@ -19,7 +19,7 @@ import { select as tSelect, map as tMap, keys as tKeys,
 	values as tValues, secure as tSecure, entries as tEntries,
 	dict as tDict, filter as tFilter, reduce as tReduce,
 	clean as tClean, fromEntries as tFromEntries,
-	range as tRange, pick as tPick, clone as tClone }
+	range as tRange, pick as tPick, clone as tClone, hasSame as tHasSame }
 	from '@laufire/utils/collection';
 import { isEqual, not } from '@laufire/utils/predicates';
 
@@ -586,7 +586,17 @@ describe('Collection', () => {
 		});
 
 		test('randomized test', () => {
-			expect(clone(object)).toEqual(object);
+			const rndNestedObj = rndNested();
+
+			const testCloned = (base, compared) => (!isIterable(base)
+				? expect(compared).toEqual(base)
+				: expect(tHasSame(base, compared)).toEqual(false))
+					&& tMap(base, (value, key) =>
+						testCloned(value, compared[key]));
+
+			const clonedObj = clone(rndNestedObj);
+
+			testCloned(rndNestedObj, clonedObj);
 		});
 	});
 
