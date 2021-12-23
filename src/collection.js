@@ -112,6 +112,19 @@ const find = (collection, predicate) =>
 			collection[key], key, collection
 		))];
 
+const findLast = (collection, predicate) => {
+	const collectionKeys = libKeys(collection);
+	let i = collectionKeys.length;
+	let currentKey = Symbol('currentKey');
+
+	while(!((currentKey = collectionKeys[--i]) === undefined || predicate(
+		collection[currentKey], currentKey, collection
+	)))
+		;
+
+	return collection[currentKey];
+};
+
 const findKey = (collection, predicate) => {
 	const colKeys = libKeys(collection);
 
@@ -563,5 +576,6 @@ export {
 	shell, assign, clone, squash, combine, merge, overlay, compose, fill,
 	patch, diff, secure, equals, contains,
 	gather, pick, toArray, toDict, adopt,
-	find, findKey, findIndex, range, hasSame, shares, shuffle, sort, length,
+	find, findLast, findKey, findIndex,
+	range, hasSame, shares, shuffle, sort, length,
 };

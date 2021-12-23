@@ -31,7 +31,7 @@ import {
 	patch, pick, omit, range, reduce, result,
 	sanitize, secure, select, shell, shuffle, sort, squash, hasKey,
 	translate, traverse, walk, values, keys, length, toArray, nReduce,
-	findIndex,
+	findIndex, findLast,
 } from './collection';
 
 const mockObj = (objKeys, value) =>
@@ -237,6 +237,41 @@ describe('Collection', () => {
 				];
 
 				testIterator({ fn, predicate, data });
+			});
+		});
+	});
+
+	describe('findLast finds the last element from the collection chose'
+		+ ' by the predicate', () => {
+		test('example', () => {
+			const expectations = [
+				[44, 44],
+				[1000, undefined],
+			];
+
+			tMap(expectations, ([value, expectation]) =>
+				expect(findLast([999, 12, 8, 130, 44], isEqual(value)))
+					.toEqual(expectation));
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const collection = rndCollection();
+				const needle = rndValue(collection);
+				const expectations = [
+					[needle, needle],
+					[Symbol('value'), undefined],
+				];
+
+				tMap(expectations, ([value, expectation]) => {
+					const fn = findLast;
+					const predicate = isEqual(value);
+					const data = [
+						[collection, expectation],
+					];
+
+					testIterator({ fn, predicate, data });
+				});
 			});
 		});
 	});
