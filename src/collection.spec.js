@@ -8,7 +8,7 @@ import { sortArray, rndKey, numberArray, array, object, expectEquals, extension,
 	rndDict, rndNested, extended, isolated, cloned, simpleTypes, ecKeys,
 	extCollection, collection as hCollection, toObject,
 	rndKeys, rndArray, rndRange, rnd, similarCols,
-	iterableTypes, allTypes } from '../test/helpers';
+	iterableTypes, allTypes, retry } from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
 import { isDefined, inferType, isIterable,
@@ -19,7 +19,7 @@ import { select as tSelect, map as tMap, keys as tKeys,
 	values as tValues, secure as tSecure, entries as tEntries,
 	dict as tDict, filter as tFilter, reduce as tReduce,
 	clean as tClean, fromEntries as tFromEntries,
-	range as tRange, pick as tPick, clone as tClone }
+	range as tRange, pick as tPick, clone as tClone, merge as tMerge }
 	from '@laufire/utils/collection';
 import { isEqual, not } from '@laufire/utils/predicates';
 
@@ -1087,17 +1087,30 @@ describe('Collection', () => {
 		expect(result(complexObject, '')).toEqual(complexObject);
 	});
 
-	test('compose returns an object from a list of objects,'
+	describe('compose returns an object from a list of objects,'
 	+ ' with only keys from the first object and the values from'
 	+ ' the objects , with a ascending priority', () => {
-		expect(compose(
-			{ a: 1, b: 2, c: 3 },
-			{ a: 2, b: 3 },
-			{ b: 2, d: 1 }
-		)).toEqual({
-			a: 2,
-			b: 2,
-			c: 3,
+		test('example', () => {
+			expect(compose(
+				{ a: 1, b: 2, c: 3 },
+				{ a: 2, b: 3 },
+				{ b: 2, d: 1 }
+			)).toEqual({
+				a: 2,
+				b: 2,
+				c: 3,
+			});
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const input = tValues(similarCols());
+
+				const expectation = tSelect(tMerge({}, ...input),
+					keys(input[0]));
+
+				expect(compose(...input)).toEqual(expectation);
+			});
 		});
 	});
 
