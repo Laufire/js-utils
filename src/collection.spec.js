@@ -1198,26 +1198,56 @@ describe('Collection', () => {
 		});
 	});
 
-	test('secure prevents further modifications to the given iterable', () => {
-		const frozenObject = secure(clone(complexObject));
-		const frozenArray = frozenObject.array;
+	describe('secure prevents further modifications to'
+	+ ' the given iterable', () => {
+		const newValue = Symbol('value');
 
-		const actions = {
-			objectMutation: () => {
-				frozenObject.parent.child = Symbol('objectMutation') ;
-			},
-			objectExtension: () => {
-				frozenObject.parent.childOne = Symbol('objectExtension') ;
-			},
-			objectDeletion: () => delete frozenObject.parent.child,
-			arrayMutation: () => { frozenArray[0] = Symbol('arrayMutation') ; },
-			arrayExtension: () => {
-				frozenArray.push(Symbol('arrayExtension')) ;
-			},
-			arrayDeletion: () => frozenArray.pop(),
-		};
+		test('example', () => {
+			const frozenObject = secure(clone(complexObject));
+			const frozenArray = frozenObject.array;
 
-		map(actions, (action) => expect(action).toThrow());
+			const actions = {
+				objectMutation: () => {
+					frozenObject.parent.child = newValue ;
+				},
+				objectExtension: () => {
+					frozenObject.parent.newChild = newValue ;
+				},
+				objectDeletion: () => delete frozenObject.parent.child,
+				arrayMutation: () => {
+					frozenArray[0] = newValue ;
+				},
+				arrayExtension: () => {
+					frozenArray.push(newValue) ;
+				},
+				arrayDeletion: () => frozenArray.pop(),
+			};
+
+			map(actions, (action) => expect(action).toThrow());
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const obj = rndNested();
+
+				const testSecured = (data) => {
+					const key = rndValue(tKeys(data));
+					const value = data[key];
+
+					map([
+						() => { data[key] = newValue; },
+						() => { data[Symbol('newKey')] = newValue; },
+						() => { delete data[key]; },
+					], (fn) => expect(fn).toThrow(TypeError));
+
+					isIterable(value) && testSecured(value);
+				};
+
+				const secured = secure(obj);
+
+				testSecured(secured);
+			});
+		});
 	});
 
 	describe('contains tests whether the base object contains'
