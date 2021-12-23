@@ -32,7 +32,7 @@ import {
 	patch, pick, omit, range, reduce, result,
 	sanitize, secure, select, shell, shuffle, sort, squash, hasKey,
 	translate, traverse, walk, values, keys, length, toArray, nReduce,
-	findIndex, findLast, lFind, findLastKey,
+	findIndex, findLast, lFind, findLastKey, lFindKey,
 } from './collection';
 
 const mockObj = (objKeys, value) =>
@@ -324,6 +324,10 @@ describe('Collection', () => {
 				testIterator({ fn, predicate, data });
 			});
 		});
+	});
+
+	test('lFindKey is an alias for findLastKey', () => {
+		expect(lFindKey).toEqual(findLastKey);
 	});
 
 	describe('reduce reduces the given collection.', () => {

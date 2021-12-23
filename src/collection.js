@@ -141,6 +141,8 @@ const findLastKey = (collection, predicate) => {
 	return currentKey;
 };
 
+const lFindKey = findLastKey;
+
 /*
 * Recursively passes all the primitives in the given collection
 * to the given callback.
@@ -582,6 +584,6 @@ export {
 	shell, assign, clone, squash, combine, merge, overlay, compose, fill,
 	patch, diff, secure, equals, contains,
 	gather, pick, toArray, toDict, adopt,
-	find, findLast, lFind, findKey, findIndex, findLastKey,
+	find, findLast, lFind, findKey, findIndex, findLastKey, lFindKey,
 	range, hasSame, shares, shuffle, sort, length,
 };
