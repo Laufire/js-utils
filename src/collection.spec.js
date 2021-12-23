@@ -8,7 +8,7 @@ import { sortArray, rndKey, numberArray, array, object, expectEquals, extension,
 	rndDict, rndNested, extended, isolated, cloned, simpleTypes, ecKeys,
 	extCollection, collection as hCollection, toObject,
 	rndKeys, rndArray, rndRange, rnd, similarCols,
-	iterableTypes, allTypes, retry } from '../test/helpers';
+	iterableTypes, allTypes, retry, rndCollection } from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
 import { isDefined, inferType, isIterable,
@@ -227,16 +227,17 @@ describe('Collection', () => {
 		});
 
 		test('randomized test', () => {
-			const fn = find;
-			const randomValue = rndValue(expectationBase);
-			const predicate = (value) => isEqual(randomValue)(value);
-			const expectation = object[randomValue];
-			const data = [
-				[array, expectation],
-				[object, expectation],
-			];
+			retry(() => {
+				const fn = find;
+				const collection = rndCollection();
+				const needle = rndValue(collection);
+				const predicate = isEqual(needle);
+				const data = [
+					[collection, needle],
+				];
 
-			testIterator({ fn, predicate, data });
+				testIterator({ fn, predicate, data });
+			});
 		});
 	});
 
