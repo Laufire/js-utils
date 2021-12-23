@@ -106,18 +106,6 @@ const nReduce = (
 		)), initial
 );
 
-const find = (collection, predicate) =>
-	collection[libKeys(collection).find((key) =>
-		predicate(
-			collection[key], key, collection
-		))];
-
-const findLast = (collection, predicate) =>
-// eslint-disable-next-line no-use-before-define
-	collection[findLastKey(collection, predicate)];
-
-const lFind = findLast;
-
 const findKey = (collection, predicate) => {
 	const colKeys = libKeys(collection);
 
@@ -142,6 +130,17 @@ const findLastKey = (collection, predicate) => {
 };
 
 const lFindKey = findLastKey;
+
+const find = (collection, predicate) =>
+	collection[libKeys(collection).find((key) =>
+		predicate(
+			collection[key], key, collection
+		))];
+
+const findLast = (collection, predicate) =>
+	collection[findLastKey(collection, predicate)];
+
+const lFind = findLast;
 
 /*
 * Recursively passes all the primitives in the given collection

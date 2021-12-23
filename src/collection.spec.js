@@ -298,6 +298,10 @@ describe('Collection', () => {
 		});
 	});
 
+	test('findIndex is an alias for findKey', () => {
+		expect(findIndex).toBe(findKey);
+	});
+
 	describe('findLastKey find the key of last element from the'
 	+ ' collection chose by predicate', () => {
 		test('example', () => {
@@ -1560,10 +1564,6 @@ describe('Collection', () => {
 			expect(base).toEqual(object);
 			expect(adoptedObject).toEqual(base);
 		});
-	});
-
-	test('findIndex is an alias for findKey', () => {
-		expect(findIndex).toBe(findKey);
 	});
 
 	describe('range helps building number-series arrays', () => {
