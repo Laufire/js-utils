@@ -8,7 +8,8 @@ import { sortArray, rndKey, numberArray, array, object, expectEquals, extension,
 	rndDict, rndNested, extended, isolated, cloned, simpleTypes, ecKeys,
 	extCollection, collection as hCollection, toObject,
 	rndKeys, rndArray, rndRange, rnd, similarCols,
-	iterableTypes, allTypes, retry, rndCollection } from '../test/helpers';
+	iterableTypes, allTypes, retry, rndCollection, converters }
+	from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
 import { isDefined, inferType, isIterable,
@@ -31,7 +32,7 @@ import {
 	patch, pick, omit, range, reduce, result,
 	sanitize, secure, select, shell, shuffle, sort, squash, hasKey,
 	translate, traverse, walk, values, keys, length, toArray, nReduce,
-	findIndex, findLast, lFind,
+	findIndex, findLast, lFind, findLastKey,
 } from './collection';
 
 const mockObj = (objKeys, value) =>
@@ -153,12 +154,6 @@ describe('Collection', () => {
 
 	const arrayOrObject = (collection) =>
 		rndValue([tValues, toObject])(collection);
-
-	// TODO: Remove the converters after using published functions.
-	const converters = {
-		array: Number,
-		object: String,
-	};
 
 	const convey = (...args) => args;
 
@@ -300,6 +295,34 @@ describe('Collection', () => {
 			];
 
 			testIterator({ fn, predicate, data });
+		});
+	});
+
+	describe('findLastKey find the key of last element from the'
+	+ ' collection chose by predicate', () => {
+		test('example', () => {
+			const expectations = [
+				[44, 4],
+				[1000, undefined],
+			];
+
+			tMap(expectations, ([needle, expectation]) =>
+				expect(findLastKey([999, 12, 8, 130, 44], isEqual(needle)))
+					.toEqual(expectation));
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const fn = findLastKey;
+				const collection = rndCollection();
+				const needle = rndKey(collection);
+				const predicate = isEqual(collection[needle]);
+				const data = [
+					[collection, needle],
+				];
+
+				testIterator({ fn, predicate, data });
+			});
 		});
 	});
 

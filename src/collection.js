@@ -112,18 +112,9 @@ const find = (collection, predicate) =>
 			collection[key], key, collection
 		))];
 
-const findLast = (collection, predicate) => {
-	const collectionKeys = libKeys(collection);
-	let i = collectionKeys.length;
-	let currentKey = Symbol('currentKey');
-
-	while(!((currentKey = collectionKeys[--i]) === undefined || predicate(
-		collection[currentKey], currentKey, collection
-	)))
-		;
-
-	return collection[currentKey];
-};
+const findLast = (collection, predicate) =>
+// eslint-disable-next-line no-use-before-define
+	collection[findLastKey(collection, predicate)];
 
 const lFind = findLast;
 
@@ -136,6 +127,19 @@ const findKey = (collection, predicate) => {
 };
 
 const findIndex = findKey;
+
+const findLastKey = (collection, predicate) => {
+	const collectionKeys = libKeys(collection);
+	let i = collectionKeys.length;
+	let currentKey = Symbol('currentKey');
+
+	while(!((currentKey = collectionKeys[--i]) === undefined || predicate(
+		collection[currentKey], currentKey, collection
+	)))
+		;
+
+	return currentKey;
+};
 
 /*
 * Recursively passes all the primitives in the given collection
@@ -578,6 +582,6 @@ export {
 	shell, assign, clone, squash, combine, merge, overlay, compose, fill,
 	patch, diff, secure, equals, contains,
 	gather, pick, toArray, toDict, adopt,
-	find, findLast, lFind, findKey, findIndex,
+	find, findLast, lFind, findKey, findIndex, findLastKey,
 	range, hasSame, shares, shuffle, sort, length,
 };
