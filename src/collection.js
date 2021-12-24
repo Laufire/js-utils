@@ -250,7 +250,7 @@ const gather = (collection, props) => {
 		const child = shell(propShell);
 
 		map(collection, (value, key) =>
-			(value[prop] !== undefined && (child[key] = value[prop])));
+			(value.hasOwnProperty(prop) && (child[key] = value[prop])));
 		ret[prop] = child;
 	});
 
@@ -448,7 +448,7 @@ const compose = (...objects) => {
 			const key = keysToPick[i++];
 			const val = current[key];
 
-			if(val !== undefined)
+			if(current.hasOwnProperty(key))
 				aggregate[key] = val;
 		}
 

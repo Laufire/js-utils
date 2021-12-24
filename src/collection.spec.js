@@ -1451,8 +1451,8 @@ describe('Collection', () => {
 			const collections = similarCols();
 			const prop = rndKey(rndValue(collections));
 
-			const expectation = tClean(tMap(collections,
-				(child) => child[prop]));
+			const expectation = tMap(collections,
+				(child) => child[prop]);
 
 			expect(pick(collections, prop)).toEqual(expectation);
 		});
