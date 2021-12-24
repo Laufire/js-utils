@@ -11,7 +11,7 @@
 TODO: Complete the doc comments.
 */
 
-import { isArray, isIterable, isDict } from './reflection';
+import { isArray, isIterable, isDict, isDefined } from './reflection';
 import { rndBetween, assign as libAssign, entries as libEntries,
 	values as libValues, keys as libKeys } from './lib';
 import { ascending } from './sorters';
@@ -137,8 +137,11 @@ const find = (collection, predicate) =>
 			collection[key], key, collection
 		))];
 
-const findLast = (collection, predicate) =>
-	collection[findLastKey(collection, predicate)];
+const findLast = (collection, predicate) => {
+	const key = findLastKey(collection, predicate);
+
+	return collection[isDefined(key) ? key : Symbol('')];
+};
 
 const lFind = findLast;
 
