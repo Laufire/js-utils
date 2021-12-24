@@ -3,6 +3,7 @@ import { findKey, reduce } from './collection';
 const initialSlash = /^\//;
 
 const fix = (path) => [
+	[/^$/, './/'],
 	[/^(?!(?:\.+\/)|\/|^\.+$)/, './'],
 	[/^(\.+)$/, '$1/'],
 	[/([^\\/]$)/, '$1/'],
@@ -46,6 +47,7 @@ const resolve = (() => {
 	const relativeMarker = /^\.+$/;
 
 	return (...paths) => {
+		// TODO: Implement native findLastKey.
 		const absoluteKey = findKey(paths, (part) =>
 			absoluteMarker.test(part));
 		const trimmed = paths.slice(absoluteKey);

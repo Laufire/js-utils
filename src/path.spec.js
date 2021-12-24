@@ -2,7 +2,6 @@ import { keys, map, range } from './collection';
 import { fix, parts, pathType, resolve } from './path';
 import { rndString, rndValue, rndBetween } from './random';
 import { retry } from '../test/helpers';
-import { equals } from '@laufire/utils/collection';
 
 const getRndRange = () => {
 	const lowerLimit = 0;
@@ -78,6 +77,12 @@ describe('path', () => {
 	const combinations = retry(() =>
 		generateCase(rndValue(keys(partFixers))));
 
+	const findLastKey = (coll, predicate) => coll.find(predicate);
+
+	const absPredicate = (
+		{ type }, i, arr
+	) => type === 'absolute' && !findLastKey(arr.slice(i + 1), absPredicate);
+
 	test('parts splits the given path into parts array', () => {
 		map(combinations, ({ path, parts: expected }) => {
 			expect(parts(path)).toEqual(expected);
@@ -96,28 +101,37 @@ describe('path', () => {
 		});
 	});
 
-	// TODO: Randomize.
-	test('resolve', () => {
-		const cases = [
-			[['./a/./b/../'], './a/'],
-			[['./'], './'],
-			[['/a', '/b'], '/b/'],
-			[['/'], '/'],
-			[['/a/'], '/a/'],
-			[['/a/../b/'], '/b/'],
-			[['/a/../b/../'], '/'],
-			[['/a/.../b/'], undefined],
-			[['./a./b'], './a./b/'],
-			[['../a', '../b'], '../b/'],
-			[['../a', '../b', './c'], '../b/c/'],
-			[['../../a', './b../', './c/d'], '.../a/b../c/d/'],
-		];
+	// eslint-disable-next-line complexity
+	test('resolves the given path', () => {
+		// TODO: Use native findLastKey.
+		const lastAbs = findLastKey(combinations, absPredicate);
+		const lastAbsIndex = combinations.indexOf(lastAbs);
+		const sliced = combinations.slice(lastAbsIndex);
+		const paths = map(sliced, ({ path }) => path);
+		const typeParts = map(sliced, ({ parts: x }) => x).flat();
 
-		map(cases, ([input, expected]) => {
-			const resolved = resolve(...input);
-			const result = equals(resolved, expected);
+		let pending = 0;
+		const labels = [];
 
-			expect(result).toEqual(true);
-		});
+		const relativeMarker = /^\.+$/;
+		const navigate = (part) => {
+			pending += Math.max(0, part.length - labels.length - 1);
+			labels.splice(1 - part.length || labels.length);
+		};
+
+		map(typeParts, (path) =>
+			(!relativeMarker.test(path)
+				? labels.push(path)
+				: navigate(path)));
+
+		const labelString = `${ labels.join('/') }${ labels.length ? '/' : '' }`;
+		const prefixer = `${ '.'.repeat(pending + (lastAbsIndex < 0 ? 1 : 0)) }/`;
+		const expected = lastAbsIndex > -1 && pending > 0
+			? undefined
+			: `${ prefixer }${ labelString }`;
+
+		const result = resolve(...paths);
+
+		expect(result).toEqual(expected);
 	});
 });
