@@ -306,12 +306,12 @@ describe('Collection', () => {
 	+ ' collection chose by predicate', () => {
 		test('example', () => {
 			const expectations = [
-				[44, 4],
+				[44, 5],
 				[1000, undefined],
 			];
 
 			tMap(expectations, ([needle, expectation]) =>
-				expect(findLastKey([999, 12, 8, 130, 44], isEqual(needle)))
+				expect(findLastKey([999, 12, 8, 44, 130, 44], isEqual(needle)))
 					.toEqual(expectation));
 		});
 
@@ -319,7 +319,13 @@ describe('Collection', () => {
 			retry(() => {
 				const fn = findLastKey;
 				const collection = rndCollection();
-				const needle = rndKey(collection);
+				const collectionKeys = tKeys(collection);
+				// TODO: Remove inferType after publishing.
+				const needle = converters[
+					inferType(collection)](rndValue(collectionKeys.slice(1)));
+				const index = collectionKeys.indexOf(needle);
+
+				collection[collectionKeys[index - 1]] = collection[needle];
 				const predicate = isEqual(collection[needle]);
 				const data = [
 					[collection, needle],
