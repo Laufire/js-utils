@@ -803,34 +803,82 @@ describe('Collection', () => {
 		});
 
 		// TODO: Use getNested from testHelpers and randomized.
-		test('nested test', () => {
-			const combineChildren = (children) => {
-				const index = reverseArray(children).findIndex((element) =>
-					!isArray(element)) + 1;
+		test.only('randomized test', () => {
+			const combineChildren = (reversedChildren) => {
+				const sliceIndex = reversedChildren.findIndex((element) =>
+					!isArray(element));
+				const matchIndex = (index) =>
+					(index <= 0 ? reversedChildren.length : sliceIndex);
 
-				return reverseArray(children)
-					.slice(index)
+				return reverseArray(reversedChildren
+					.slice(0, matchIndex(sliceIndex)))
 					.flat();
 			};
 
 			const testCombine = (combined, ...collections) => {
 				tMap(combined, (value, key) => {
-					const children = tClean(tPick(collections, key));
-					const [firstChild] = children;
+					// TODO: Use library filter.
+					const getChildren = () =>
+						tMap(collections.filter((collection) =>
+							isIterable(collection)
+								&& collection.hasOwnProperty(key)), (child) =>
+							child[key]);
+
+					const children = getChildren();
+					const cmbChildren = combineChildren(children);
 
 					isDict(value)
 						? testCombine(value, ...children)
 						: isArray(value)
 							? expectEquals(value,
-								combineChildren(children))
-							: expectEquals(value, firstChild);
+								cmbChildren)
+							: expectEquals(value, children[0]);
 				});
 			};
 
-			const combined = combine({}, ...mcoCollections);
+			retry(() => {
+				// eslint-disable-next-line no-constant-condition
+				const Inputs = false
+					? [tValues(rndNested(
+						3, 3, ['nested']
+					))]
+					: [
+						'[[{},[57,false,"HEKHMRAYNQKHOORW",null,null,null,null],["OXEGCIVIFTWTXWSO",null,null,null,null,null,null,null],[{},null,null,null,null,null,null,null],[null,null,null,null,null,null,{},null],[null,null,"OJCJGWIQAGNANWMA",{},["ORIXJGYV","QQKRNZWS","YOKJTOBG","KQPSRPDT","JJDMQQIP","CEPYJXWS","ZZTBKQXT"],null,null],[null,null,null,null,32,null,null,null]],[{"PHPHUDTA":21,"JMQDPFWA":false,"FDFEWYUP":["NXMYDICZ","KMQPAKTB","JWGZXCGY","XTYUDZPW","QUKMXRLB","YFXILNVA","JZGMHJUF"],"YGFYIQDI":true},[null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null],{"HARVNOSD":false},{"XRFTKECC":{}},{"CAOUJSJV":"2021-12-23T09:58:07.563Z"},{"HFKGTIRA":{},"EATHBSLJ":"2021-12-23T09:58:07.565Z"},[null,null,null,71,null,true,null]],{"KHSRHVYE":{"MTNMFHPD":["ODAMEROA","UZSSXOJG","LNNODYXK","HVODRZRR","MOPQMXKR","JNFVSORG","LAWLKMXX"]},"RXKCRSEW":{"WZGHVLDN":"2021-12-23T09:58:07.572Z","UGMEKEKI":false},"RFBSRZWG":[["HOQRHDYJ","ZOVOIFQN","NYSVUGKI","DJCCYJYJ","UYRXXFJY","HYCMKJRS","CNFMWVKZ"],null,{},null,null,null,null,null],"ZRMNELKV":{"LHESXSOJ":"2021-12-23T09:58:07.575Z","GRJKVYIJ":false,"TGKFGBGR":null},"MOFIHSEL":{"YIJLUXVM":"2021-12-23T09:58:07.577Z","XMCRLERO":true,"UOCCJLHQ":null},"RGDRMJJP":[null,null,true,null,null,null,null,null],"RZPFRRNP":{},"LNMMPFEM":[null,null,null,null,null,null,null]},[{"ATBIMKCL":null,"HGVUUPQW":{},"ZDOXZSPY":false},{"RAMSXJNX":"HIZNQFSUZUGMUBKF"},{"HOKODUPM":"WBAOZNDDTYBCMMCD","ATZAMPFQ":{},"GFSPVLSU":true,"PSOVOBFI":["APXNMSTT","TKWSBXWU","BJMDDXPT","HWRRVWNE","NURXVJRO","PVXXZJHP","WNDCCMAA"]},{"DLWEKNEB":true,"CDFQCZQF":"2021-12-23T09:58:07.593Z","KBLDMYLU":false},{"DSNHMBMR":{},"WXFPBCDX":{},"RHXAUXKM":"VELSHXRXSHWGIFVQ","FNKFJTMT":{}},[null,null,null,null,["IOWRQBVY","DGJKOOGL","OSVHPJRL","PBZRWVAV","ZNEGKKPB","LJANXHFX","UEMYIAPO"],47,null],[null,null,null,null,null,null,null,97],[null,null,"2021-12-23T09:58:07.602Z",null,null,"2021-12-23T09:58:07.603Z",true,null]],{"PZAYZQNW":{},"SFSWNMPZ":["2021-12-23T09:58:07.605Z",null,null,null,"2021-12-23T09:58:07.606Z",null,null],"CXBGXONJ":{"ETKFOBAM":"NYOLEPTFPOFLHWNV"},"CWUKQFQN":[null,null,["YVKDXAOY","MDOAWXGV","WWBYHPRW","IXDWBQPJ","XFMOKSUT","GJECQAOL","PJHMPNZO"],null,null,"2021-12-23T09:58:07.611Z",null,null],"EVZIFTZY":{"ZXVRBLVL":false},"SGQAVVBX":[null,83,null,null,null,null,{}],"FAIWJNQA":{"WGEUBADE":{},"ISCGQINB":["AVCOAILA","VGMYGWBA","DQTDWJEV","YWTUMPTG","GQJZPIFI","QUJUGSGK","EUCFVZTB","LRIEVNSL"],"TPYZTOOF":96,"QYFEOXBU":24},"VPAYWOAD":{"ULOGRWSF":92,"MHFLEEKK":"2021-12-23T09:58:07.618Z","WEXQYTME":null,"QMCTZMLJ":"2021-12-23T09:58:07.619Z","OTSXKKQN":false}},[{"NZQXCJNQ":"ESXIWPZLFOSFMULT","DXYITCFV":33},{"DSDVPGYZ":{},"KENGCCJA":true,"KXJGPYKL":78},["2021-12-23T09:58:07.624Z",null,null,null,null,null,null],[["VRMGMKMJ","PZGYUNDK","AVKESUFB","MSXWLXPJ","WGGKEZXW","VOSKYTXU","QVOJQZBQ","VKBEFEXJ"],null,null,null,"2021-12-23T09:58:07.627Z",null,null],[null,null,null,null,null,false,["DFKZBOEE","WNEBIZLI","PSUGQISG","AZYXBGVC","BRHWVJAW","MDPWTCKW","QKPAXHYK","SHNHIHND"]],{"LBLAMNBJ":"2021-12-23T09:58:07.630Z","PVCOBKZM":null},{"RLUQYVNU":{},"XSZMOIJH":"2021-12-23T09:58:07.634Z"}],[[null,null,null,null,null,null,null,63],[null,{},null,null,null,null,null],{"JURXSOZL":false},{"OLRSDLLB":{},"EIFTGMCK":false,"MGEHSJNW":["RPEJOOFM","HPZVILMP","HLRULFJT","WETUAIWZ","MPOTQSAK","UIRQKUYZ","XNISAMOO","YXGKEQAF"]},{"LFCCMMSK":"WTUZLMYXFXUKAMZH","PYNLSCXI":null,"BHKSELFZ":true},{"ZYFJLUDS":{},"GJHHTVDV":false,"OJODGPIX":{},"YKZKTTRO":["DWHUTDUZ","SZTAKXCT","MWXTTCZO","KSBPPKID","TWMJKGJK","SNONIFGO","JUJHYPRE"],"YRMAMDHA":{}},{"GBSXFMBX":"2021-12-23T09:58:07.649Z","SCZMCQLD":false}]]',
+						// '[{"LOBSOMTT": true},[null,null,null,null,null,null,["PUYVXCGT","ZZHTHSYF","CWKDRVPP","ABCHTISR","QWFIWHBH","OMIVGFCE","OWIDKXYG"]],{"OLQTHNQE": "2021-12-23T07:34:41.156Z"},{"KGGKBUUW": {},"IFVQBPLS": {},"YBZGLWUE": false},{"ACDPIGZA": ["EIAIZEGD","ZHNZYZBU","AKSBQQOX","NBEPAXZO","DASNKQKY","JDJOAEJR","XONWZATN"],"YSFVUMIV": true,"VDTOLWGD": 39,"HAUNHOIQ": {}},[null,null,false,null,null,{},["YREHOFQN","DBRXLLYY","AIFPKQMA","QCOECYFF","TBKMEKFJ","RZIYKKUR","RDDWHBRJ","HCUZOLBV"]],[{},null,null,null,null,null,null,null]]',
+						// '[["QTEWCATD","LOGVCPLD"],[[["BQKDYRME","XTJRNCAD"],null],["FFGWWOLA","SOEYLZSZ","JRFXEAQX"],[["OGLCAFHD","XKCKULTI","LEUEOLJP"],null,0]]]',
+					].map(JSON.parse);
 
-			testCombine(combined, ...reverseArray(mcoCollections));
+				map(Inputs, (input) => {
+					const mCollections = secure(input);
+
+					const combined = combine({}, ...mCollections);
+
+					testCombine(combined, ...reverseArray(mCollections));
+				});
+			});
 		});
+	});
+
+	test.skip('temp', () => {
+		const combineChildren = (reversedChildren) => {
+			const sliceIndex = reversedChildren.findIndex((element) =>
+				!isArray(element));
+			const matchIndex = (index) =>
+				(index <= 0 ? reversedChildren.length : sliceIndex);
+
+			return reverseArray(reversedChildren
+				.slice(0, matchIndex(sliceIndex)))
+				.flat();
+		};
+		const test = JSON.parse('[[[null,null,"USHVNNOGQYIHRIHY"],[null,null]],{"KDEUNSWR":{"OVMUMHQC":false},"PGYHLSAE":{},"MPHLPQPH":{}},[{"BTMUHNOR":false,"JWVZTHIR":false},[null,null,["GCBNZPDX","KNQIRFLH","PNSWPFVU"]]]]');
+
+		// Const needed = combineChildren(JSON.parse(test));
+
+		// Const coll = 		[[9], 5, [2], [1], 3, []];
+
+		const needed = combine({}, ...test);
+
+		console.log(needed);
 	});
 
 	describe('merge, combine and overlay shares some behaviors', () => {

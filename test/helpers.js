@@ -16,7 +16,7 @@ const defaults = {
 	numberPrecision: 4,
 	randomNumLimits: [0, numMaxLimit],
 	retryCount: 1000,
-	rndRangeLimits: [rangeMaxLimit, rangeMinLimit],
+	rndRangeLimits: [rangeMinLimit, rangeMaxLimit],
 };
 const stringLength = 16;
 
@@ -46,7 +46,9 @@ const rndNumber = () => rndBetween(...defaults.randomNumLimits);
 
 const fixNumber = (value) => value.toFixed(defaults.numberPrecision);
 
-const expectEquals = (valOne, valtwo) => expect(valOne).toEqual(valtwo);
+const expectEquals = (received, expected) => {
+	expect(received).toEqual(expected);
+};
 
 const rndDict = (minCount = 1) =>
 	fromEntries(map(rndRange(minCount), (value) =>
@@ -159,7 +161,7 @@ const rndNested = (
 		valueGenerators[rndValue(generators)](
 			depth, length, generators
 		))
-	: rndValue({ ...itrGenerators, ...nonItrGenerators })());
+	: rndValue(nonItrGenerators)());
 
 const toObject = (iterator) => reduce(
 	iterator, (acc, value) =>
