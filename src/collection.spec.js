@@ -602,7 +602,16 @@ describe('Collection', () => {
 		});
 
 		test('randomized test', () => {
-			expect(clone(object)).toEqual(object);
+			const rndNestedObj = rndNested();
+
+			const testCloned = (base, compared) => (!isIterable(base)
+				? expect(compared).toEqual(base)
+				: tMap(base, (value, key) =>
+					testCloned(value, compared[key])));
+
+			const clonedObj = clone(rndNestedObj);
+
+			testCloned(rndNestedObj, clonedObj);
 		});
 	});
 
