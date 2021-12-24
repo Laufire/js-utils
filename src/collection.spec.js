@@ -558,6 +558,35 @@ describe('Collection', () => {
 
 	describe('merge merges multiple objects into one', () => {
 		test('example', () => {
+			const inputs = [
+				{
+					a: 1,
+					c: 3,
+					d: [1, 2, 3],
+					e: [5],
+				},
+				{
+					b: 2,
+					c: 4,
+					d: [4, 5],
+					e: [6, 7],
+				},
+			];
+
+			const expected = {
+				a: 1,
+				b: 2,
+				c: 4,
+				d: [4, 5, 3],
+				e: [6, 7],
+			};
+
+			const merged = merge({}, ...inputs);
+
+			expect(merged).toEqual(expected);
+		});
+
+		test('complete example', () => {
 			const base = clone(complexObject);
 			const bottomLevelBase = clone(complexObject);
 			const topLevelBase = clone(complexObject);
@@ -616,6 +645,35 @@ describe('Collection', () => {
 
 	describe('overlay overlays multiple objects into one', () => {
 		test('example', () => {
+			const inputs = [
+				{
+					a: 1,
+					c: 3,
+					d: [1, 2, 3],
+					e: [5],
+				},
+				{
+					b: 2,
+					c: 4,
+					d: [4, 5],
+					e: [6, 7],
+				},
+			];
+
+			const expected = {
+				a: 1,
+				b: 2,
+				c: 4,
+				d: [4, 5],
+				e: [6, 7],
+			};
+
+			const overlaid = overlay({}, ...inputs);
+
+			expect(overlaid).toEqual(expected);
+		});
+
+		test('complete example', () => {
 			const base = clone(complexObject);
 			const bottomLevelBase = clone(complexObject);
 			const topLevelBase = clone(complexObject);
@@ -677,6 +735,35 @@ describe('Collection', () => {
 
 	describe('combine combines multiple objects into one', () => {
 		test('example', () => {
+			const inputs = [
+				{
+					a: 1,
+					c: 3,
+					d: [1, 2, 3],
+					e: [5],
+				},
+				{
+					b: 2,
+					c: 4,
+					d: [4, 5],
+					e: [6, 7],
+				},
+			];
+
+			const expected = {
+				a: 1,
+				b: 2,
+				c: 4,
+				d: [1, 2, 3, 4, 5],
+				e: [5, 6, 7],
+			};
+
+			const combined = combine({}, ...inputs);
+
+			expect(combined).toEqual(expected);
+		});
+
+		test('complete example', () => {
 			const base = clone(complexObject);
 			const underlayBase = clone(complexObject);
 			const overlayBase = clone(complexObject);
