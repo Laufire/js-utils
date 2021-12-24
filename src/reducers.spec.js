@@ -2,10 +2,12 @@
 import { dict, map, merge,
 	reduce, secure, shuffle } from '@laufire/utils/collection';
 import { rndValue } from '@laufire/utils/random';
-import { rndRange, extension, fixNumber, expectEquals } from '../test/helpers';
+import { rndRange, extension, fixNumber, expectEquals, rndNested }
+	from '../test/helpers';
 
 /* Tested */
-import { avg, count, len, max, min, product, reducer, sum } from './reducers';
+import { avg, count, flat, len, max, min, product, reducer, sum }
+	from './reducers';
 
 /* Spec */
 describe('Reducers', () => {
@@ -98,5 +100,27 @@ describe('Reducers', () => {
 		)).toEqual(merge(
 			{}, object, extension
 		));
+	});
+
+	describe('flat flattens the given collection recursively', () => {
+		test('example', () => {
+			const nestedArray = [1, 2, [3, [4]]];
+			const expectation = [1, 2, 3, 4];
+
+			expect(reduce(
+				nestedArray, flat, []
+			)).toEqual(expectation);
+		});
+
+		test('randomized test', () => {
+			const nestedArray = rndNested(
+				3, 3, ['nested', 'array']
+			);
+			const expectation = nestedArray.flat(Infinity);
+
+			expect(reduce(
+				nestedArray, flat, []
+			)).toEqual(expectation);
+		});
 	});
 });

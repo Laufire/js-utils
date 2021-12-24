@@ -3,6 +3,7 @@
  */
 
 import { keys } from './lib';
+import { isArray } from './reflection';
 
 const sum = (t, c) => t + c;
 
@@ -22,6 +23,10 @@ const min = (t, c) => (t < c ? t : c);
 
 const max = (t, c) => (t > c ? t : c);
 
+// LATER: Think of introducing flat for objects.
+const flat = (t, c) =>
+	[...t, ...isArray(c) ? c.flat(Infinity) : [c]];
+
 /**
  * A function to derive reducers from collection functions like merge,
  * compose, squash and adopt.
@@ -38,4 +43,5 @@ export {
 	min,
 	max,
 	reducer,
+	flat,
 };
