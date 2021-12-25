@@ -825,20 +825,24 @@ describe('Collection', () => {
 							child[key]);
 
 					const children = getChildren();
-					const cmbChildren = combineChildren(children);
+					const findLastIndex = (arr, predicate) =>
+						arr.findIndex((item, i) => predicate(item)
+						&& (i + 1 === arr.length
+							|| arr.slice(i + 1).findIndex(predicate) === -1));
+					const till = (arr, predicate) =>
+						arr.slice(0, findLastIndex(arr, predicate) + 1);
 
 					isDict(value)
-						? testCombine(value, ...children)
+						? testCombine(value, ...till(children, isDict))
 						: isArray(value)
-							? expectEquals(value,
-								cmbChildren)
+							? expectEquals(value, combineChildren(children))
 							: expectEquals(value, children[0]);
 				});
 			};
 
 			retry(() => {
 				// eslint-disable-next-line no-constant-condition
-				const Inputs = false
+				const Inputs = true
 					? [tValues(rndNested(
 						3, 3, ['nested']
 					))]
