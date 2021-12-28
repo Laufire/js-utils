@@ -11,6 +11,7 @@ import { avg, count, flat, len, max, min, product, reducer, sum }
 
 /* Spec */
 describe('Reducers', () => {
+	// TODO: Use numberArray.
 	const array = secure(shuffle(rndRange()));
 	const object = secure(dict(array));
 	const collections = [object, array];

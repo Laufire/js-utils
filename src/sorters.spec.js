@@ -69,6 +69,7 @@ describe('Sorters', () => {
 
 		test('compile works with two dimensional arrays.', () => {
 			const config = secure(['ascending', 'descending']);
+			// TODO: Secure.
 			const arrData = map(data, values);
 			const expected = translate([2, 0, 1, 3], arrData);
 

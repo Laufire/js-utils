@@ -19,7 +19,9 @@ import { isEqual, isSame, isPart, doesContain,
 
 /* Spec */
 describe('Predicates', () => {
+	// TODO: Secure.
 	const truthies = [1, '2', true, [], {}];
+	// TODO: Secure.
 	const falsies = [0, '', false, undefined, null];
 	const tAndFArray = secure(shuffle(truthies.concat(falsies)));
 
@@ -153,6 +155,7 @@ describe('Predicates', () => {
 			});
 
 		test('the generator onProp passes args properly', () => {
+			// TODO: Secure.
 			const mockCollection = { [childKey]: childCollection };
 			const prop = rndKey(childCollection);
 			const args = [childCollection[prop], childKey, mockCollection];
@@ -167,6 +170,7 @@ describe('Predicates', () => {
 	+ ' collection functions', () => {
 		const childKey = rndKey(extCollection);
 		const childCollection = extCollection[childKey];
+		// TODO: Secure.
 		const mockCollection = { ...extCollection, isolated };
 
 		expect(filter(mockCollection, predicate(isSame(childCollection))))
@@ -184,6 +188,7 @@ describe('Predicates', () => {
 	test('isIn returns a predicate to check for a given values'
 	+ ' in collections', () => {
 		map([array, object], (iterable) => {
+			// TODO: Secure.
 			const haystackObject = dict(rndValues(values(iterable),
 				rndBetween(0, keys(iterable).length - 1)));
 			const haystackArray = values(haystackObject);

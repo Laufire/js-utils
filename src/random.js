@@ -59,6 +59,7 @@ const rndString = (length = 8, seed = 'char') => {
  * @param {string} string - The seed string.
  * @returns {string} The resulting random substring.
  */
+// TODO: Introduce a min-length parameter.
 const rndOfString = (string) =>
 	Array.from(new Set(rndString(rndBetween(1, string.length), string)
 		.split(''))).join('');

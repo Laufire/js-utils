@@ -5,6 +5,7 @@ import { partial, translate } from './partials';
 test('translate returns a partial to access values of collections', () => {
 	const key = rndString();
 	const number = rndNumber();
+	// TODO: Secure.
 	const map = { [key]: number };
 	const translator = translate(map);
 
@@ -20,7 +21,9 @@ describe('partial returns a partially provisioned function, '
 
 	test('arrays are used for positional arguments', () => {
 		const sum = (a, b) => a + b;
+		// TODO: Secure.
 		const withoutBValue = partial(sum, [numOne]);
+		// TODO: Secure.
 		const withoutAValue = partial(sum, [undefined, numThree]);
 
 		expect(withoutBValue(numTwo)).toEqual(numOne + numTwo);
@@ -29,7 +32,9 @@ describe('partial returns a partially provisioned function, '
 
 	test('objects are used for named arguments', () => {
 		const sum = ({ a, b }) => a + b;
+		// TODO: Secure.
 		const simple = partial(sum, { a: numOne });
+		// TODO: Secure.
 		const overridden = partial(sum, { a: numOne - rndNumber() });
 
 		expect(simple({ b: numTwo })).toEqual(numOne + numTwo);

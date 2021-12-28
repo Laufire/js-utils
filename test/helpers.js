@@ -43,6 +43,7 @@ const isAcceptable = (
 const rndKey = (collection) =>
 	converters[inferType(collection)](rndValue(keys(collection)));
 
+// TODO: Use converters.
 const rndKeys = (collection) => rndValues(keys(collection),
 	rndBetween(1, keys(collection).length - 1));
 
