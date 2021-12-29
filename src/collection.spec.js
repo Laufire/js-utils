@@ -1537,14 +1537,9 @@ describe('Collection', () => {
 			const collections = similarCols();
 			const prop = rndKey(rndValue(collections));
 
-			const expectation = tReduce(
-				collections, (
-					acc, child, key
-				) => {
-					child.hasOwnProperty(prop) && (acc[key] = child[prop]);
-					return acc;
-				}, shell(collections)
-			);
+			const expectation = tMap(tFilter(collections, (child) =>
+				child.hasOwnProperty(prop)),
+			(child) => child[prop]);
 
 			expect(pick(collections, prop)).toEqual(expectation);
 		});
