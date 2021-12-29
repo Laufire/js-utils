@@ -17,7 +17,7 @@ const defaults = {
 	numberPrecision: 4,
 	randomNumLimits: [0, numMaxLimit],
 	retryCount: 1000,
-	rndRangeLimits: [rangeMaxLimit, rangeMinLimit],
+	rndRangeLimits: [rangeMinLimit, rangeMaxLimit],
 };
 const stringLength = 16;
 // TODO: Remove the converters after using published functions.
@@ -64,6 +64,14 @@ const rndArray = (minCount = 1) =>
 
 const rndCollection = (minCount = 1) =>
 	rndValue([rndRange, rndDict])(minCount);
+
+const findLastIndex = (arr, predicate) =>
+	arr.findIndex((item, i) => predicate(item)
+							&& arr.slice(i + 1)
+								.findIndex(predicate) === -1);
+
+const till = (arr, predicate) =>
+	arr.slice(0, findLastIndex(arr, predicate) + 1);
 
 const fn = function () {};
 
@@ -166,7 +174,7 @@ const rndNested = (
 		valueGenerators[rndValue(generators)](
 			depth, length, generators
 		))
-	: rndValue({ ...itrGenerators, ...nonItrGenerators })());
+	: rndValue(nonItrGenerators)());
 
 const toObject = (iterator) => reduce(
 	iterator, (acc, value) =>
@@ -199,6 +207,6 @@ export {
 	rndRange, rndDict, rndArray, rndCollection, rndNested,
 	rndNumber, fixNumber, toObject, rndKey, rndKeys,
 	sortArray, strSubSet, retry, isAcceptable, expectEquals,
-	allTypes, emptyTypes, rnd,
-	similarCols, iterableTypes,
+	allTypes, emptyTypes, rnd, similarCols, iterableTypes,
+	till, findLastIndex,
 };
