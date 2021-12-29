@@ -45,16 +45,16 @@ test('defined filters the first defined value', () => {
 			.toEqual(isDefined(item) ? item : values[i + 1]));
 });
 
-test('returns the same input value', () => {
+test('self returns the same input value', () => {
 	const x = Symbol('x');
 
 	expect(self(x)).toEqual(x);
 });
 
 test('identity is an alias of self', () => {
-	expect(self).toEqual(identity);
+	expect(identity).toEqual(self);
 });
 
-test('returns undefined', () => {
+test('nothing returns undefined', () => {
 	expect(nothing()).toEqual(undefined);
 });

@@ -4,6 +4,7 @@ import {
 } from '@laufire/utils/collection';
 import { rndValue, rndBetween, rndString, rndValues }
 	from '@laufire/utils/random';
+import { inferType } from '@laufire/utils/reflection';
 import TestConfig from './config';
 
 /* Config */
@@ -19,6 +20,11 @@ const defaults = {
 	rndRangeLimits: [rangeMaxLimit, rangeMinLimit],
 };
 const stringLength = 16;
+// TODO: Remove the converters after using published functions.
+const converters = {
+	array: Number,
+	object: String,
+};
 
 /* Functions */
 const sortArray = (arr) => arr.slice().sort();
@@ -34,7 +40,8 @@ const isAcceptable = (
 	actual, expected, margin
 ) => Math.abs((expected - actual) / (expected || 1)) <= margin;
 
-const rndKey = (collection) => rndValue(keys(collection));
+const rndKey = (collection) =>
+	converters[inferType(collection)](rndValue(keys(collection)));
 
 const rndKeys = (collection) => rndValues(keys(collection),
 	rndBetween(1, keys(collection).length - 1));
@@ -188,7 +195,7 @@ const similarCols = () => {
 export {
 	contracted, array, object, cloned,
 	extension, extended, isolated, ecKeys,
-	collection, extCollection, numberArray, simpleTypes,
+	collection, extCollection, numberArray, converters, simpleTypes,
 	rndRange, rndDict, rndArray, rndCollection, rndNested,
 	rndNumber, fixNumber, toObject, rndKey, rndKeys,
 	sortArray, strSubSet, retry, isAcceptable, expectEquals,

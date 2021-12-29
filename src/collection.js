@@ -11,7 +11,7 @@
 TODO: Complete the doc comments.
 */
 
-import { isArray, isIterable, isDict } from './reflection';
+import { isArray, isIterable, isDict, isDefined } from './reflection';
 import { rndBetween, assign as libAssign, entries as libEntries,
 	values as libValues, keys as libKeys } from './lib';
 import { ascending } from './sorters';
@@ -106,12 +106,6 @@ const nReduce = (
 		)), initial
 );
 
-const find = (collection, predicate) =>
-	collection[libKeys(collection).find((key) =>
-		predicate(
-			collection[key], key, collection
-		))];
-
 const findKey = (collection, predicate) => {
 	const colKeys = libKeys(collection);
 
@@ -121,6 +115,35 @@ const findKey = (collection, predicate) => {
 };
 
 const findIndex = findKey;
+
+const findLastKey = (collection, predicate) => {
+	const collectionKeys = libKeys(collection);
+	let i = collectionKeys.length;
+	let currentKey = Symbol('currentKey');
+
+	while(!((currentKey = collectionKeys[--i]) === undefined || predicate(
+		collection[currentKey], currentKey, collection
+	)))
+		;
+
+	return currentKey;
+};
+
+const lFindKey = findLastKey;
+
+const find = (collection, predicate) =>
+	collection[libKeys(collection).find((key) =>
+		predicate(
+			collection[key], key, collection
+		))];
+
+const findLast = (collection, predicate) => {
+	const key = findLastKey(collection, predicate);
+
+	return collection[isDefined(key) ? key : Symbol('')];
+};
+
+const lFind = findLast;
 
 /*
 * Recursively passes all the primitives in the given collection
@@ -250,7 +273,7 @@ const gather = (collection, props) => {
 		const child = shell(propShell);
 
 		map(collection, (value, key) =>
-			(value[prop] !== undefined && (child[key] = value[prop])));
+			(value.hasOwnProperty(prop) && (child[key] = value[prop])));
 		ret[prop] = child;
 	});
 
@@ -448,7 +471,7 @@ const compose = (...objects) => {
 			const key = keysToPick[i++];
 			const val = current[key];
 
-			if(val !== undefined)
+			if(current.hasOwnProperty(key))
 				aggregate[key] = val;
 		}
 
@@ -563,5 +586,6 @@ export {
 	shell, assign, clone, squash, combine, merge, overlay, compose, fill,
 	patch, diff, secure, equals, contains,
 	gather, pick, toArray, toDict, adopt,
-	find, findKey, findIndex, range, hasSame, shares, shuffle, sort, length,
+	find, findLast, lFind, findKey, findIndex, findLastKey, lFindKey,
+	range, hasSame, shares, shuffle, sort, length,
 };
