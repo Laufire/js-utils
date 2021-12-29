@@ -1,123 +1,197 @@
-import { keys, map, range } from './collection';
+import { equals, findKey, keys, map, range, reduce } from './collection';
 import { fix, parts, pathType, resolve } from './path';
 import { rndString, rndValue, rndBetween } from './random';
 import { retry } from '../test/helpers';
-import { equals } from '@laufire/utils/collection';
+import { isProbable } from './prob';
 
-const getRndRange = () => {
-	const lowerLimit = 0;
-	const higherLimit = 8;
+const higherLimit = 8;
+const lowerLimit = 0;
 
-	return range(0, rndBetween(lowerLimit, higherLimit));
-};
+// TODO: Use rndRange from helpers.
+const getRndRange = () => range(0, rndBetween(lowerLimit, higherLimit));
 
 const relativeDots = () => '.'.repeat(rndBetween(1, 5));
 
-const rndName = () => rndString(rndBetween(5, 10));
+const rndName = () => rndString(rndBetween(5, 10),
+	'abcdefghijklmnopqrstuvwxyz.');
 
 const emptyName = () => '';
 
 const randomParts = () => map(getRndRange(), () =>
 	rndValue([emptyName, rndName, relativeDots])());
 
-const emptyParts = () => ['.', ''];
+// Fix matcher
+const isLabel = (initialPart) => (/^[^\\.]*$/).test(initialPart);
 
-const nonEmptyParts = () => [rndValue([relativeDots(), rndString()])];
+const fixers = {
+	absolute: {
+		partFixer: (pathParts) => pathParts,
+		pathFixer: (pathParts) => (pathParts.length ? '/' : ''),
+		prefix: '/',
+	},
 
-const partFixers = {
-	absolute: (pathParts) => pathParts,
-
-	relative: (pathParts) => [relativeDots(), ...pathParts],
-
-	lax: (pathParts) => {
-		const initialParts = rndValue([emptyParts, nonEmptyParts])();
-		const laxParts = [...initialParts, ...pathParts];
-		const suffix = (/^\.+$/).test(laxParts[0])
-			&& laxParts[laxParts.length - 1] === '';
-
-		return [
-			...laxParts,
-			...suffix ? nonEmptyParts() : [],
-		];
+	relative: {
+		partFixer: (pathParts) => [relativeDots(), ...pathParts],
+		pathFixer: () => '',
+		prefix: './',
 	},
 };
 
-const isName = (initialPart) => (/^[^\\.]*$/).test(initialPart);
+// eslint-disable-next-line complexity
+const toLax = (source, type) => {
+	const { prefix } = fixers[type];
+	const suffix = '/';
+	const prefixProb = source.length === 0 || source[0] === ''
+		? 1
+		: type === 'relative'
+			? isLabel(source[0]) ? 0.5 : 0
+			: source.length ? 1 : 0;
+	const suffixProb = source[source.length - 1] === ''
+		? 1
+		: source.length ? 0.5 : 0;
 
-const prefixes = {
-	absolute: (pathParts) => (pathParts.length ? '/' : ''),
-
-	relative: () => '',
-
-	lax: ([initialPart]) => (isName(initialPart) ? './' : ''),
+	return `${ isProbable(prefixProb) ? prefix : '' }${ source.join('/') }${ isProbable(suffixProb) ? suffix : '' }`;
 };
 
-const toLax = (fixed, pathParts) =>
-	fixed.slice((/[^\\.]/).test(pathParts[0]) ? 2 : 0)
-		.slice(0, pathParts[pathParts.length - 1] === '' ? undefined : -1);
-
-const generateCase = (type) => {
-	const pathParts = partFixers[type](randomParts());
-	const fixed = `${ prefixes[type](pathParts) }${ pathParts.join('/') }/`;
+// eslint-disable-next-line complexity
+const generateCase = () => {
+	const fixedType = rndValue(keys(fixers));
+	const isLax = rndValue([true, false]);
+	const { partFixer, pathFixer } = fixers[fixedType];
+	const source = partFixer(randomParts());
+	const fixed = `${ pathFixer(source) }${ source.join('/') }/`;
 	const fixedParts = [
-		...type === 'lax' && isName(pathParts[0]) ? ['.'] : [],
-		...pathParts,
+		...fixedType === 'lax' && isLabel(source[0]) ? ['.'] : [],
+		...source,
 	];
 
-	const path = type !== 'lax'	? fixed	: toLax(fixed, pathParts);
+	const path = isLax ? toLax(source, fixedType) : fixed;
+	const type = fixed !== path ? 'lax' : fixedType;
 
 	return {
-		parts: fixedParts,
+		type: type,
+		fixedType: fixedType,
+		parts: source,
+		fixedParts: fixedParts,
 		path: path,
 		fixed: fixed,
-		type: type,
 	};
 };
 
 describe('path', () => {
-	const combinations = retry(() =>
-		generateCase(rndValue(keys(partFixers))));
+	const testCases = retry(() =>
+		generateCase(), 10000);
 
-	test('parts splits the given path into parts array', () => {
-		map(combinations, ({ path, parts: expected }) => {
-			expect(parts(path)).toEqual(expected);
+	describe('Generated cases', () => {
+		const cases = retry(() =>
+			generateCase(rndValue(keys(fixers))), 10000);
+
+		test('Parts length should be from 0 to 8', () => {
+			const items = map(cases, ({ parts: { length }}) => length);
+			const lengths = [...new Set(items)];
+
+			// TODO: Use publised rndBetween.
+			const result = equals(range(lowerLimit, higherLimit + 1),
+				lengths.sort());
+
+			expect(result).toEqual(true);
+		});
+
+		test('All types of paths should be present', () => {
+			const items = map(cases, ({ type }) => type);
+			const types = ['absolute', 'relative', 'lax'];
+			const result = types.filter((type) => items.includes(type));
+
+			expect(result).toEqual(types);
+		});
+
+		test('All path types should be present.', () => {
+			const matchers = {
+				relative: /^\.+$/,
+				empty: /^$/,
+				name: /[a-z\\.]+/,
+			};
+
+			const reduced = reduce(
+				cases, (acc, { parts: currentParts }) =>
+					[...acc, ...currentParts], []
+			);
+
+			const { relative, empty, name } = reduce(
+				reduced, (acc, part) => {
+					const type = findKey(matchers, (matcher) =>
+						matcher.test(part));
+
+					return { ...acc, [type]: acc[type] + 1 };
+				}, { relative: 0, empty: 0, name: 0 }
+			);
+
+			expect(relative + empty + name).toEqual(reduced.length);
 		});
 	});
 
 	test('fix fixes the given path', () => {
-		map(combinations, ({ path, fixed: expected }) => {
-			expect(fix(path)).toEqual(expected);
+		map(testCases, ({ path, fixed }) => {
+			expect(fix(path)).toEqual(fixed);
+		});
+	});
+
+	test('parts splits the given path into parts array', () => {
+		map(testCases, ({ path, parts: expected }) => {
+			expect(parts(path)).toEqual(expected);
 		});
 	});
 
 	test('pathType identifies the path type of the given path', () => {
-		map(combinations, ({ path, type: expected }) => {
+		map(testCases, ({ path, type: expected }) => {
 			expect(pathType(path)).toEqual(expected);
 		});
 	});
 
-	// TODO: Randomize.
-	test('resolve', () => {
-		const cases = [
-			[['./a/./b/../'], './a/'],
-			[['./'], './'],
-			[['/a', '/b'], '/b/'],
-			[['/'], '/'],
-			[['/a/'], '/a/'],
-			[['/a/../b/'], '/b/'],
-			[['/a/../b/../'], '/'],
-			[['/a/.../b/'], undefined],
-			[['./a./b'], './a./b/'],
-			[['../a', '../b'], '../b/'],
-			[['../a', '../b', './c'], '../b/c/'],
-			[['../../a', './b../', './c/d'], '.../a/b../c/d/'],
-		];
+	test('resolves the given path', () => {
+		// eslint-disable-next-line complexity
+		const buildExpectation = (cases) => {
+			const findLastIndex = (arr, predicate) =>
+				arr.findIndex((item, i) => predicate(item)
+							&& (i + 1 === arr.length
+							|| arr.slice(i + 1).findIndex(predicate) === -1));
+			const lastAbsIndex = findLastIndex(cases, ({ fixedType }) =>
+				fixedType === 'absolute');
+			const sliced = cases.slice(lastAbsIndex > -1 ? lastAbsIndex : 0);
+			const typeParts = map(sliced, ({ parts: x }) => x).flat();
 
-		map(cases, ([input, expected]) => {
-			const resolved = resolve(...input);
-			const result = equals(resolved, expected);
+			let pending = 0;
+			const labels = [];
 
-			expect(result).toEqual(true);
+			const relativeMarker = /^\.+$/;
+			const navigate = (part) => {
+				pending += Math.max(0, part.length - labels.length - 1);
+				labels.splice(1 - part.length || labels.length);
+			};
+
+			map(typeParts, (path) =>
+				(!relativeMarker.test(path)
+					? labels.push(path)
+					: navigate(path)));
+
+			const labelString = `${ labels.join('/') }${ labels.length ? '/' : '' }`;
+			const prefixer = `${ '.'.repeat(pending + (lastAbsIndex < 0 ? 1 : 0)) }/`;
+
+			return lastAbsIndex > -1 && pending > 0
+				? undefined
+				: `${ prefixer }${ labelString }`;
+		};
+
+		retry(() => {
+			const cases = retry(() =>
+				generateCase(), rndBetween(0, 10));
+
+			const expected = buildExpectation(cases);
+
+			const paths = map(cases, ({ path }) => path);
+			const result = resolve(...paths);
+
+			expect(result).toEqual(expected);
 		});
 	});
 });
