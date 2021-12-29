@@ -8,7 +8,7 @@ import { sortArray, rndKey, numberArray, array, object, expectEquals, extension,
 	rndDict, rndNested, extended, isolated, cloned, simpleTypes, ecKeys,
 	extCollection, collection as hCollection, toObject,
 	rndKeys, rndArray, rndRange, rnd, similarCols,
-	iterableTypes, allTypes, retry, rndCollection, converters }
+	iterableTypes, allTypes, retry, rndCollection, converters, till }
 	from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
@@ -91,36 +91,6 @@ describe('Collection', () => {
 		e: [0, 1],
 		f: 'only in compared',
 	});
-
-	const mcoCollections = [
-		{
-			a: 1, b: 2,
-			c: {
-				d: {
-					e: [1, 3],
-				},
-			},
-		},
-		{
-			a: 2,
-			c: {
-				d: {
-					e: [6, 9],
-					f: 7,
-				},
-				g: 8,
-			},
-		},
-		{
-			b: 1,
-			c: {
-				d: {
-					e: [8, 2],
-					h: 9,
-				},
-			},
-		},
-	];
 
 	const expectationBase = tSecure(tMap(object, (dummy, key) =>
 		Symbol(key)));
@@ -889,33 +859,44 @@ describe('Collection', () => {
 		});
 
 		// TODO: Use getNested from testHelpers and randomized.
-		test('nested test', () => {
-			const combineChildren = (children) => {
-				const index = reverseArray(children).findIndex((element) =>
-					!isArray(element)) + 1;
+		test('randomized test', () => {
+			const getMatchingIndex = (arr, index) =>
+				(index <= 0 ? arr.length : index);
 
-				return reverseArray(children)
-					.slice(index)
+			const combineChildren = (reversedChildren) => {
+				const sliceIndex = reversedChildren.findIndex((element) =>
+					!isArray(element));
+
+				return reverseArray(reversedChildren
+					.slice(0, getMatchingIndex(reversedChildren, sliceIndex)))
 					.flat();
 			};
 
-			const testCombine = (combined, ...collections) => {
-				tMap(combined, (value, key) => {
-					const children = tClean(tPick(collections, key));
-					const [firstChild] = children;
+			const getChildren = (collections, key) =>
+			// TODO: Use library filter.
+				tMap(collections.filter((collection) =>
+					isIterable(collection)
+								&& collection.hasOwnProperty(key)), (child) =>
+					child[key]);
 
-					isDict(value)
-						? testCombine(value, ...children)
+			const testCombine = (combined, ...collections) =>
+				tMap(combined, (value, key) =>
+					(isDict(value)
+						? testCombine(value,
+							...till(getChildren(collections, key), isDict))
 						: isArray(value)
 							? expectEquals(value,
-								combineChildren(children))
-							: expectEquals(value, firstChild);
-				});
-			};
+								combineChildren(getChildren(collections, key)))
+							: expectEquals(value,
+								getChildren(collections, key)[0])));
 
-			const combined = combine({}, ...mcoCollections);
+			retry(() => {
+				const inputs = tValues(rndNested());
 
-			testCombine(combined, ...reverseArray(mcoCollections));
+				const combined = combine({}, ...inputs);
+
+				testCombine(combined, ...reverseArray(inputs));
+			});
 		});
 	});
 

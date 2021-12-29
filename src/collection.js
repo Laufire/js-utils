@@ -299,9 +299,10 @@ const pick = (collection, prop) =>
  */
 const combine = (() => {
 	const worker = (base, extension) =>
-		(isArray(base) && isArray(extension)
-		// eslint-disable-next-line no-sequences
-			? (base.push(...extension), base)
+		(isArray(base)
+			? isArray(extension)
+				? (base.push(...extension), base)
+				: extension
 			: (libKeys(extension).forEach((key) => {
 				const child = base[key];
 				const childExtension = extension[key];
@@ -318,7 +319,7 @@ const combine = (() => {
 
 	return (base, ...extensions) =>
 		extensions.forEach((extension) =>
-			extension !== undefined && worker(base, extension)) || base;
+			isIterable(extension) && worker(base, clone(extension))) || base;
 })();
 
 /**
