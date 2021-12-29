@@ -1,4 +1,5 @@
-import { findKey, reduce } from './collection';
+import { findKey, reduce, findLastKey, map } from './collection';
+import { isDefined } from './reflection';
 
 const initialSlash = /^\//;
 
@@ -25,14 +26,15 @@ const parts = (() => {
 const join = (pathParts) => `${ pathParts.join('/') }/`;
 
 const types = {
-	absolute: /^(\/)(?:.+\/$)?/,
-	relative: /^(\.+\/)(?:.*\/$)?$/,
-	lax: /(^(?:(?!\.+\/)|\/).+)|(.+[^\\/]$)/,
+	absolute: /^\/(?:[^\\/]*\/)*$/,
+	relative: /^\.+\/(?:[^\\/]*\/)*$/,
+	lax: /.*/,
 };
 
 const pathType = (path) => findKey(types, (matcher) => matcher.test(path));
 
 const appendLabel = (baseParts, part) => baseParts.concat(part);
+
 const navigate = (baseParts, part) => {
 	const diff = part.length - baseParts.length;
 
@@ -43,25 +45,25 @@ const navigate = (baseParts, part) => {
 
 // eslint-disable-next-line max-lines-per-function
 const resolve = (() => {
-	const absoluteMarker = /^(?:\/)(?:.+\/$)?/;
-	const relativeMarker = /^\.+$/;
+	const navigationMarker = /^\.+$/;
+	const isAbsolute = (path) =>
+		pathType(path) === 'absolute';
 
 	return (...paths) => {
-		// TODO: Implement native findLastKey.
-		const absoluteKey = findKey(paths, (part) =>
-			absoluteMarker.test(part));
-		const trimmed = paths.slice(absoluteKey);
+		const fixedPaths = map(paths, fix);
+		const absoluteKey = findLastKey(fixedPaths, isAbsolute);
+		const trimmed = fixedPaths.slice(absoluteKey);
 		const reduced = reduce(
 			trimmed, (baseParts, path) => reduce(
 				parts(path), (acc, part) =>
-					(relativeMarker.test(part)
+					(navigationMarker.test(part)
 						? navigate
 						: appendLabel)(acc, part)
-				, absoluteMarker.test(path) ? ['.'] : baseParts
+				, baseParts
 			), ['.']
 		);
 
-		return absoluteKey <= 0
+		return isDefined(absoluteKey)
 			? reduced[0].length > 1
 				? undefined
 				: join(['', ...reduced.slice(1)])
