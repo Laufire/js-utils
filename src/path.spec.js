@@ -1,5 +1,5 @@
 import {
-	findKey, keys, map, pick, range, reduce,
+	find,	findKey, keys, map, pick, range, reduce, filter,
 } from '@laufire/utils/collection';
 import { sum } from '@laufire/utils/reducers';
 import { rndString, rndValue, rndBetween } from '@laufire/utils/random';
@@ -28,7 +28,7 @@ const randomParts = () => map(getRndRange(), () =>
 const matchers = {
 	relative: /^\.+$/,
 	empty: /^$/,
-	label: /[a-z\\.]+/,
+	label: /^(?:\.*[^\\.]+\.*)*$/,
 };
 
 const getPartType = (part) =>
@@ -49,21 +49,48 @@ const fixers = {
 	},
 };
 
-// eslint-disable-next-line complexity
-const toLax = (source, type) => {
-	const { prefix } = fixers[type];
-	const suffix = '/';
-	const prefixProb = source.length === 0 || source[0] === ''
-		? 1
-		: type === 'relative'
-			? isLabel(source[0]) ? 0.5 : 0
-			: source.length ? 1 : 0;
-	const suffixProb = source[source.length - 1] === ''
-		? 1
-		: source.length ? 0.5 : 0;
+const toLax = (() => {
+	const prefixProbs = {
+		should: {
+			qualifier: (source, type) =>
+				type === 'absolute' || source.length === 0 || source[0] === '',
+			value: 1,
+		},
+		shouldNot: {
+			qualifier: ([firstPart], type) =>
+				type === 'relative' && getPartType(firstPart) === 'relative',
+			value: 0,
+		},
+		optional: {
+			qualifier: ([firstPart], type) =>
+				type === 'relative' && isLabel(firstPart),
+			value: 0.5,
+		},
+	};
 
-	return `${ isProbable(prefixProb) ? prefix : '' }${ source.join('/') }${ isProbable(suffixProb) ? suffix : '' }`;
-};
+	const segments = {
+		prefix: (source, type) => {
+			const { prefix } = fixers[type];
+			const { value: prob } = find(prefixProbs, ({ qualifier }) =>
+				qualifier(source, type));
+
+			return `${ isProbable(prob) ? prefix : '' }`;
+		},
+		body: (source) => source.join('/'),
+		suffix: (source) => {
+			const prob = source[source.length - 1] === ''
+				? 1
+				: source.length ? 0.5 : 0;
+
+			return `${ isProbable(prob) ? '/' : '' }`;
+		},
+	};
+
+	return (source, type) => reduce(
+		segments, (acc, segment) =>
+			acc + segment(source, type), ''
+	);
+})();
 
 const fixParts = (source, fixedType) => [
 	...fixedType === 'lax' && isLabel(source[0]) ? ['.'] : [],
@@ -112,8 +139,8 @@ describe('path', () => {
 		test('All types of paths should be present', () => {
 			const validTypes = ['absolute', 'relative', 'lax'];
 			const types = pick(testCases, 'type');
-			const allTypes = validTypes
-				.filter((validType) => types.includes(validType));
+			const allTypes = filter(validTypes, (validType) =>
+				types.includes(validType));
 
 			expect(allTypes).toEqual(validTypes);
 		});
