@@ -118,14 +118,18 @@ const generateCase = () => {
 };
 
 describe('path', () => {
-	const testCases = retry(generateCase, 10000);
+	const generatedCases = retry(generateCase, 10000);
+
+	const testCases = (fn, cases) => map(cases, ({ input, expectation }) => {
+		expect(fn(input)).toEqual(expectation);
+	});
 
 	describe('Generated cases', () => {
 		test('Parts length should be from 0 to'
 			+ 'one more than higherLimit',
 		() => {
 			// NOTE: Length is one more than higherLimit due relative partFixer.
-			const items = map(testCases, ({ parts: { length }}) => length);
+			const items = map(generatedCases, ({ parts: { length }}) => length);
 			// TODO: Use library functions post publish.
 			const lengths = [...new Set(items)].sort();
 
@@ -138,7 +142,7 @@ describe('path', () => {
 
 		test('All types of paths should be present', () => {
 			const validTypes = ['absolute', 'relative', 'lax'];
-			const types = pick(testCases, 'type');
+			const types = pick(generatedCases, 'type');
 			const allTypes = filter(validTypes, (validType) =>
 				types.includes(validType));
 
@@ -147,7 +151,7 @@ describe('path', () => {
 
 		test('All path types should be present.', () => {
 			const reduced = reduce(
-				testCases, (acc, { parts: currentParts }) =>
+				generatedCases, (acc, { parts: currentParts }) =>
 					[...acc, ...currentParts], []
 			);
 
@@ -168,70 +172,166 @@ describe('path', () => {
 		});
 	});
 
-	test('fix fixes the given path', () => {
-		map(testCases, ({ path, fixed }) => {
-			expect(fix(path)).toEqual(fixed);
+	describe('fix fixes the given path', () => {
+		test('example', () => {
+			const cases = [
+				{
+					input: '/a/b',
+					expectation: '/a/b/',
+				},
+				{
+					input: 'a/b',
+					expectation: './a/b/',
+				},
+				{
+					input: './a/b/',
+					expectation: './a/b/',
+				},
+			];
+
+			testCases(fix, cases);
+		});
+
+		test('randomized test', () => {
+			map(generatedCases, ({ path, fixed }) => {
+				expect(fix(path)).toEqual(fixed);
+			});
 		});
 	});
 
-	test('parts splits the given path into parts array', () => {
-		map(testCases, ({ path, parts: expected }) => {
-			expect(parts(path)).toEqual(expected);
+	describe('parts splits the given path into parts array', () => {
+		test('example', () => {
+			const cases = [
+				{
+					input: '/a/b/',
+					expectation: ['a', 'b'],
+				},
+				{
+					input: './a/b//',
+					expectation: ['.', 'a', 'b', ''],
+				},
+				{
+					input: 'a/b',
+					expectation: ['.', 'a', 'b'],
+				},
+			];
+
+			testCases(parts, cases);
+		});
+
+		test('randomized test', () => {
+			map(generatedCases, ({ path, parts: expected }) => {
+				expect(parts(path)).toEqual(expected);
+			});
 		});
 	});
 
-	test('pathType identifies the path type of the given path', () => {
-		map(testCases, ({ path, type: expected }) => {
-			expect(pathType(path)).toEqual(expected);
+	describe('pathType identifies the path type of the given path', () => {
+		test('example', () => {
+			const cases = [
+				{
+					input: '/a/b/',
+					expectation: 'absolute',
+				},
+				{
+					input: './a/b/',
+					expectation: 'relative',
+				},
+				{
+					input: './a/b',
+					expectation: 'lax',
+				},
+				{
+					input: 'a/b/',
+					expectation: 'lax',
+				},
+			];
+
+			testCases(pathType, cases);
+		});
+
+		test('randomized test', () => {
+			map(generatedCases, ({ path, type: expected }) => {
+				expect(pathType(path)).toEqual(expected);
+			});
 		});
 	});
 
-	test('resolve resolves a valid path from the given paths', () => {
-		const digest = (typeParts, isAbsolute) => {
-			let pending = 0;
-			const labels = [];
+	describe('resolve resolves a valid path from the given paths', () => {
+		test('example', () => {
+			const cases = [
+				{
+					input: '/a/b/',
+					expectation: '/a/b/',
+				},
+				{
+					input: '/a/.../',
+					expectation: undefined,
+				},
+				{
+					input: './a//b/../',
+					expectation: './a//',
+				},
+				{
+					input: './a/.../b/',
+					expectation: '../b/',
+				},
+				{
+					input: '/.a/b./',
+					expectation: '/.a/b./',
+				},
+			];
 
-			const navigate = (part) => {
-				pending += Math.max(0, part.length - labels.length - 1);
-				labels.splice(1 - part.length || labels.length);
+			testCases(resolve, cases);
+		});
+
+		test('randomized test', () => {
+			const digest = (typeParts, isAbsolute) => {
+				let pending = 0;
+				const labels = [];
+
+				const navigate = (part) => {
+					pending += Math.max(0, part.length - labels.length - 1);
+					labels.splice(1 - part.length || labels.length);
+				};
+
+				map(typeParts, (part) =>
+					(getPartType(part) !== 'relative'
+						? labels.push(part)
+						: navigate(part)));
+
+				const body = `${ labels.join('/') }${ labels.length ? '/' : '' }`;
+				const prefix = `${ '.'.repeat(pending + (isAbsolute ? 0 : 1)) }/`;
+
+				const resolved = `${ prefix }${ body }`;
+
+				return { pending, labels, resolved };
 			};
 
-			map(typeParts, (part) =>
-				(getPartType(part) !== 'relative'
-					? labels.push(part)
-					: navigate(part)));
+			const buildExpectation = (cases) => {
+				const lastAbsIndex = findLastIndex(cases, ({ fixedType }) =>
+					fixedType === 'absolute');
+				const isAbsolute = lastAbsIndex > -1;
+				const sliced = cases.slice(isAbsolute ? lastAbsIndex : 0);
+				const typeParts = map(sliced,
+					({ parts: currentParts }) => currentParts).flat();
 
-			const body = `${ labels.join('/') }${ labels.length ? '/' : '' }`;
-			const prefix = `${ '.'.repeat(pending + (isAbsolute ? 0 : 1)) }/`;
+				const { pending, resolved } = digest(typeParts, isAbsolute);
 
-			const resolved = `${ prefix }${ body }`;
+				return lastAbsIndex > -1 && pending > 0
+					? undefined
+					: resolved;
+			};
 
-			return { pending, labels, resolved };
-		};
+			retry(() => {
+				const cases = retry(generateCase, rndBetween(0, 10));
+				const expected = buildExpectation(cases);
+				const paths = pick(cases, 'path');
 
-		const buildExpectation = (cases) => {
-			const lastAbsIndex = findLastIndex(cases, ({ fixedType }) =>
-				fixedType === 'absolute');
-			const isAbsolute = lastAbsIndex > -1;
-			const sliced = cases.slice(isAbsolute ? lastAbsIndex : 0);
-			const typeParts = map(sliced,
-				({ parts: currentParts }) => currentParts).flat();
+				const result = resolve(...paths);
 
-			const { pending, resolved } = digest(typeParts, isAbsolute);
-
-			return lastAbsIndex > -1 && pending > 0
-				? undefined
-				: resolved;
-		};
-
-		retry(() => {
-			const cases = retry(generateCase, rndBetween(0, 10));
-			const expected = buildExpectation(cases);
-			const paths = pick(cases, 'path');
-
-			const result = resolve(...paths);
-
-			expect(result).toEqual(expected);
+				expect(result).toEqual(expected);
+			});
 		});
 	});
 });
