@@ -1,5 +1,5 @@
 import {
-	findKey, keys, map, pick, range, reduce,
+	find,	findKey, keys, map, pick, range, reduce,
 } from '@laufire/utils/collection';
 import { sum } from '@laufire/utils/reducers';
 import { rndString, rndValue, rndBetween } from '@laufire/utils/random';
@@ -25,6 +25,7 @@ const partGenerators = {
 const randomParts = () => map(getRndRange(), () =>
 	rndValue(partGenerators)());
 
+// TODO: Fix matcher, label should not match '.'.
 const matchers = {
 	relative: /^\.+$/,
 	empty: /^$/,
@@ -49,21 +50,49 @@ const fixers = {
 	},
 };
 
-// eslint-disable-next-line complexity
-const toLax = (source, type) => {
-	const { prefix } = fixers[type];
-	const suffix = '/';
-	const prefixProb = source.length === 0 || source[0] === ''
-		? 1
-		: type === 'relative'
-			? isLabel(source[0]) ? 0.5 : 0
-			: source.length ? 1 : 0;
-	const suffixProb = source[source.length - 1] === ''
-		? 1
-		: source.length ? 0.5 : 0;
+const toLax = (() => {
+	const prefixProbs = {
+		should: {
+			qualifier: (source, type) =>
+				type === 'absolute' || source.length === 0 || source[0] === '',
+			value: 1,
+		},
+		shouldNot: {
+			qualifier: ([firstPart], type) =>
+				type === 'relative' && getPartType(firstPart) === 'relative',
+			value: 0,
+		},
+		optional: {
+			qualifier: ([firstPart], type) =>
+				type === 'relative' && isLabel(firstPart),
+			value: 0.5,
+		},
+	};
 
-	return `${ isProbable(prefixProb) ? prefix : '' }${ source.join('/') }${ isProbable(suffixProb) ? suffix : '' }`;
-};
+	const segments = {
+		prefix: (source, type) => {
+			const { prefix } = fixers[type];
+			const { value: prob } = find(prefixProbs, ({ qualifier }) =>
+				qualifier(source, type));
+
+			return `${ isProbable(prob) ? prefix : '' }`;
+		},
+		body: (source) => source.join('/'),
+		suffix: (source) => {
+			const suffix = '/';
+			const suffixProb = source[source.length - 1] === ''
+				? 1
+				: source.length ? 0.5 : 0;
+
+			return `${ isProbable(suffixProb) ? suffix : '' }`;
+		},
+	};
+
+	return (source, type) => reduce(
+		segments, (acc, segment) =>
+			acc + segment(source, type), ''
+	);
+})();
 
 const fixParts = (source, fixedType) => [
 	...fixedType === 'lax' && isLabel(source[0]) ? ['.'] : [],
