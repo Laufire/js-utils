@@ -1,13 +1,16 @@
 import {
-	find,	findKey, keys, map, pick, range, reduce, filter,
+	find,	findKey, map, pick, range, reduce, filter,
 } from '@laufire/utils/collection';
 import { sum } from '@laufire/utils/reducers';
-import { rndString, rndValue, rndBetween } from '@laufire/utils/random';
+import {
+	rndString, rndValue, rndBetween, rndValueWeighted,
+} from '@laufire/utils/random';
 // TODO: Use published import when available.
 import { isProbable } from './prob';
 import { retry, findLastIndex } from '../test/helpers';
 
 import { fix, parts, pathType, resolve } from './path';
+import { isAcceptable } from './matchers';
 
 /* Config */
 const higherLimit = 8;
@@ -98,7 +101,8 @@ const fixParts = (source, fixedType) => [
 ];
 
 const generateCase = () => {
-	const fixedType = rndValue(keys(fixers));
+	const weights = { absolute: 1, relative: 3 };
+	const fixedType = rndValueWeighted(weights)();
 	const isLax = isProbable(0.5);
 	const { partFixer, pathFixer } = fixers[fixedType];
 	const source = partFixer(randomParts());
@@ -125,8 +129,13 @@ describe('path', () => {
 	});
 
 	describe('Generated cases', () => {
-		test('Parts length should be from 0 to'
-			+ 'one more than higherLimit',
+		const summarize = (toReduce) => reduce(
+			toReduce, (acc, value) =>
+				({ ...acc, [value]: (acc[value] || 0) + 1 }), {}
+		);
+
+		test('Parts length is from 0 to'
+			+ ' one more than higherLimit',
 		() => {
 			// NOTE: Length is one more than higherLimit due relative partFixer.
 			const items = map(generatedCases, ({ parts: { length }}) => length);
@@ -140,7 +149,7 @@ describe('path', () => {
 			expect(lengths).toEqual(expectation);
 		});
 
-		test('All types of paths should be present', () => {
+		test('All types of paths are present', () => {
 			const validTypes = ['absolute', 'relative', 'lax'];
 			const types = pick(generatedCases, 'type');
 			const allTypes = filter(validTypes, (validType) =>
@@ -149,26 +158,32 @@ describe('path', () => {
 			expect(allTypes).toEqual(validTypes);
 		});
 
-		test('All path types should be present.', () => {
-			const reduced = reduce(
+		test('All part types are present', () => {
+			const flattenedParts = reduce(
 				generatedCases, (acc, { parts: currentParts }) =>
 					[...acc, ...currentParts], []
 			);
 
-			const summary = reduce(
-				reduced, (acc, part) => {
-					const type = getPartType(part);
-
-					return { ...acc, [type]: (acc[type] || 0) + 1 };
-				}, {}
-			);
+			const summary = summarize(map(flattenedParts,	getPartType));
 
 			const knownTypeCount = reduce(
 				summary, sum, 0
 			);
 
-			expect(knownTypeCount).toEqual(reduced.length);
+			expect(knownTypeCount).toEqual(flattenedParts.length);
 			expect(summary.undefined).toEqual(undefined);
+		});
+
+		test('Ratio between absolute and relative paths is 1:3', () => {
+			const allTypes = pick(generatedCases, 'fixedType');
+			const { absolute, relative } = summarize(allTypes);
+
+			const testRatio = (typeCount, expected) => expect(isAcceptable(
+				typeCount / allTypes.length, expected, 0.03
+			)).toEqual(true);
+
+			testRatio(absolute, 1 / 4);
+			testRatio(relative, 3 / 4);
 		});
 	});
 
