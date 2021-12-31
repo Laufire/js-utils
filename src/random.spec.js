@@ -131,6 +131,7 @@ describe('rndBetween helps in generating random numbers', () => {
 	});
 });
 
+// TODO: Randomize properly.
 test('rndString returns a random string of length 8,'
 	+ ' with the seed char, on default configuration.', () => {
 	const { char: seed } = stringSeeds;
@@ -158,6 +159,7 @@ test('rndOfString returns a random sub-string of the given string.', () => {
 
 describe('rndValue returns a random a value from the given iterable.', () => {
 	test('returns a value when the iterable is not empty', () => {
+		// TODO: Use rndCollection.
 		const seed = retry((i) => [i, rndString()], 10);
 		const array = secure(pick(seed, 1));
 		const object = secure(fromEntries(seed));
@@ -167,6 +169,7 @@ describe('rndValue returns a random a value from the given iterable.', () => {
 			expect(array).toContain(rndValue(object));
 		});
 
+		// TODO: Remove duplicates.
 		expect(rndValue([])).toBeUndefined();
 		expect(rndValue({})).toBeUndefined();
 	});
@@ -177,16 +180,20 @@ describe('rndValue returns a random a value from the given iterable.', () => {
 	});
 });
 
+// TODO: Fix the description.
 describe('rndValues returns the given count of random a values'
 + 'from the given iterable', () => {
 	const seed = retry((i) => [i, rndString()], 10);
+	// TODO: Use rndCollection.
 	const array = secure(pick(seed, 1));
 	const object = secure(fromEntries(seed));
 	const { length } = seed;
 
+	// TODO: Fix the description.
 	test('returns count number of values when the iterable length'
 	+ 'is longer than count', () => {
 		const count = rndBetween(0, length - 1);
+		// TODO: Combine the tests.
 		const arrayTest = (iterable) => {
 			const result = rndValues(iterable, count);
 
@@ -211,12 +218,15 @@ describe('rndValues returns the given count of random a values'
 			const count = seed.length * 2;
 			const result = rndValues(iterable, count);
 
+			// TODO: Use collection.count after publishing.
 			expect(keys(result).length).toEqual(seed.length);
 		};
 
+		// TODO: Use rndCollection.
 		retry(() => [array, object].forEach(test));
 	});
 
+	// TODO: Fix the description.
 	test('count defaults to random value', () => {
 		expect(rndValues(array).length).toBeLessThan(array.length);
 	});
@@ -224,6 +234,8 @@ describe('rndValues returns the given count of random a values'
 
 describe('rndValueWeighted returns a random a value from'
 	+ ' the given weight table according to the given weights.', () => {
+	// TODO: Use isAcceptable in example test.
+	// TODO: Randomize the test.
 	test('returns a value when the iterable is not empty', () => {
 		const weights = secure({ a: 1, b: 2 });
 		const getRnd = rndValueWeighted(weights);
@@ -244,6 +256,8 @@ describe('rndValueWeighted returns a random a value from'
 
 describe('withProb returns a function which returns true once in a while'
 	+ ' based on the given probability value.', () => {
+	// TODO: Rewrite the example test properly.
+	// TODO: Randomize the test.
 	test('returns true based on the given probability.', () => {
 		const probability = 0.3;
 		const allowedDeviation = 0.2;
