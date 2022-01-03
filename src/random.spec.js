@@ -1,16 +1,19 @@
-import { map, contains, fromEntries, pick, keys, secure } from
+import { map, contains, keys, secure, has } from
 	'@laufire/utils/collection';
 
 /* Tested */
-import {
-	rndBetween, rndOfString, rndString,
-	rndValue, rndValues, rndValueWeighted,
-	stringSeeds, withProb,
-} from './random';
+import * as random from './random';
 
 /* Helpers */
-import { retry, strSubSet } from '../test/helpers';
+import { expectEquals, retry, rndCollection, strSubSet } from '../test/helpers';
 import { range, reduce, sort } from './collection';
+import { values } from '@laufire/utils/lib';
+import { inferType } from '@laufire/utils/reflection';
+import { unique } from '@laufire/utils/predicates';
+
+const { rndBetween, rndOfString, rndString,
+	rndValue, rndValues, rndValueWeighted,
+	stringSeeds, withProb } = random;
 
 /* Tests */
 describe('rndBetween helps in generating random numbers', () => {
@@ -152,26 +155,30 @@ test('rndOfString returns a random sub-string of the given string.', () => {
 		const rnd = rndOfString(seed);
 
 		expect(rnd.length <= seedLength).toBe(true);
-		expect(rnd.length >= 1).toBe(true);
+		expect(rnd.length >= 0).toBe(true);
+
 		expect(strSubSet(seed, rnd)).toBe(true);
-	});
+	}, 10000);
 });
 
 describe('rndValue returns a random a value from the given iterable.', () => {
+	test('example', () => {
+		const object = {
+			a: 1,
+			b: 2,
+			c: 3,
+			d: 4,
+		};
+
+		expect(has(object, rndValue(object))).toEqual(true);
+	});
+
 	test('returns a value when the iterable is not empty', () => {
-		// TODO: Use rndCollection.
-		const seed = retry((i) => [i, rndString()], 10);
-		const array = secure(pick(seed, 1));
-		const object = secure(fromEntries(seed));
-
 		retry(() => {
-			expect(array).toContain(rndValue(array));
-			expect(array).toContain(rndValue(object));
-		});
+			const rndColl = rndCollection();
 
-		// TODO: Remove duplicates.
-		expect(rndValue([])).toBeUndefined();
-		expect(rndValue({})).toBeUndefined();
+			expect(has(rndColl, rndValue(rndColl))).toEqual(true);
+		});
 	});
 
 	test('returns undefined when the iterable is empty', () => {
@@ -183,52 +190,93 @@ describe('rndValue returns a random a value from the given iterable.', () => {
 // TODO: Fix the description.
 describe('rndValues returns the given count of random a values'
 + 'from the given iterable', () => {
-	const seed = retry((i) => [i, rndString()], 10);
-	// TODO: Use rndCollection.
-	const array = secure(pick(seed, 1));
-	const object = secure(fromEntries(seed));
-	const { length } = seed;
-
 	// TODO: Fix the description.
-	test('returns count number of values when the iterable length'
-	+ 'is longer than count', () => {
-		const count = rndBetween(0, length - 1);
-		// TODO: Combine the tests.
-		const arrayTest = (iterable) => {
-			const result = rndValues(iterable, count);
+	describe('returns count number of values when the iterable length'
+	+ ' is longer than count', () => {
+		test('example', () => {
+			const object = {
+				a: 1,
+				b: 2,
+				c: 3,
+				d: 4,
+			};
+			const count = 2;
 
-			expect(keys(result).length).toEqual(count);
-			result.map((val) => expect(iterable.includes(val)).toEqual(true));
-		};
-		const objectTest = (iterable) => {
-			const result = rndValues(iterable, count);
+			const result = rndValues(object, count);
 
-			expect(keys(result).length).toEqual(count);
-			expect(contains(iterable, result)).toEqual(true);
-		};
+			expectEquals(contains(object, result), true);
+			expectEquals(values(result).length, count);
+		});
 
-		retry(() => {
-			arrayTest(array);
-			objectTest(object);
+		test('randomized test', () => {
+			const collectionTest = {
+				array: (iterable, result) => {
+					expect(result.filter(unique)).toEqual(result);
+					map(result, (value) => expect(has(iterable, value))
+						.toEqual(true));
+				},
+				object: (iterable, result) => {
+					expect(contains(iterable, result)).toEqual(true);
+				},
+			};
+
+			retry(() => {
+				const rndColl = rndCollection();
+				const count = rndBetween(0, values(rndColl).length - 1);
+
+				const result = rndValues(rndColl, count);
+
+				expect(values(result).length).toEqual(count);
+				collectionTest[inferType(rndColl)](rndColl, result);
+			});
 		});
 	});
 
-	test('count is limited to the length of the source iterable', () => {
-		const test = (iterable) => {
-			const count = seed.length * 2;
-			const result = rndValues(iterable, count);
+	describe('count is limited to the length of the source iterable', () => {
+		test('example', () => {
+			const object = {
+				a: 1,
+				b: 2,
+				c: 3,
+				d: 4,
+			};
+			const count = 8;
 
-			// TODO: Use collection.count after publishing.
-			expect(keys(result).length).toEqual(seed.length);
-		};
+			const result = rndValues(object, count);
 
-		// TODO: Use rndCollection.
-		retry(() => [array, object].forEach(test));
+			expect(values(result).length).toEqual(values(object).length);
+		});
+		test('randomized test', () => {
+			retry(() => {
+				const rndColl = rndCollection();
+				const count = values(rndColl).length * 2;
+				const result = rndValues(rndColl, count);
+
+				// TODO: Use collection.count after publishing.
+				expect(values(result).length).toEqual(values(rndColl).length);
+			});
+		});
 	});
 
-	// TODO: Fix the description.
-	test('count defaults to random value', () => {
-		expect(rndValues(array).length).toBeLessThan(array.length);
+	describe('count defaults to random value', () => {
+		test('example', () => {
+			const object = {
+				a: 1,
+				b: 2,
+				c: 3,
+				d: 4,
+			};
+
+			expect(values(rndValues(object)).length)
+				.not.toBeGreaterThan(values(object).length);
+		});
+		// TODO: Fix the description.
+		test('randomized test', () => {
+			const rndColl = rndCollection();
+
+			expect(values(rndValues(rndColl)).length)
+				.not.toBeGreaterThan(values(rndColl).length);
+		});
 	});
 });
 
