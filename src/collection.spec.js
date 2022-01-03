@@ -4,8 +4,8 @@
 //	- mutations the mock objects.
 
 /* Helpers */
-import { sortArray, rndKey, numberArray, array, object, expectEquals, extension,
-	rndDict, rndNested, extended, isolated, cloned, simpleTypes, ecKeys,
+import { rndKey, array, object, expectEquals,
+	rndDict, rndNested, extended, isolated, ecKeys,
 	extCollection, collection as hCollection, toObject,
 	rndKeys, rndArray, rndRange, rnd, similarCols,
 	iterableTypes, allTypes, retry, rndCollection, converters, till }
@@ -20,9 +20,11 @@ import { select as tSelect, map as tMap, keys as tKeys,
 	values as tValues, secure as tSecure, entries as tEntries,
 	dict as tDict, filter as tFilter, reduce as tReduce,
 	clean as tClean, fromEntries as tFromEntries,
-	range as tRange, pick as tPick, clone as tClone, merge as tMerge }
+	range as tRange, pick as tPick, clone as tClone, merge as tMerge,
+	shell as tShell, equals as tEquals, shuffle as tShuffle,
+	contains as tContains }
 	from '@laufire/utils/collection';
-import { isEqual, not } from '@laufire/utils/predicates';
+import { isEqual } from '@laufire/utils/predicates';
 
 /* Tested */
 import {
@@ -54,13 +56,12 @@ describe('Collection', () => {
 			},
 		},
 	});
-	// TODO: Secure.
-	const complexArray = [
+	const complexArray = tSecure([
 		{
 			innerArray: [1, 3],
 			dirtyArray: [undefined, 1],
 		},
-	];
+	]);
 	const complexObject = secure({
 		single: 'single',
 		parent: {
@@ -94,40 +95,49 @@ describe('Collection', () => {
 	});
 	const expectationBase = tSecure(tMap(object, (dummy, key) =>
 		Symbol(key)));
-	// TODO: Secure.
-	const simpleValues = values(simpleTypes());
-	const simpleValue = rndValue(simpleValues);
-	const anotherValue = rndValue(tFilter(simpleValues,
-		not(isEqual(simpleValue))));
 
 	/* Helpers */
 	const stitch = (val, key) => String(key) + String(val);
 	const reverseArray = (input) => sort(input, reverse);
-	const testForArguments = (fn) => {
+	const testForArguments = (fn, collection) => {
 		// TODO: Use imported nothing after publishing.
 		const mockPredicate = jest.fn(() => false);
 
-		// TODO: Receive data from testIterator.
-		tMap([array, object], (collection) => {
-			fn(collection, mockPredicate);
-			// TODO: Use imported Keys after publishing.
-			tMap(keys(collection), (key) =>
-				expect(mockPredicate).toHaveBeenCalledWith(
-					collection[key], key, collection
-				));
-		});
+		fn(collection, mockPredicate);
+
+		// TODO: Use imported Keys after publishing.
+		tMap(keys(collection), (key) =>
+			expect(mockPredicate).toHaveBeenCalledWith(
+				collection[key], key, collection
+			));
 	};
 
 	const testIterator = ({ fn, predicate, data }) => {
 		tEntries(data).map(([dummy, [collection, expectation]]) =>
 			expect(fn(collection, predicate)).toEqual(expectation));
-		testForArguments(fn);
+		testForArguments(fn, data);
 	};
 
 	const arrayOrObject = (collection) =>
 		rndValue([tValues, toObject])(collection);
 
 	const convey = (...args) => args;
+
+	const getUnlike = (() => {
+		const unlikeGenerator = {
+			true: (valOne, valTwo) => tContains(valOne, valTwo)
+				&& tContains(valTwo, valOne),
+			false: (valOne, valTwo) => valTwo === valOne,
+		};
+
+		return (value) => {
+			const unlike = rnd();
+
+			return unlikeGenerator[isIterable(unlike)](value, unlike)
+				? getUnlike(value)
+				: unlike;
+		};
+	})();
 
 	/* Tests */
 	describe('map transforms the given iterable using'
@@ -323,8 +333,8 @@ describe('Collection', () => {
 		});
 
 		test('randomized test', () => {
-			// TODO: Use rndCollection instead.
-			tMap([array, object], (collection) => {
+			retry(() => {
+				const collection = rndCollection();
 				const initial = Symbol('initial');
 				const collectionKeys = tKeys(collection);
 				const accumlators = [initial,
@@ -340,9 +350,9 @@ describe('Collection', () => {
 					collection, predicate, initial
 				)).toEqual(expectation);
 
-				tMap(collectionKeys, (key) =>
-					expect(predicate.mock.calls[key]).toEqual([
-						accumlators[key],
+				tMap(collectionKeys, (key, i) =>
+					expect(predicate.mock.calls[i]).toEqual([
+						accumlators[i],
 						collection[key],
 						converters[inferType(collection)](key),
 						collection,
@@ -413,13 +423,11 @@ describe('Collection', () => {
 			const randomDict = rndDict(10);
 			// TODO: Use rndValues post publishing.
 			const randomKeys = rndKeys(randomDict);
-			// TODO: Secure.
-			const dirtyObject = tMap(randomDict, (value, key) =>
-				(randomKeys.includes(key) ? undefined : value));
+			const dirtyObject = tSecure(tMap(randomDict, (value, key) =>
+				(randomKeys.includes(key) ? undefined : value)));
 			const expectedObject = tFilter(dirtyObject, isDefined);
-			// TODO: Secure.
-			const [dirtyArray, expectedArray] = tMap([dirtyObject,
-				expectedObject], tValues);
+			const [dirtyArray, expectedArray] = tSecure(tMap([dirtyObject,
+				expectedObject], tValues));
 
 			expect(clean(dirtyObject)).toEqual(expectedObject);
 			expect(clean(dirtyArray)).toEqual(expectedArray);
@@ -441,11 +449,12 @@ describe('Collection', () => {
 					? isSanitizeEqual(value, sanitized[key])
 					: expect(value).toEqual(sanitized[key])));
 
-			// TODO: Used default values.
-			const data = rndNested(5, 5);
-			const processed = sanitize(data);
+			retry(() => {
+				const data = rndNested();
+				const sanitized = sanitize(data);
 
-			isSanitizeEqual(data, processed);
+				isSanitizeEqual(data, sanitized);
+			});
 		});
 	});
 
@@ -495,11 +504,11 @@ describe('Collection', () => {
 		});
 
 		test('randomized test', () => {
-			// TODO: Use rndCollection instead.
-			map([array, object], (iterable) => {
+			retry(() => {
+				const iterable = rndCollection();
+
 				expect(has(iterable, rndValue(iterable))).toEqual(true);
-				// TODO: Use Symbol.
-				expect(has(iterable, rndString())).toEqual(false);
+				expect(has(iterable, Symbol(''))).toEqual(false);
 			});
 		});
 	});
@@ -545,8 +554,7 @@ describe('Collection', () => {
 		});
 
 		test('randomized test', () => {
-			// TODO: Use rndNested.
-			const nestedArr = range(1, 4).map(() => rnd());
+			const nestedArr = rndNested();
 
 			tMap(nestedArr, (nested) => {
 				const walker = jest.fn().mockImplementation(convey);
@@ -661,8 +669,7 @@ describe('Collection', () => {
 
 			bottomLevelBase.primitiveOverlay = 0;
 			bottomLevelBase.iterableOverlay = {};
-			// TODO: Remove Secure.
-			const bottomLevel = secure(bottomLevelBase);
+			const bottomLevel = bottomLevelBase;
 
 			delete topLevelBase[propToDelete];
 			topLevelBase.newProperty = newValue;
@@ -670,8 +677,7 @@ describe('Collection', () => {
 			topLevelBase.complexArray[0].innerArray = [0];
 			topLevelBase.primitiveOverlay = simpleObj;
 			topLevelBase.iterableOverlay = simpleObj;
-			// TODO: Remove Secure.
-			const topLevel = secure(topLevelBase);
+			const topLevel = topLevelBase;
 
 			const merged = merge(
 				base, bottomLevel, topLevel
@@ -703,8 +709,7 @@ describe('Collection', () => {
 				});
 			};
 
-			// TODO: Use default values.
-			const mCollections = tValues(rndNested(3, 3));
+			const mCollections = tValues(rndNested());
 
 			const merged = merge({}, ...mCollections);
 
@@ -751,8 +756,7 @@ describe('Collection', () => {
 
 			bottomLevelBase.primitiveOverlay = 0;
 			bottomLevelBase.iterableOverlay = {};
-			// TODO: Remove Secure.
-			const bottomLevel = secure(bottomLevelBase);
+			const bottomLevel = bottomLevelBase;
 
 			delete topLevelBase[propToDelete];
 			topLevelBase.newProperty = newValue;
@@ -760,8 +764,7 @@ describe('Collection', () => {
 			topLevelBase.complexArray.innerArray = [0];
 			topLevelBase.primitiveOverlay = simpleObj;
 			topLevelBase.iterableOverlay = simpleObj;
-			// TODO: Remove Secure.
-			const topLevel = secure(topLevelBase);
+			const topLevel = topLevelBase;
 
 			const overlaid = overlay(
 				base, bottomLevel, topLevel
@@ -796,13 +799,11 @@ describe('Collection', () => {
 				});
 			};
 
-			// TODO: Use default values.
-			// TODO: Rename local variables to inputs.
-			const oCollections = tValues(rndNested(3, 3));
+			const inputs = tValues(rndNested());
 
-			const overlaid = overlay({}, ...oCollections);
+			const overlaid = overlay({}, ...inputs);
 
-			testOverlay(overlaid, ...reverseArray(oCollections));
+			testOverlay(overlaid, ...reverseArray(inputs));
 		});
 	});
 
@@ -845,8 +846,7 @@ describe('Collection', () => {
 
 			underlayBase.primitiveOverlay = 0;
 			underlayBase.iterableOverlay = {};
-			// TODO: Remove Secure.
-			const layerOne = secure(underlayBase);
+			const layerOne = underlayBase;
 
 			delete overlayBase[propToDelete];
 			overlayBase.newProperty = newValue;
@@ -854,8 +854,7 @@ describe('Collection', () => {
 			overlayBase.complexArray[0].innerArray = [0];
 			overlayBase.primitiveOverlay = simpleObj;
 			overlayBase.iterableOverlay = simpleObj;
-			// TODO: Remove Secure.
-			const layerTwo = secure(overlayBase);
+			const layerTwo = overlayBase;
 
 			const combined = combine(
 				base, layerOne, layerTwo
@@ -921,7 +920,6 @@ describe('Collection', () => {
 
 	describe('merge, combine and overlay shares some behaviors', () => {
 		test('they work with multiple extensions', () => {
-			// TODO: Add overLay.
 			expect(merge(
 				{ a: 1 }, { b: 2 }, { c: 3 }
 			)).toEqual({
@@ -934,10 +932,14 @@ describe('Collection', () => {
 				a: [1, 2],
 				c: 3,
 			});
+
+			expect(overlay({ a: [1, 2, 3] }, { a: [4, 5], b: 6 })).toEqual({
+				a: [4, 5],
+				b: 6,
+			});
 		});
 
 		test('they ignore undefined values as extensions', () => {
-			// TODO: Add overLay.
 			expect(merge(
 				{ a: 1 }, undefined, { c: 3 }
 			)).toEqual({
@@ -950,12 +952,19 @@ describe('Collection', () => {
 			)).toEqual({
 				a: [1, 2],
 			});
+
+			expect(overlay(
+				{ a: [1] }, undefined, { a: [4], b: 6 }
+			)).toEqual({
+				a: [4],
+				b: 6,
+			});
 		});
 
 		test('they work with simple arrays', () => {
-			// TODO: Add overLay.
 			expect(merge([0, 1], [1])).toEqual([1, 1]);
 			expect(combine([0, 1], [1])).toEqual([0, 1, 1]);
+			expect(overlay([0, 1, 2], [3, 4])).toEqual([3, 4, 2]);
 		});
 	});
 
@@ -1018,11 +1027,13 @@ describe('Collection', () => {
 		});
 
 		test('randomized test', () => {
-			// TODO: Use rndNested.
-			const expectation = tFromEntries(tMap(tEntries(object),
-				([key, value]) => [value, key]));
+			retry(() => {
+				const collection = rndDict();
+				const expectation = tFromEntries(tMap(tEntries(collection),
+					([key, value]) => [value, key]));
 
-			expect(flip(object)).toEqual(expectation);
+				expect(flip(collection)).toEqual(expectation);
+			});
 		});
 	});
 
@@ -1042,9 +1053,8 @@ describe('Collection', () => {
 		});
 
 		test('randomized test', () => {
-			// TODO: Secure.
-			const data = tMap(rndDict(), () =>
-				tMap(rndRange(), () => rndString()));
+			const data = tSecure(tMap(rndDict(), () =>
+				tMap(rndRange(), () => rndString())));
 
 			const expected = {};
 
@@ -1058,7 +1068,6 @@ describe('Collection', () => {
 	describe('translate gives the translation of the source based'
 	+ ' on a translation map', () => {
 		test('example', () => {
-			// TODO: Randomize test using rndNested.
 			const expectations = [
 				{
 					source: { a: 1, b: { c: 2 }, d: 3 },
@@ -1078,18 +1087,18 @@ describe('Collection', () => {
 		});
 
 		test('randomized test', () => {
-			// TODO: Randomize properly.
-			const source = rndDict();
-			const keysArr = rndValues(tKeys(source));
-			// TODO: Secure.
-			const selector = tReduce(
-				keysArr, (acc, key) =>
-					({ ...acc, [rndString()]: key }), {}
-			);
+			retry(() => {
+				const source = rndCollection();
+				const keysArr = rndValues(tKeys(source));
+				const selector = tSecure(tReduce(
+					keysArr, (acc, key) =>
+						({ ...acc, [rndString()]: key }), {}
+				));
 
-			const expected = tMap(selector, (value) => source[value]);
+				const expected = tMap(selector, (value) => source[value]);
 
-			expect(translate(source, selector)).toEqual(expected);
+				expect(translate(source, selector)).toEqual(expected);
+			});
 		});
 	});
 
@@ -1099,9 +1108,11 @@ describe('Collection', () => {
 		});
 
 		test('randomized test', () => {
-			// TODO: Use rndCollection instead.
-			map([array, object], (iterable) => {
-				const expectation = tDict(values(iterable));
+			retry(() => {
+				const iterable = rndCollection();
+				const expectation = isArray(iterable)
+					? tDict(values(iterable))
+					: iterable;
 
 				expect(fromEntries(tEntries(iterable))).toEqual(expectation);
 			});
@@ -1116,8 +1127,8 @@ describe('Collection', () => {
 		});
 
 		test('randomized test', () => {
-			// TODO: Use rndCollection instead.
-			tMap([array, object], (iterable) => {
+			retry(() => {
+				const iterable = rndCollection();
 				const expectation = tValues(tMap(iterable, (value, key) =>
 					[converters[inferType(iterable)](key), value]));
 
@@ -1311,11 +1322,16 @@ describe('Collection', () => {
 			expect(extensionObj).toEqual({ b: 3 });
 		});
 
-		// TODO: Use rndNested.
+		// TODO: Try using rndNested.
 		test('randomized test', () => {
-			expect(patch(object, extension)).toEqual({
-				...object,
-				...extension,
+			retry(() => {
+				const valueOne = rndDict();
+				const valueTwo = rndDict();
+
+				expect(patch(valueOne, valueTwo)).toEqual({
+					...valueOne,
+					...valueTwo,
+				});
 			});
 		});
 	});
@@ -1446,12 +1462,14 @@ describe('Collection', () => {
 			expect(contains({}, simpleObj)).toBe(false);
 		});
 
-		// TODO: Use rnd.
 		test('randomized test', () => {
-			expect(contains(extended, object)).toEqual(true);
-			expect(contains(isolated, object)).toEqual(false);
-			expect(contains(simpleValue, simpleValue)).toEqual(true);
-			expect(contains(simpleValue, anotherValue)).toEqual(false);
+			retry(() => {
+				const valueOne = rnd();
+				const valueTwo = getUnlike(valueOne);
+
+				expect(contains(valueOne, tClone(valueOne))).toEqual(true);
+				expect(contains(valueOne, valueTwo)).toEqual(false);
+			});
 		});
 	});
 
@@ -1465,12 +1483,14 @@ describe('Collection', () => {
 			expect(equals({}, simpleObj)).toBe(false);
 		});
 
-		// TODO: Use rnd.
 		test('randomized test', () => {
-			expect(equals(simpleValue, simpleValue)).toEqual(true);
-			expect(equals(simpleValue, anotherValue)).toEqual(false);
-			expect(equals(object, cloned)).toEqual(true);
-			expect(equals(extension, object)).toEqual(false);
+			retry(() => {
+				const valueOne = rnd();
+				const valueTwo = getUnlike(valueOne);
+
+				expect(equals(valueOne, tClone(valueOne))).toEqual(true);
+				expect(equals(valueOne, valueTwo)).toEqual(false);
+			});
 		});
 	});
 
@@ -1484,34 +1504,31 @@ describe('Collection', () => {
 		});
 
 		test('randomized test', () => {
-			// TODO: Use default values.
-			const nested = rndNested(
-				2, 2, ['nested']
-			);
+			retry(() => {
+				const nested = rndNested();
+				const collection = rndCollection();
 
-			// TODO: Use rndCollection.
-			expect(hasSame(object, cloned)).toEqual(true);
-			expect(hasSame(nested, clone(nested))).toEqual(false);
+				expect(hasSame(collection, tClone(collection))).toEqual(true);
+				expect(hasSame(nested, clone(nested))).toEqual(false);
+			});
 		});
 	});
 
 	describe('gather gathers the given props from the children'
 	+ ' of the given iterable, as an iterable', () => {
 		test('example', () => {
-			// TODO: Remove Secure.
-			const arrayOfObjects = secure([
+			const arrayOfObjects = [
 				{ a: 1, b: 2 },
 				{ a: 2, b: 1 },
 				// NOTE: Objects do not hold references to undefined values.
 				{ c: 3 },
-			]);
-			// TODO: Remove Secure.
-			const objectOfArrays = secure({
+			];
+			const objectOfArrays = {
 				a: [1, 2],
 				b: [2, 1],
 				c: [undefined, undefined, 3],
 				// NOTE: Arrays do hold references to undefined values, to preserve indices.
-			});
+			};
 
 			expect(gather(arrayOfObjects, ['a', 'b', 'c']))
 				.toEqual(objectOfArrays);
@@ -1524,18 +1541,21 @@ describe('Collection', () => {
 			const rndChild = rndValue(collections);
 			const selector = rndKeys(rndChild);
 
-			const expectation = shell(rndChild);
-
-			// TODO: Use reduce instead.
-			tMap(selector, (selectorKey) => {
-				const expectedChild = shell(collections);
-
-				tMap(collections, (child, childKey) =>
-					isDefined(child[selectorKey])
-					&& (expectedChild[childKey] = child[selectorKey]));
-
-				expectation[selectorKey] = expectedChild;
-			});
+			const expectation = tReduce(
+				selector, (acc, selectorKey) => {
+					acc[selectorKey] = tReduce(
+						collections, (
+							expectedChild, child, childKey
+						) => {
+							isDefined(child[selectorKey])
+								&& (expectedChild[childKey]
+									= child[selectorKey]);
+							return expectedChild;
+						}, tShell(collections)
+					);
+					return acc;
+				}, tShell(rndChild)
+			);
 
 			expect(gather(collections, selector)).toEqual(expectation);
 		});
@@ -1575,10 +1595,22 @@ describe('Collection', () => {
 			expect(toDict(simpleObj)).toEqual(simpleObj);
 		});
 
-		// TODO: Use rndRange and rndDict instead.
 		test('randomized test', () => {
-			expect(toDict(array)).toEqual(object);
-			expect(toDict(object)).toEqual(object);
+			retry(() => {
+				const randomArray = rndRange();
+				const expectedArray = tReduce(
+					// eslint-disable-next-line no-return-assign
+					randomArray, (
+						acc, value, key
+					// eslint-disable-next-line no-sequences
+					) => (acc[value] = Number(key), acc),
+					{}
+				);
+				const randomObject = rndDict();
+
+				expect(toDict(randomArray)).toEqual(expectedArray);
+				expect(toDict(randomObject)).toEqual(randomObject);
+			});
 		});
 	});
 
@@ -1594,13 +1626,15 @@ describe('Collection', () => {
 		});
 
 		test('randomized test', () => {
-			const base = {};
+			retry(() => {
+				const collection = rndCollection();
+				const base = tShell(collection);
 
-			// TODO: Use rndCollection.
-			const adoptedObject = adopt(base, object);
+				const adoptedObject = adopt(base, collection);
 
-			expect(base).toEqual(object);
-			expect(adoptedObject).toEqual(base);
+				expect(base).toEqual(collection);
+				expect(adoptedObject).toEqual(base);
+			});
 		});
 	});
 
@@ -1710,69 +1744,79 @@ describe('Collection', () => {
 		describe('randomized test', () => {
 			test('shares tests whether the given objects share the same value'
 			+ ' on given properties', () => {
-				// TODO: Use rndCollection.
-				// TODO: Assign properties to a common variable.
-				expect(shares(
-					object, cloned, rndKeys(object)
-				)).toBe(true);
-				expect(shares(
-					object, isolated, rndKeys(object)
-				)).toBe(false);
+				retry(() => {
+					const collection = rndCollection();
+					const properties = rndKeys(collection);
+
+					expect(shares(
+						collection, tClone(collection), properties
+					)).toBe(true);
+					expect(shares(
+						collection, arrayOrObject(isolated), properties
+					)).toBe(false);
+				});
 			});
 		});
 	});
 
-	// TODO: Introduce example and randomized test.
 	describe('shuffle shuffles the given collection', () => {
-		test('shuffle shuffles arrays', () => {
-			const shuffled = shuffle(numberArray);
-
-			expect(shuffled).not.toEqual(numberArray);
-			expect(sortArray(shuffled)).toEqual(sortArray(numberArray));
+		test('example', () => {
+			expect(shuffle([1, 2, 3, 4])).not.toEqual([1, 2, 3, 4]);
+			expect(shuffle({ a: 1, b: 2, c: 3, d: 4 }))
+				.toEqual({ a: 1, b: 2, c: 3, d: 4 });
 		});
 
-		test('shuffle shuffles objects', () => {
-			const obj = mockObj(range(1, 100).map((i) => `0${ i }`));
+		test('randomized test', () => {
+			const types = {
+				array: (shuffled, collection) =>
+					!tEquals(shuffled, collection),
+				object: (shuffled, collection) =>
+					tEquals(shuffled, collection),
+			};
 
-			const shuffled = shuffle(obj);
-			const shuffledValues = values(shuffled);
-			const objValues = values(obj);
+			retry(() => {
+				const collection = rndCollection();
+				const shuffled = shuffle(collection);
 
-			expect(shuffledValues).not.toEqual(objValues);
-			expect(sortArray(shuffledValues)).toEqual(sortArray(objValues));
+				expect(types[inferType(collection)](shuffled, collection))
+					.toEqual(true);
+			});
 		});
 	});
 
-	// TODO: Introduce example and randomized test.
 	describe('sort sorts the given collection', () => {
-		test('sort sorts arrays', () => {
-			const reversed = numberArray.slice().reverse();
+		describe('examples', () => {
+			test('sort sorts the collection based on given sorter ', () => {
+				expect(sort([10, 2, 8, 4], ascending)).toEqual([2, 4, 8, 10]);
+				expect(sort({ a: 10, b: 2, c: 8, d: 4 }, descending))
+					.toEqual({ a: 10, c: 8, d: 4, b: 2 });
+			});
 
-			const shuffled = shuffle(numberArray);
-			const sorted = sort(shuffled, descending);
-
-			expect(sorted).toEqual(reversed);
-			expect(sorted).not.toBe(numberArray);
+			test('sort uses ascending as the default sorter', () => {
+				expect(sort([10, 2, 8, 4])).toEqual([2, 4, 8, 10]);
+				expect(sort({ a: 10, b: 2, c: 8, d: 4 }))
+					.toEqual({ b: 2, d: 4, c: 8, a: 10 });
+			});
 		});
 
-		test('sort sorts objects', () => {
-			const obj = mockObj(range(1, 100).map((i) => `0${ i }`));
-			const shuffled = shuffle(obj);
+		test('randomized test', () => {
+			retry(() => {
+				const collection = rndCollection();
+				const processed = tReduce(
+					collection, (
+						acc, dummy, key
+					) => {
+						acc.result[key] = acc.count;
+						acc.count += 1;
 
-			const sorted = sort(shuffled, ascending);
+						return acc;
+					}, { count: 0, result: tShell(collection) }
+				);
+				const shuffled = tShuffle(processed.result);
+				const sorted = sort(shuffled);
 
-			const sortedValues = values(sorted);
-			const objValues = values(obj);
-
-			expect(sortArray(sortedValues)).toEqual(sortArray(objValues));
-		});
-
-		test('sort uses ascending as the default sorter', () => {
-			const shuffled = shuffle(numberArray);
-			const sorted = sort(shuffled);
-
-			expect(sorted).toEqual(numberArray);
-			expect(sorted).not.toBe(numberArray);
+				expect(sorted).toEqual(processed.result);
+			});
 		});
 	});
 
@@ -1782,25 +1826,17 @@ describe('Collection', () => {
 			expect(keys({ a: 1, b: 2, c: 3 })).toEqual(['a', 'b', 'c']);
 		});
 
-		describe('randomized test', () => {
-			const expectations = [
-				// TODO: Use rndRange.
-				['array', 'numbers', array],
-				// TODO: Use rndDict.
-				['object', 'strings', object],
-			];
-
-			test.each(expectations)('returns %p keys as %p', (
-				dummy, dummyOne, input
-			) => {
-				const expectedKeys = Object.keys(input).map((key) =>
+		test('randomized test', () => {
+			retry(() => {
+				const collection = rndCollection();
+				const expectation = Object.keys(collection).map((key) =>
 				// TODO: Remove converters after publishing.
-					converters[inferType(input)](key));
+					converters[inferType(collection)](key));
 
-				const resultKeys = keys(input);
+				const keysResult = keys(collection);
 
-				expectEquals(resultKeys.length, expectedKeys.length);
-				expectEquals(resultKeys, expectedKeys);
+				expect(keysResult.length).toEqual(expectation.length);
+				expect(keysResult).toEqual(expectation);
 			});
 		});
 	});
@@ -1812,9 +1848,11 @@ describe('Collection', () => {
 		});
 
 		test('randomized test', () => {
-			// TODO: Use rndCollection instead.
-			tMap([array, object], (collection) =>
-				expect(length(collection)).toEqual(tValues(collection).length));
+			retry(() => {
+				const collection = rndCollection();
+
+				expect(length(collection)).toEqual(tValues(collection).length);
+			});
 		});
 	});
 });
