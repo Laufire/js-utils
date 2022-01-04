@@ -36,8 +36,10 @@ const strSubSet = (superStr, tested) =>
 	tested.split('').findIndex((char) =>
 		!(superStr.indexOf(char) > -1)) === -1;
 
+// TODO: Use library function post publishing.
+const thirdStdDev = 0.03;
 const isAcceptable = (
-	actual, expected, margin
+	actual, expected, margin = thirdStdDev
 ) => Math.abs((expected - actual) / (expected || 1)) <= margin;
 
 const rndKey = (collection) =>
@@ -200,6 +202,21 @@ const similarCols = () => {
 		shuffle({ ...value, ...partialObject }));
 };
 
+const summarize = (iterable) => reduce(
+	iterable, (acc, value) =>
+		({ ...acc, [value]: (acc[value] || 0) + 1 }), {}
+);
+
+const testRatios = (iterable, ratios) => {
+	const typeCounts = summarize(iterable);
+	const { length } = keys(iterable);
+
+	map(ratios, (ratio, key) => {
+		expect(isAcceptable(typeCounts[key] / length, ratio))
+			.toEqual(true);
+	});
+};
+
 export {
 	contracted, array, object, cloned,
 	extension, extended, isolated, ecKeys,
@@ -208,5 +225,5 @@ export {
 	rndNumber, fixNumber, toObject, rndKey, rndKeys,
 	sortArray, strSubSet, retry, isAcceptable, expectEquals,
 	allTypes, emptyTypes, rnd, similarCols, iterableTypes,
-	till, findLastIndex,
+	till, findLastIndex, summarize, testRatios,
 };

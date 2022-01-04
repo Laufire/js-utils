@@ -7,10 +7,9 @@ import {
 } from '@laufire/utils/random';
 // TODO: Use published import when available.
 import { isProbable } from './prob';
-import { retry, findLastIndex } from '../test/helpers';
+import { retry, findLastIndex, summarize, testRatios } from '../test/helpers';
 
 import { fix, parts, pathType, resolve } from './path';
-import { isAcceptable } from './matchers';
 
 /* Config */
 const higherLimit = 8;
@@ -129,11 +128,6 @@ describe('path', () => {
 	});
 
 	describe('Generated cases', () => {
-		const summarize = (toReduce) => reduce(
-			toReduce, (acc, value) =>
-				({ ...acc, [value]: (acc[value] || 0) + 1 }), {}
-		);
-
 		test('Parts length is from 0 to'
 			+ ' one more than higherLimit',
 		() => {
@@ -176,14 +170,11 @@ describe('path', () => {
 
 		test('Ratio between absolute and relative paths is 1:3', () => {
 			const allTypes = pick(generatedCases, 'fixedType');
-			const { absolute, relative } = summarize(allTypes);
 
-			const testRatio = (typeCount, expected) => expect(isAcceptable(
-				typeCount / allTypes.length, expected, 0.03
-			)).toEqual(true);
-
-			testRatio(absolute, 1 / 4);
-			testRatio(relative, 3 / 4);
+			testRatios(allTypes, {
+				absolute: 1 / 4,
+				relative: 3 / 4,
+			});
 		});
 	});
 
