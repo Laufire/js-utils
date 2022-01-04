@@ -9,7 +9,8 @@ import {
 } from './random';
 
 /* Helpers */
-import { retry, strSubSet } from '../test/helpers';
+import { retry, strSubSet, isAcceptable } from '../test/helpers';
+// TODO: Use published functions instead.
 import { range, reduce, sort } from './collection';
 
 /* Tests */
@@ -33,18 +34,6 @@ describe('rndBetween helps in generating random numbers', () => {
 		// eslint-disable-next-line no-sequences
 			(acc[value] = (acc[value] || 0) + 1, acc), {}
 	);
-
-	// TODO: Use library function post publishing.
-	const isAcceptable = (
-		actual, expected, errorMargin
-	) => {
-		const lowerMargin = expected * (1 - errorMargin);
-		const upperMargin = expected * (1 + errorMargin);
-
-		isBetween(
-			actual, lowerMargin, upperMargin
-		);
-	};
 
 	describe('examples', () => {
 		test('rndBetween returns a random number between two numbers',
