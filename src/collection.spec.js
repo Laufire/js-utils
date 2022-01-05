@@ -7,7 +7,7 @@
 import { rndKey, array, object, expectEquals,
 	rndDict, rndNested, extended, isolated, ecKeys,
 	extCollection, collection as hCollection, toObject,
-	rndKeys, rndArray, rndRange, rnd, similarCols,
+	rndKeys, rndRange, rnd, similarCols,
 	iterableTypes, allTypes, retry, rndCollection, converters, till }
 	from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
@@ -20,7 +20,7 @@ import { select as tSelect, map as tMap, keys as tKeys,
 	values as tValues, secure as tSecure, entries as tEntries,
 	dict as tDict, filter as tFilter, reduce as tReduce,
 	clean as tClean, fromEntries as tFromEntries,
-	range as tRange, pick as tPick, clone as tClone, merge as tMerge,
+	pick as tPick, clone as tClone, merge as tMerge,
 	shell as tShell, equals as tEquals, shuffle as tShuffle,
 	contains as tContains }
 	from '@laufire/utils/collection';
@@ -617,16 +617,15 @@ describe('Collection', () => {
 		});
 
 		test('randomized test', () => {
-			// TODO: Use rndNested.
-			const arrayOfObjs = values(map(object, (value, key) =>
-				({ [key]: value })));
-			const substitutionKey = rndKey(arrayOfObjs);
+			const arrOfObj = tValues(rndNested());
 
-			arrayOfObjs[substitutionKey] = [arrayOfObjs[substitutionKey]];
-			const collection = shuffle(arrayOfObjs);
-			const squashed = squash(...collection);
+			const squashed = squash(...arrOfObj);
 
-			expect(squashed).toEqual(object);
+			const merged = arrOfObj.reduce((acc, val) => (isArray(val)
+				? { ...acc, ...tMerge({}, ...val) }
+				: { ...acc, ...tMerge({}, val) }), {});
+
+			expect(squashed).toEqual(merged);
 		});
 	});
 
@@ -782,7 +781,6 @@ describe('Collection', () => {
 			=== topLevel.complexArray.innerArray).toEqual(true);
 		});
 
-		// TODO: Use getNested from testHelpers and randomized.
 		test('randomized test', () => {
 			const testOverlay = (overlaid, ...collections) => {
 				tMap(overlaid, (value, key) => {
@@ -876,7 +874,6 @@ describe('Collection', () => {
 			]);
 		});
 
-		// TODO: Use getNested from testHelpers and randomized.
 		test('randomized test', () => {
 			const getMatchingIndex = (arr, index) =>
 				(index <= 0 ? arr.length : index);
@@ -1158,41 +1155,21 @@ describe('Collection', () => {
 		});
 
 		describe('randomized tests', () => {
-			// TODO: Try to combine array and object test.
-			test('select returns a sub-object of the given object,'
-			+ ' with the properties in the given selector collection', () => {
-				const keysInSource = rndKeys(object);
-				const keysToSelect = secure(shuffle([
-					...keysInSource, ...rndArray(5),
-				]));
-				const selector = secure(arrayOrObject(keysToSelect));
-				const expectation = tReduce(
-					keysInSource, (acc, prop) => ({
-						...acc,
-						[prop]: object[prop],
-					}), {}
-				);
+			test('select returns a sub-collection of the given collection,'
+			+ 'with the given selector collection', () => {
+				retry(() => {
+					const collection = rndCollection();
+					// eslint-disable-next-line max-len
+					const selector = tSecure(arrayOrObject(rndKeys(collection)));
 
-				expect(select(object, selector)).toEqual(expectation);
-			});
+					const selected = select(collection, selector);
+					const expectation = tClean(tFilter(collection,
+						(dummy, key) => tValues(selector)
+						// TODO: Remove converters.
+							.includes(converters[inferType(collection)](key))));
 
-			test('select returns a sub-array of the given array,'
-			+ ' with the given selector collection', () => {
-				// TODO: Remove converters.
-				const keysInSource = rndKeys(array).map(Number);
-				const { length: childCount } = array;
-				const keysToSelect = secure(shuffle([
-					...keysInSource,
-					...tRange(rndBetween(childCount + 1, childCount * 2),
-						childCount * 2),
-				]));
-				const selector = secure(arrayOrObject(keysToSelect));
-				const expectation = tReduce(
-					keysInSource, (acc, prop) =>
-						[...acc, array[prop]], []
-				);
-
-				expect(select(array, selector)).toEqual(expectation);
+					expect(selected).toEqual(expectation);
+				});
 			});
 		});
 	});
@@ -1217,50 +1194,21 @@ describe('Collection', () => {
 		});
 
 		describe('randomized tests', () => {
-			// TODO: Try to combine array & object tests.
-			test('omit returns a sub-object of the given object,'
-		+ ' without the properties in the given selector collection', () => {
-				const keysInSource = rndKeys(object);
-				const keysToBeOmitted = secure(shuffle([
-					...keysInSource,
-					...rndArray(5),
-				]));
-				const selector = shuffle(arrayOrObject(keysToBeOmitted));
-				const expectation = tReduce(
-					object, (
-						acc, value, key
-					) =>
-						(!keysInSource.includes(key)
-							? { ...acc, [key]: value }
-							: acc
-						), {}
-				);
+			test('omit returns a sub-collection of the given collection,'
+			+ ' without the given collection of properties', () => {
+				retry(() => {
+					const collection = rndCollection();
+					// eslint-disable-next-line max-len
+					const selector = tSecure(arrayOrObject(rndKeys(collection)));
 
-				expect(omit(object, selector)).toEqual(expectation);
-			});
+					const omitted = omit(collection, selector);
+					const expectation = tClean(tFilter(collection,
+						(dummy, key) => !tValues(selector)
+						// TODO: Remove converters.
+							.includes(converters[inferType(collection)](key))));
 
-			test('omit returns a sub-array of the given array,'
-		+ ' without the given collection of properties', () => {
-			// TODO: Remove converters.
-				const keysInSource = rndKeys(array).map(Number);
-				const { length: childCount } = array;
-				const keysToBeOmited = secure(shuffle([
-					...keysInSource,
-					...tRange(rndBetween(childCount + 1, childCount * 2),
-						childCount * 2),
-				]));
-				const selector = secure(arrayOrObject(keysToBeOmited));
-				const expectation = tReduce(
-					array, (
-						acc, value, key
-					) =>
-						(!keysInSource.includes(Number(key))
-							? [...acc, value]
-							: acc
-						), []
-				);
-
-				expect(omit(array, selector)).toEqual(expectation);
+					expect(omitted).toEqual(expectation);
+				});
 			});
 		});
 	});
@@ -1322,16 +1270,19 @@ describe('Collection', () => {
 			expect(extensionObj).toEqual({ b: 3 });
 		});
 
-		// TODO: Try using rndNested.
 		test('randomized test', () => {
 			retry(() => {
-				const valueOne = rndDict();
-				const valueTwo = rndDict();
+				const valueOne = rndNested(
+					3, 3, ['nested']
+				);
+				const valueTwo = rndNested(
+					3, 3, ['nested']
+				);
 
-				expect(patch(valueOne, valueTwo)).toEqual({
-					...valueOne,
-					...valueTwo,
-				});
+				expect(patch(valueOne, valueTwo))
+					.toEqual(sanitize(tMerge(
+						tShell(valueOne), valueOne, valueTwo
+					)));
 			});
 		});
 	});
@@ -1360,8 +1311,10 @@ describe('Collection', () => {
 
 		test('randomized test', () => {
 			// TODO: Randomize while randomizing result test.
+			// TODO: Use rndNested.
 			const properties = rndDict();
-			// TODO: Secure.
+
+			// TODO: Secure after bug fixing.
 			const base = { ...hCollection, ...properties };
 			const expectedProps = tReduce(
 				properties, (
@@ -1761,7 +1714,7 @@ describe('Collection', () => {
 
 	describe('shuffle shuffles the given collection', () => {
 		test('example', () => {
-			expect(shuffle([1, 2, 3, 4])).not.toEqual([1, 2, 3, 4]);
+			expect(shuffle([1, 2, 3, 4, 5, 6])).not.toEqual([1, 2, 3, 4, 5, 6]);
 			expect(shuffle({ a: 1, b: 2, c: 3, d: 4 }))
 				.toEqual({ a: 1, b: 2, c: 3, d: 4 });
 		});
