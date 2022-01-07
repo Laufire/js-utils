@@ -1,6 +1,6 @@
 import {
 	clone, secure, map, reduce, shuffle,
-	keys, filter, range, dict, fromEntries, shell, has,
+	keys, filter, range, dict, fromEntries, shell, has, values,
 } from '@laufire/utils/collection';
 import { rndValue, rndBetween, rndString, rndValues }
 	from '@laufire/utils/random';
@@ -214,10 +214,17 @@ const testRatios = (iterable, ratios) => {
 	const { length } = keys(iterable);
 
 	map(ratios, (ratio, key) => {
-		expect(isAcceptable(typeCounts[key] / length, ratio))
+		expect(isAcceptable((typeCounts[key] || 0) / length, ratio))
 			.toEqual(true);
 	});
 };
+
+const getRatios = (iterable) =>
+	reduce(iterable, (acc, key) => {
+		const { length } = values(iterable);
+
+		return { ...acc, [key]: 1 / length };
+	});
 
 export {
 	contracted, array, object, cloned,
@@ -227,5 +234,5 @@ export {
 	rndNumber, fixNumber, toObject, rndKey, rndKeys,
 	sortArray, strSubSet, retry, isAcceptable, expectEquals,
 	allTypes, emptyTypes, rnd, similarCols, iterableTypes,
-	till, findLastIndex, summarize, testRatios,
+	till, findLastIndex, summarize, testRatios, getRatios,
 };
