@@ -150,6 +150,16 @@ describe('rndString', () => {
 	});
 });
 
+const rndValuesTest = (results, array) => {
+	const resultLengths = map(results, (result) => result.length);
+
+	map(results, (result) =>
+		expect(equals(result.filter(unique), result)).toBe(true));
+
+	testRatios(resultLengths, getRatios(keys(array)));
+	testRatios(results.flat(), getRatios(array));
+};
+
 test('rndOfString returns a random sub-string of the given string.', () => {
 	const seed = tRndString();
 	const seedLength = seed.length;
@@ -158,8 +168,24 @@ test('rndOfString returns a random sub-string of the given string.', () => {
 		const rnd = rndOfString(seed);
 
 		expect(rnd.length <= seedLength).toBe(true);
-		expect(rnd.length >= 1).toBe(true);
 		expect(strSubSet(seed, rnd)).toBe(true);
+	});
+});
+
+test.only('rndOfString ratio test', () => {
+	retry((i) => {
+		console.log(i);
+		const retryCount = 100000;
+		// TODO: Use imported function rndValues after publishing.
+		const seedArray = rndValues('ab'.split(''), tRndBetween(0, 3));
+		const seed = seedArray.join('');
+
+		const results = retry(() => rndOfString(seed), retryCount);
+
+		const resultsArray = map(results, (result) =>
+			result.split(''));
+
+		rndValuesTest(resultsArray, seedArray);
 	});
 });
 
@@ -193,12 +219,14 @@ describe('rndValue returns a random a value from the given iterable.', () => {
 	});
 
 	test('ratio test', () => {
-		const retryCount = 50000;
-		const rndColl = rndCollection();
+		retry(() => {
+			const retryCount = 50000;
+			const rndColl = rndCollection(1, 4);
 
-		const results = retry(() => rndValue(rndColl), retryCount);
+			const results = retry(() => rndValue(rndColl), retryCount);
 
-		testRatios(results, getRatios(rndColl));
+			testRatios(results, getRatios(rndColl));
+		});
 	});
 });
 
@@ -295,20 +323,18 @@ describe('rndValues returns the given count of random a values'
 			expect(values(result).length)
 				.not.toBeGreaterThan(values(rndColl).length);
 		});
-	});
 
-	test('ratio test', () => {
-		const retryCount = 50000;
-		const array = map(range(0, 3), () => tRndString());
+		test.only('ratio test', () => {
+			retry((i) => {
+				console.log(i);
+				const retryCount = 20000;
+				const array = map(range(0, 3), () => tRndString());
 
-		const results = retry(() => rndValues(array), retryCount);
-		const resultLengths = map(results, (result) => result.length);
+				const results = retry(() => rndValues(array), retryCount);
 
-		map(results, (result) =>
-			expect(equals(result.filter(unique), result)).toBe(true));
-
-		testRatios(resultLengths, getRatios(keys(array)));
-		testRatios(results.flat(), getRatios(array));
+				rndValuesTest(results, array);
+			});
+		});
 	});
 });
 

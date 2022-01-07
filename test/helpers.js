@@ -224,7 +224,7 @@ const getRatios = (iterable) =>
 		const { length } = values(iterable);
 
 		return { ...acc, [key]: 1 / length };
-	});
+	}) || { undefined: 1 };
 
 export {
 	contracted, array, object, cloned,

@@ -54,16 +54,6 @@ const rndString = (length = 8, seed = 'char') => {
 	return ret;
 };
 
-/**
- * Get a random substring from the given string.
- * @param {string} string - The seed string.
- * @returns {string} The resulting random substring.
- */
-// TODO: Introduce a min-length parameter.
-const rndOfString = (string) =>
-	Array.from(new Set(rndString(rndBetween(1, string.length), string)
-		.split(''))).join('');
-
 const rndValue = (collection) => {
 	const items = values(collection);
 
@@ -87,6 +77,15 @@ const rndValues = (() => {
 		);
 	};
 })();
+
+/**
+ * Get a random substring from the given string.
+ * @param {string} string - The seed string.
+ * @returns {string} The resulting random substring.
+ */
+// TODO: Introduce a min-length parameter.
+const rndOfString = (string, length) =>
+	values(rndValues(string, length)).join('');
 
 const rndValueWeighted = (weights) => {
 	const candidates = keys(weights);
