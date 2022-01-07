@@ -362,6 +362,7 @@ describe('Collection', () => {
 					expect(predicate.mock.calls[i]).toEqual([
 						accumlators[i],
 						collection[key],
+						// TODO: Remove converters post publishing.
 						converters[inferType(collection)](key),
 						collection,
 					]));
@@ -399,6 +400,7 @@ describe('Collection', () => {
 						: expect(reducer).toHaveBeenCalledWith(
 							acc.shift(),
 							value,
+							// TODO: Remove converters post publishing.
 							converters[inferType(branch)](key),
 							branch
 						)));
@@ -488,20 +490,21 @@ describe('Collection', () => {
 
 		test('randomized test', () => {
 			retry(() => {
-				const randomValue = rnd();
+				const input = rnd();
 				const testTraversed = (base, traversed) => (isIterable(base)
 					? tMap(base, (value, key) => (isIterable(value)
 						? testTraversed(value, traversed[key])
 						: expect(traversed[key]).toEqual([
 							value,
+							// TODO: Remove converters post publishing.
 							converters[inferType(base)](key),
 							base,
 						])))
 					: expect(traversed).toEqual([base]));
 
-				const traversed = traverse(randomValue, convey);
+				const traversed = traverse(input, convey);
 
-				testTraversed(randomValue, traversed);
+				testTraversed(input, traversed);
 			});
 		});
 	});
@@ -519,7 +522,7 @@ describe('Collection', () => {
 				const iterable = rndCollection();
 
 				expect(has(iterable, rndValue(iterable))).toEqual(true);
-				expect(has(iterable, Symbol(''))).toEqual(false);
+				expect(has(iterable, Symbol)).toEqual(false);
 			});
 		});
 	});
@@ -566,11 +569,11 @@ describe('Collection', () => {
 
 		test('randomized test', () => {
 			retry(() => {
-				const randomValue = rnd();
+				const input = rnd();
 
 				const walker = jest.fn().mockImplementation(convey);
 
-				walk(randomValue, walker);
+				walk(input, walker);
 
 				const results = tClone(tPick(walker.mock.results, 'value'));
 				const testWalk = (base, ...rest) => {
@@ -578,6 +581,7 @@ describe('Collection', () => {
 						? tMap(base, (value, key) => {
 							isIterable(value) && testWalk(
 								value,
+								// TODO: Remove converters post publishing.
 								converters[inferType(base)](key),
 								base
 							);
@@ -591,7 +595,7 @@ describe('Collection', () => {
 						);
 				};
 
-				testWalk(randomValue);
+				testWalk(input);
 			});
 		});
 	});
@@ -609,9 +613,9 @@ describe('Collection', () => {
 					: tMap(base, (value, key) =>
 						testCloned(value, compared[key])));
 
-				const clonedObj = clone(rndNestedObj);
+				const cloned = clone(rndNestedObj);
 
-				testCloned(rndNestedObj, clonedObj);
+				testCloned(rndNestedObj, cloned);
 			});
 		});
 	});
@@ -1024,17 +1028,18 @@ describe('Collection', () => {
 
 		test('randomized test', () => {
 			retry(() => {
-				const objectArrays = tValues(rndNested(
+				const extensions = tValues(rndNested(
 					3, 3, ['object']
 				));
-				const rndLayer = rndValue(objectArrays);
+				const extension = rndValue(extensions);
 				const base = rndDict();
 
 				tMap(rndKeys(base), (key) =>
-					(rndLayer[key] = Symbol(key)));
+					(extension[key] = Symbol(key)));
 
+				// TODO: Rename the variable.
 				const randomLayers = tReduce(
-					objectArrays,
+					extensions,
 					(acc, dictionary) =>
 						({ ...dictionary, ...acc }), {}
 				);
@@ -1042,7 +1047,7 @@ describe('Collection', () => {
 				const expected = { ...randomLayers, ...base };
 
 				const filled = fill(
-					base, rndLayer, ...objectArrays,
+					base, extension, ...extensions,
 				);
 
 				expect(filled).toEqual(base);
@@ -1088,7 +1093,7 @@ describe('Collection', () => {
 		test('randomized test', () => {
 			retry(() => {
 				const data = tSecure(tMap(rndDict(), () =>
-					tMap(rndRange(), () => rndString())));
+					tMap(rndRange(), () => Symbol(rndString()))));
 
 				const expected = {};
 
@@ -1165,6 +1170,7 @@ describe('Collection', () => {
 			retry(() => {
 				const iterable = rndCollection();
 				const expectation = tValues(tMap(iterable, (value, key) =>
+				// TODO: Remove converters post publishing.
 					[converters[inferType(iterable)](key), value]));
 
 				expect(entries(iterable)).toEqual(expectation);
@@ -1199,12 +1205,12 @@ describe('Collection', () => {
 					const collection = rndCollection();
 					// eslint-disable-next-line max-len
 					const selector = tSecure(arrayOrObject(rndKeys(collection)));
-
-					const selected = select(collection, selector);
 					const expectation = tClean(tFilter(collection,
 						(dummy, key) => tValues(selector)
 						// TODO: Remove converters.
 							.includes(converters[inferType(collection)](key))));
+
+					const selected = select(collection, selector);
 
 					expect(selected).toEqual(expectation);
 				});
@@ -1238,12 +1244,12 @@ describe('Collection', () => {
 					const collection = rndCollection();
 					// eslint-disable-next-line max-len
 					const selector = tSecure(arrayOrObject(rndKeys(collection)));
-
-					const omitted = omit(collection, selector);
 					const expectation = tClean(tFilter(collection,
 						(dummy, key) => !tValues(selector)
 						// TODO: Remove converters.
 							.includes(converters[inferType(collection)](key))));
+
+					const omitted = omit(collection, selector);
 
 					expect(omitted).toEqual(expectation);
 				});
@@ -1799,7 +1805,7 @@ describe('Collection', () => {
 		test('randomized test', () => {
 			retry(() => {
 				const collection = rndCollection();
-				const processed = tReduce(
+				const input = tReduce(
 					collection, (
 						acc, dummy, key
 					) => {
@@ -1808,11 +1814,12 @@ describe('Collection', () => {
 
 						return acc;
 					}, { count: 0, result: tShell(collection) }
-				);
-				const shuffled = tShuffle(processed.result);
+				).result;
+				const shuffled = tShuffle(input);
+
 				const sorted = sort(shuffled);
 
-				expect(sorted).toEqual(processed.result);
+				expect(sorted).toEqual(input);
 			});
 		});
 	});
