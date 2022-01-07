@@ -14,6 +14,7 @@ import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
 import { isDefined, inferType, isIterable,
 	isDict, isArray } from '@laufire/utils/reflection';
+import { defined } from './fn';
 import { ascending, descending, reverse } from '@laufire/utils/sorters';
 import { sum, product } from '@laufire/utils/reducers';
 import { select as tSelect, map as tMap, keys as tKeys,
@@ -23,6 +24,7 @@ import { select as tSelect, map as tMap, keys as tKeys,
 	range as tRange, pick as tPick, clone as tClone, merge as tMerge }
 	from '@laufire/utils/collection';
 import { isEqual, not } from '@laufire/utils/predicates';
+import { pretty } from '@laufire/utils/debug';
 
 /* Tested */
 import {
@@ -47,11 +49,13 @@ describe('Collection', () => {
 	});
 	const simpleArray = secure([1, 2]);
 	const nestedObj = secure({
-		a: 1, b: 2,
+		a: 1,
+		b: 2,
 		c: {
 			d: {
 				e: 5,
 			},
+			f: 1,
 		},
 	});
 	// TODO: Secure.
@@ -1251,6 +1255,24 @@ describe('Collection', () => {
 
 				expect(omit(array, selector)).toEqual(expectation);
 			});
+		});
+	});
+
+	test.only('', () => {
+		const paths = walk(nestedObj, (
+			digest, value, key
+		) => ({ [`${ defined(key, '') }/`]: value,
+			...isDefined(digest) && reduce(
+				digest, (acc, childDigest) =>
+					(map(childDigest, (childValue, childPath) => {
+						acc[`${ defined(key, '') }/${ childPath }`] = childValue;
+					}), acc), {}
+			) }));
+
+		console.log(pretty(paths));
+
+		map(paths, (value, key) => {
+			expect(result(key)).toEqual(value);
 		});
 	});
 
