@@ -44,8 +44,9 @@ const isAcceptable = (
 const rndKey = (collection) =>
 	converters[inferType(collection)](rndValue(keys(collection)));
 
-const rndKeys = (collection) => rndValues(keys(collection),
-	rndBetween(1, keys(collection).length - 1));
+const rndKeys = (collection) => map(rndValues(keys(collection),
+	rndBetween(1, keys(collection).length - 1)),
+converters[inferType(collection)]);
 
 const rndRange = (minCount = defaults.minCount, maxCount = defaults.maxCount) =>
 	range(0, rndBetween(minCount, maxCount));
