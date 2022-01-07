@@ -1,101 +1,157 @@
 /* Helpers */
-import { dict, secure, values, keys, reduce, map }
+import { secure, values, keys, reduce, map, findKey }
 	from '@laufire/utils/collection';
-import { rndString } from '@laufire/utils/random';
-import { rndNested, rndNumber } from '../test/helpers';
+import { rndBetween, rndString, rndValue }
+	from '@laufire/utils/random';
+import { rndNested, retry, similarCols, rndKeys } from '../test/helpers';
 /* Tested */
 import { descend, index, summarize, transpose } from './crunch';
+import { isDefined } from '@laufire/utils/reflection';
 
 const sum = (...numbers) => numbers.reduce((t, c) => t + c, 0);
 
 /* Spec */
 describe('Crunch', () => {
 	/* Mocks and Stubs */
-	const rndKeyOne = rndString();
-	const rndKeyTwo = rndString();
-	const rndValueOne = rndNumber();
-	const rndValueTwo = rndNumber();
-	const rndValueThree = rndValueTwo + 1;
-	const elmOne = secure({
-		[rndKeyOne]: rndValueOne,
-		[rndKeyTwo]: rndValueTwo,
-	});
-	const elmTwo = secure({
-		[rndKeyOne]: rndValueOne,
-		[rndKeyTwo]: rndValueThree,
-	});
-	const elmThree = secure({
-		[rndKeyOne]: rndValueOne,
-		[rndKeyTwo]: rndValueThree,
-	});
-	const arr = secure([elmOne, elmTwo, elmThree]);
-	const obj = secure(dict(arr));
-	const types = [arr, obj];
 
-	test('index builds and index the given collection'
+	describe('index builds an index for the given collection'
 	+ ' on the given keys of the children to help with retrieval', () => {
-		const expected = {
-			[rndValueOne]: {
-				[rndValueTwo]: [elmOne],
-				[rndValueThree]: [elmTwo, elmThree],
-			},
-		};
+		test('example', () => {
+			const taskOne = { task: 'bug', priority: 'important' };
+			const taskTwo = { task: 'feature', priority: 'normal' };
+			const taskThree = { task: 'refactoring', priority: 'normal' };
+			const tasks = secure([taskTwo, taskThree, taskOne]);
 
-		types.forEach((item) => {
-			const result = index(item, [rndKeyOne, rndKeyTwo]);
+			const taskIndex = index(tasks, ['task']);
+			const priorityIndex = index(tasks, ['priority']);
+			const multiIndex = index(tasks, ['task', 'priority']);
 
-			expect(result).toEqual(expected);
+			/* eslint-disable dot-notation */
+			expect(taskIndex['bug']).toEqual([taskOne]);
+			expect(priorityIndex['normal']).toEqual([taskTwo, taskThree]);
+			expect(multiIndex['feature']['normal']).toEqual([taskTwo]);
+			expect(multiIndex['feature']['important']).toEqual(undefined);
+			/* eslint-enable dot-notation */
+		});
+
+		test('randomized', () => {
+			retry(() => {
+				// TODO: Revert iterables to use Symbols after fixing collection.keys.
+				const iterable = map(similarCols(1, 2), (value) =>
+					map(value, () => rndString()));
+				const randomKeys = keys(rndValue(iterable));
+				const indexKeys = rndKeys(randomKeys);
+
+				const indexed = index(iterable, indexKeys);
+
+				const testIndex = (
+					currentLevel, currentIndex, currentKeys
+				) => {
+					const [currentKey, ...rest] = currentKeys;
+
+					const verifyIndexed = (result, expected) => {
+						const predicate = (item) =>	{
+							const itemIndex = findKey(expected,
+								(val, key) =>	(
+									val !== 'undefined'
+										? val !== item[key]
+										: item.hasOwnProperty(key)
+								));
+
+							return !isDefined(itemIndex);
+						};
+						const filtered = values(iterable).filter(predicate);
+
+						expect(result).toEqual(filtered);
+					};
+
+					// eslint-disable-next-line no-unused-expressions
+					currentKey
+						? map(currentLevel, (child, key) => testIndex(
+							child, { ...currentIndex, [currentKey]: key }, rest
+						))
+						:	verifyIndexed(currentLevel, currentIndex);
+				};
+
+				testIndex(
+					indexed, {}, indexKeys
+				);
+			}, 10000);
 		});
 	});
 
-	test('summarize summarizes the given collection'
+	describe('summarize summarizes the given collection'
 	+ ' and builds an index on the given keys', () => {
-		const summarizer = (item) => sum(...values(item));
-		const expected = {
-			[rndValueOne]: {
-				[rndValueTwo]: rndValueOne + rndValueTwo,
-				[rndValueThree]: rndValueOne + rndValueThree,
-			},
-		};
+		test('example', () => {
+			const elmOne = { price: 10, tax: 2 };
+			const elmTwo = { price: 20, tax: 3 };
+			const iterable = secure([elmOne, elmTwo]);
+			const summarizer = (item) => sum(...values(item));
+			const indexKeys = ['price', 'tax'];
+			const expected = {
+				10: {
+					2: 12,
+				},
+				20: {
+					3: 23,
+				},
+			};
 
-		types.forEach((item) => {
 			const result = summarize(
-				item, summarizer, [rndKeyOne, rndKeyTwo]
+				iterable, summarizer, indexKeys
 			);
 
 			expect(result).toEqual(expected);
 		});
 	});
 
-	test('descend descends into the given collection'
+	describe('descend descends into the given collection'
 	+ ' upto the given level and executes the given process'
 	+ ' and returns a new collection', () => {
-		const numTwo = rndNumber();
-		const descendLevel = 1;
-		const process = (num) => num + numTwo;
-		const expectedFromArr = [
-			{
-				[rndKeyOne]: rndValueOne + numTwo,
-				[rndKeyTwo]: rndValueTwo + numTwo,
-			},
-			{
-				[rndKeyOne]: rndValueOne + numTwo,
-				[rndKeyTwo]: rndValueThree + numTwo,
-			},
-			{
-				[rndKeyOne]: rndValueOne + numTwo,
-				[rndKeyTwo]: rndValueThree + numTwo,
-			},
-		];
-		const expectedFromObj = dict(expectedFromArr);
-		const expectations = [expectedFromArr, expectedFromObj];
+		test('example', () => {
+			const elmOne = { price: 10, tax: 2 };
+			const elmTwo = { price: 20, tax: 3 };
+			const iterable = secure([elmOne, elmTwo]);
+			const increase = (val) => val + 1;
+			const expected = [{ price: 11, tax: 3 }, { price: 21, tax: 4 }];
 
-		types.forEach((item, i) => {
 			const result = descend(
-				item, process, descendLevel
+				iterable, increase, 1
 			);
 
-			expect(result).toEqual(expectations[i]);
+			expect(result).toEqual(expected);
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const marker = Symbol('marker');
+				const depth = rndBetween(1, 3);
+				const level = rndBetween(1, depth);
+				const process = (value) => [value, marker];
+				const source = rndNested(
+					depth + 1, 1, ['nested']
+				);
+
+				const result = descend(
+					source, process, level
+				);
+
+				const testDescend = (
+					output, input, currentLevel
+				) => {
+					map(output, (value, key) => {
+						currentLevel
+							? testDescend(
+								value, input[key], currentLevel - 1
+							)
+							: expect(value).toEqual([input[key], marker]);
+					});
+				};
+
+				testDescend(
+					result, source, level
+				);
+			});
 		});
 	});
 

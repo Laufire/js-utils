@@ -8,16 +8,15 @@ import { inferType } from '@laufire/utils/reflection';
 import TestConfig from './config';
 
 /* Config */
-const rangeMaxLimit = 5;
 // TODO: Change the values after importing the new version.
-const rangeMinLimit = 8;
 const numMaxLimit = 100;
 const defaults = {
 	numberArrayMax: 100,
+	minCount: 5,
+	maxCount: 9,
 	numberPrecision: 4,
 	randomNumLimits: [0, numMaxLimit],
 	retryCount: 1000,
-	rndRangeLimits: [rangeMinLimit, rangeMaxLimit],
 };
 const stringLength = 16;
 // TODO: Remove the converters after using published functions.
@@ -48,8 +47,8 @@ const rndKey = (collection) =>
 const rndKeys = (collection) => rndValues(keys(collection),
 	rndBetween(1, keys(collection).length - 1));
 
-const rndRange = (minCount = 0) =>
-	range(0, minCount + rndBetween(...defaults.rndRangeLimits));
+const rndRange = (minCount = defaults.minCount, maxCount = defaults.maxCount) =>
+	range(0, rndBetween(minCount, maxCount));
 
 const rndNumber = () => rndBetween(...defaults.randomNumLimits);
 
@@ -57,15 +56,16 @@ const fixNumber = (value) => value.toFixed(defaults.numberPrecision);
 
 const expectEquals = (valOne, valtwo) => expect(valOne).toEqual(valtwo);
 
-const rndDict = (minCount = 1) =>
-	fromEntries(map(rndRange(minCount), (value) =>
+const rndDict = (minCount = defaults.minCount, maxCount = defaults.maxCount) =>
+	fromEntries(map(rndRange(minCount, maxCount), (value) =>
 		[rndString(), Symbol(value)]));
 
-const rndArray = (minCount = 1) =>
-	rndRange(minCount).map(() => rndString());
+const rndArray = (minCount = defaults.minCount, maxCount = defaults.maxCount) =>
+	rndRange(minCount, maxCount).map(() => rndString());
 
-const rndCollection = (minCount = 1) =>
-	rndValue([rndRange, rndDict])(minCount);
+const rndCollection = (minCount = defaults.minCount,
+	maxCount = defaults.maxCount) =>
+	rndValue([rndRange, rndDict])(minCount, maxCount);
 
 const findLastIndex = (arr, predicate) =>
 	arr.findIndex((item, i) => predicate(item)
@@ -185,9 +185,11 @@ const toObject = (iterator) => reduce(
 
 const rnd = () => rndNested(0);
 
-const similarCols = () => {
+const similarCols = (minCount = defaults.minCount,
+	maxCount = defaults.maxCount) => {
 	const child = rndValue([rndDict, rndArray]);
-	const rndCollections = map(rndCollection(), () => child());
+	const rndCollections = map(rndCollection(minCount, maxCount), () =>
+		child(minCount, maxCount));
 	const rndColl = rndValue(rndCollections);
 
 	const partialObject = reduce(
