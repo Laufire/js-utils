@@ -647,13 +647,7 @@ describe('Collection', () => {
 						))
 						: value));
 				const expectation = tReduce(
-					inputs, (acc, val) =>
-						({ ...acc, ...isArray(val)
-							? tReduce(
-								val, (childAcc, childVal) =>
-									({ ...childAcc, ...childVal }), {}
-							)
-							: val }), {}
+					inputs.flat(), (acc, val) => ({ ...acc, ...val }), {}
 				);
 
 				const squashed = squash(...inputs);
