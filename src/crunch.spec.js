@@ -1,12 +1,14 @@
 /* Helpers */
-import { secure, values, keys, reduce, map, contains }
+import { secure, values, keys, reduce, map, contains, clean, findKey, equals, filter }
 	from '@laufire/utils/collection';
 import { rndBetween, rndValue, rndValues } from '@laufire/utils/random';
-import { rndNested, retry } from '../test/helpers';
+import { rndNested, retry, similarCols } from '../test/helpers';
 /* Tested */
 import { descend, index, summarize, transpose } from './crunch';
+import { isDefined } from '@laufire/utils/reflection';
 
 const sum = (...numbers) => numbers.reduce((t, c) => t + c, 0);
+const failedCases = [];
 
 /* Spec */
 describe('Crunch', () => {
@@ -32,33 +34,78 @@ describe('Crunch', () => {
 			/* eslint-enable dot-notation */
 		});
 
-		test('randomized test', () => {
+		test('temp', () => {
 			retry(() => {
-				const eleOne = { a: '1', b: '2' };
-				const eleTwo = { a: '1', b: '3' };
-				const iterable = [eleOne, eleTwo];
+				const iterable = similarCols(1, 2);
 				const randomKeys = keys(rndValue(iterable));
-				const indexKeys = rndValues(randomKeys);
+				const indexKeys = rndValues(randomKeys, rndBetween(1, 3));
 
 				const result = index(iterable, indexKeys);
 
-				const testIndex = (
-					currentLevel, currentIndex, currentKeys
-				) => {
-					const [currentKey, ...rest] = currentKeys;
+				try {
+					const testIndex = (
+						currentLevel, currentIndex, currentKeys
+					) => {
+						const [currentKey, ...rest] = currentKeys;
 
-					// eslint-disable-next-line no-unused-expressions
-					currentKey
-						? map(currentLevel, (child, key) => testIndex(
-							child, { ...currentIndex, [currentKey]: key }, rest
-						))
-						:	expect(currentLevel).toEqual(iterable
-							.filter((value) =>	contains(value, currentIndex)));
-				};
+						const debug = () => {
+							const filtered = filter(iterable, (item) =>	{
+								const itemIndex = findKey(currentIndex, (val, key) => (val !== 'undefined'
+									? val !== item[key]
+									: item.hasOwnProperty(key)));
 
-				testIndex(
-					result, {}, indexKeys
-				);
+								return !isDefined(itemIndex);
+							});
+
+							const find = equals(currentLevel, filtered);
+
+							expect(find).toEqual(true);
+						};
+
+						// eslint-disable-next-line no-unused-expressions
+						currentKey
+							? map(currentLevel, (child, key) => testIndex(
+								child, { ...currentIndex, [currentKey]: key }, rest
+							))
+							:	debug();
+					};
+
+					testIndex(
+						result, {}, indexKeys
+					);
+				}
+				catch (err) {
+					const testIndex = (
+						currentLevel, currentIndex, currentKeys
+					) => {
+						const [currentKey, ...rest] = currentKeys;
+
+						const debug = () => {
+							const filtered = filter(iterable, (item) =>	{
+								const itemIndex = findKey(currentIndex, (val, key) => (val !== 'undefined'
+									? val !== item[key]
+									: item.hasOwnProperty(key)));
+
+								return !isDefined(itemIndex);
+							});
+
+							const find = equals(currentLevel, filtered);
+
+							expect(find).toEqual(true);
+						};
+
+						// eslint-disable-next-line no-unused-expressions
+						currentKey
+							? map(currentLevel, (child, key) => testIndex(
+								child, { ...currentIndex, [currentKey]: key }, rest
+							))
+							:	debug();
+					};
+
+					testIndex(
+						result, {}, indexKeys
+					);
+				}
 			}, 1000);
 		});
 	});
