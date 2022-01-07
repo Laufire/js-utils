@@ -190,7 +190,7 @@ const similarCols = (minCount = defaults.minCount,
 	maxCount = defaults.maxCount) => {
 	const child = rndValue([rndDict, rndArray]);
 	const rndCollections = map(rndCollection(minCount, maxCount), () =>
-		child());
+		child(minCount, maxCount));
 	const rndColl = rndValue(rndCollections);
 
 	const partialObject = reduce(
