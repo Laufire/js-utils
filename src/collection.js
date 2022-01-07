@@ -459,7 +459,7 @@ const translate = (source, selector) =>
 		(acc[key] = isIterable(value)
 			? translate(source, value)
 			// eslint-disable-next-line no-sequences
-			: result(source, value), acc), shell(source));
+			: result(source, value), acc), shell(selector));
 
 const compose = (...objects) => {
 	const keysToPick = libKeys(objects[0]);
