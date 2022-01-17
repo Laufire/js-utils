@@ -1,6 +1,6 @@
 import {
 	map, contains, secure,
-	has, values, equals, keys, range, reduce,
+	has, values, equals, range, reduce,
 } from '@laufire/utils/collection';
 import {
 	rndBetween as tRndBetween, rndString as tRndString,
@@ -299,7 +299,9 @@ describe('rndValues returns the given count of random a values'
 
 	test('ratio test', () => {
 		const retryCount = 50000;
-		const array = map(range(0, 3), () => tRndString());
+		const arrayLength = tRndBetween(0, 3);
+		const array = map(range(0, arrayLength), () => tRndString());
+		const possibleLengths = range(0, arrayLength + 1);
 
 		const results = retry(() => rndValues(array), retryCount);
 		const resultLengths = map(results, (result) => result.length);
@@ -307,7 +309,7 @@ describe('rndValues returns the given count of random a values'
 		map(results, (result) =>
 			expect(equals(result.filter(unique), result)).toBe(true));
 
-		testRatios(resultLengths, getRatios(keys(array)));
+		testRatios(resultLengths, getRatios(possibleLengths));
 		testRatios(results.flat(), getRatios(array));
 	});
 });
