@@ -1,14 +1,14 @@
 /* Helpers */
-import { secure, values, keys, reduce, map, contains, clean, findKey, equals, filter }
+import { secure, values, keys, reduce, map, findKey }
 	from '@laufire/utils/collection';
-import { rndBetween, rndValue, rndValues } from '@laufire/utils/random';
-import { rndNested, retry, similarCols } from '../test/helpers';
+import { rndBetween, rndString, rndValue }
+	from '@laufire/utils/random';
+import { rndNested, retry, similarCols, rndKeys } from '../test/helpers';
 /* Tested */
 import { descend, index, summarize, transpose } from './crunch';
 import { isDefined } from '@laufire/utils/reflection';
 
 const sum = (...numbers) => numbers.reduce((t, c) => t + c, 0);
-const failedCases = [];
 
 /* Spec */
 describe('Crunch', () => {
@@ -34,79 +34,49 @@ describe('Crunch', () => {
 			/* eslint-enable dot-notation */
 		});
 
-		test('temp', () => {
+		test('randomized', () => {
 			retry(() => {
-				const iterable = similarCols(1, 2);
+				// TODO: Revert iterables to use Symbols after fixing collection.keys.
+				const iterable = map(similarCols(1, 2), (value) =>
+					map(value, () => rndString()));
 				const randomKeys = keys(rndValue(iterable));
-				const indexKeys = rndValues(randomKeys, rndBetween(1, 3));
+				const indexKeys = rndKeys(randomKeys);
 
-				const result = index(iterable, indexKeys);
+				const indexed = index(iterable, indexKeys);
 
-				try {
-					const testIndex = (
-						currentLevel, currentIndex, currentKeys
-					) => {
-						const [currentKey, ...rest] = currentKeys;
+				const testIndex = (
+					currentLevel, currentIndex, currentKeys
+				) => {
+					const [currentKey, ...rest] = currentKeys;
 
-						const debug = () => {
-							const filtered = filter(iterable, (item) =>	{
-								const itemIndex = findKey(currentIndex, (val, key) => (val !== 'undefined'
-									? val !== item[key]
-									: item.hasOwnProperty(key)));
+					const verifyIndexed = (result, expected) => {
+						const predicate = (item) =>	{
+							const itemIndex = findKey(expected,
+								(val, key) =>	(
+									val !== 'undefined'
+										? val !== item[key]
+										: item.hasOwnProperty(key)
+								));
 
-								return !isDefined(itemIndex);
-							});
-
-							const find = equals(currentLevel, filtered);
-
-							expect(find).toEqual(true);
+							return !isDefined(itemIndex);
 						};
+						const filtered = values(iterable).filter(predicate);
 
-						// eslint-disable-next-line no-unused-expressions
-						currentKey
-							? map(currentLevel, (child, key) => testIndex(
-								child, { ...currentIndex, [currentKey]: key }, rest
-							))
-							:	debug();
+						expect(result).toEqual(filtered);
 					};
 
-					testIndex(
-						result, {}, indexKeys
-					);
-				}
-				catch (err) {
-					const testIndex = (
-						currentLevel, currentIndex, currentKeys
-					) => {
-						const [currentKey, ...rest] = currentKeys;
+					// eslint-disable-next-line no-unused-expressions
+					currentKey
+						? map(currentLevel, (child, key) => testIndex(
+							child, { ...currentIndex, [currentKey]: key }, rest
+						))
+						:	verifyIndexed(currentLevel, currentIndex);
+				};
 
-						const debug = () => {
-							const filtered = filter(iterable, (item) =>	{
-								const itemIndex = findKey(currentIndex, (val, key) => (val !== 'undefined'
-									? val !== item[key]
-									: item.hasOwnProperty(key)));
-
-								return !isDefined(itemIndex);
-							});
-
-							const find = equals(currentLevel, filtered);
-
-							expect(find).toEqual(true);
-						};
-
-						// eslint-disable-next-line no-unused-expressions
-						currentKey
-							? map(currentLevel, (child, key) => testIndex(
-								child, { ...currentIndex, [currentKey]: key }, rest
-							))
-							:	debug();
-					};
-
-					testIndex(
-						result, {}, indexKeys
-					);
-				}
-			}, 1000);
+				testIndex(
+					indexed, {}, indexKeys
+				);
+			}, 10000);
 		});
 	});
 
