@@ -168,23 +168,21 @@ describe('rndOfString returns a random sub-string of the given string.', () => {
 		});
 
 		test('randomized test', () => {
-			retry(() => {
-				const length = tRndBetween(0, 3);
-				// TODO: Use imported function rndValues after publishing.
-				const seed = 'ab';
-				const seedArray = rndValues(seed.split(''), length);
-				const seedStr = seedArray.join('');
-				const possibleLengths = range(0, seedStr.length + 1);
+			const length = tRndBetween(0, 3);
+			// TODO: Use imported function rndValues after publishing.
+			const seed = 'ab';
+			const seedArray = rndValues(seed.split(''), length);
+			const seedStr = seedArray.join('');
+			const possibleLengths = range(0, seedStr.length + 1);
 
-				const results = retry(() => rndOfString(seedStr), retryCount);
-				const resultsArray = map(results, (result) =>
-					result.split(''));
+			const results = retry(() => rndOfString(seedStr), retryCount);
+			const resultsArray = map(results, (result) =>
+				result.split(''));
 
-				const resultLengths = map(resultsArray, (result) =>
-					result.length);
+			const resultLengths = map(resultsArray, (result) =>
+				result.length);
 
-				testRatios(resultLengths, getRatios(possibleLengths));
-			});
+			testRatios(resultLengths, getRatios(possibleLengths));
 		});
 	});
 
@@ -238,19 +236,17 @@ describe('rndOfString returns a random sub-string of the given string.', () => {
 	});
 
 	test('ratio test', () => {
-		retry(() => {
-			// TODO: Use imported function rndValues after publishing.
-			const seed = 'ab';
-			const seedArray = rndValues(seed.split(''), tRndBetween(0, 3));
-			const seedStr = seedArray.join('');
+		// TODO: Use imported function rndValues after publishing.
+		const seed = 'ab';
+		const seedArray = rndValues(seed.split(''), tRndBetween(0, 3));
+		const seedStr = seedArray.join('');
 
-			const results = retry(() => rndOfString(seedStr), retryCount);
+		const results = retry(() => rndOfString(seedStr), retryCount);
 
-			const resultsArray = map(results, (result) =>
-				result.split(''));
+		const resultsArray = map(results, (result) =>
+			result.split(''));
 
-			testRatios(resultsArray.flat(), getRatios(seedArray));
-		});
+		testRatios(resultsArray.flat(), getRatios(seedArray));
 	});
 });
 
@@ -384,17 +380,15 @@ describe('rndValues returns the given count of random a values'
 		});
 
 		test('randomized test', () => {
-			retry(() => {
-				const length = tRndBetween(0, 3);
-				const rndColl = rndCollection(0, length);
-				const possibleLengths = range(0, rndColl.length + 1);
+			const length = tRndBetween(0, 3);
+			const rndColl = rndCollection(0, length);
+			const possibleLengths = range(0, rndColl.length + 1);
 
-				const results = retry(() => rndValues(rndColl), retryCount);
+			const results = retry(() => rndValues(rndColl), retryCount);
 
-				const resultLengths = map(results, (result) => result.length);
+			const resultLengths = map(results, (result) => result.length);
 
-				testRatios(resultLengths, getRatios(possibleLengths));
-			});
+			testRatios(resultLengths, getRatios(possibleLengths));
 		});
 	});
 

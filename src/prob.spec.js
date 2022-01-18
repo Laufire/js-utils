@@ -5,7 +5,7 @@ import { retry, isAcceptable, expectEquals } from '../test/helpers';
 import { isProbable, possibilities } from './prob';
 
 test('isProbable returns true based on given probability', () => {
-	const retryCount = 100000;
+	const retryCount = 50000;
 	const generateTest = (probability, errorMargin) => {
 		const results = retry(() => isProbable(probability), retryCount);
 		const successCount = results.filter(isEqual(true)).length;
@@ -25,7 +25,7 @@ test('isProbable returns true based on given probability', () => {
 	};
 
 	testCandidates([0, 1, 2], 0);
-	testCandidates(range(2, 99).map((probability) => probability / 100), 0.08);
+	testCandidates(range(2, 10).map((probability) => probability / 100), 0.08);
 });
 
 describe('possibilities', () => {
