@@ -1,17 +1,22 @@
-import { map, contains, fromEntries, pick, keys, secure } from
-	'@laufire/utils/collection';
+import {
+	map, contains, secure,
+	has, values, equals, keys, range, reduce,
+} from '@laufire/utils/collection';
+import {
+	rndBetween as tRndBetween, rndString as tRndString,
+} from '@laufire/utils/random';
+import { inferType } from '@laufire/utils/reflection';
+import { unique } from '@laufire/utils/predicates';
+import { sum } from '@laufire/utils/reducers';
+import
+{ expectEquals, retry, rndCollection, getRatios,
+	strSubSet, isAcceptable, testRatios, summarize, rndDict }
+	from '../test/helpers';
 
 /* Tested */
-import {
-	rndBetween, rndOfString, rndString,
+import { rndBetween, rndOfString, rndString,
 	rndValue, rndValues, rndValueWeighted,
-	stringSeeds, withProb,
-} from './random';
-
-/* Helpers */
-import { retry, strSubSet, isAcceptable } from '../test/helpers';
-// TODO: Use published functions instead.
-import { range, reduce, sort } from './collection';
+	stringSeeds, withProb } from './random';
 
 /* Tests */
 describe('rndBetween helps in generating random numbers', () => {
@@ -27,13 +32,6 @@ describe('rndBetween helps in generating random numbers', () => {
 	const hasPrecision = (number, precision) =>
 		expect(getPrecision(number))
 			.toBeLessThanOrEqual(precision);
-
-	const digest = (numbers) => reduce(
-		// eslint-disable-next-line no-return-assign
-		numbers, (acc, value) =>
-		// eslint-disable-next-line no-sequences
-			(acc[value] = (acc[value] || 0) + 1, acc), {}
-	);
 
 	describe('examples', () => {
 		test('rndBetween returns a random number between two numbers',
@@ -75,168 +73,284 @@ describe('rndBetween helps in generating random numbers', () => {
 	});
 
 	describe('randomized tests', () => {
-		const retryCount = 100000;
-
-		test('testing values', () => {
-			const from = -10;
-			const to = 10;
-			const possibleValues = range(-10, 10);
-			const errorMargin = 0.1;
-			const expected = 1;
+		test('values test', () => {
+			const retryCount = 50000;
+			const from = -2;
+			const to = 2;
+			const possibleValues = range(from, to);
 
 			const results = retry(() => rndBetween(from, to), retryCount);
 
-			const avg = retryCount / possibleValues.length;
-			const digested = digest(results);
-
-			map(digested, (count) => isAcceptable(
-				count / avg, expected, errorMargin
-			));
-
-			const resultingValues = map(keys(digested), Number);
-
-			expect(sort(resultingValues)).toEqual(possibleValues);
+			testRatios(results, getRatios(possibleValues));
 		});
 
-		test('testing precision', () => {
-			const from = 1;
-			const to = 10;
+		test('precision test', () => {
+			const retryCount = 50000;
+			const from = -2;
+			const to = 2;
 			const precision = 2;
-			const errorMargin = 0.05;
 			const expected = 0.9;
 
-			const result = retry(() => rndBetween(
+			const results = retry(() => rndBetween(
 				from, to, precision
 			), retryCount);
 
-			const precisions = map(result, getPrecision);
-			const digested = digest(precisions);
-			const actual = digested[precision] / retryCount;
+			const precisions = map(results, getPrecision);
+			const summarized = summarize(precisions);
+			const actual = summarized[precision] / retryCount;
 
-			isAcceptable(
-				actual, expected, errorMargin
-			);
+			isAcceptable(actual, expected);
 		});
 	});
 });
 
-// TODO: Randomize properly.
-test('rndString returns a random string of length 8,'
-	+ ' with the seed char, on default configuration.', () => {
-	const { char: seed } = stringSeeds;
+describe('rndString', () => {
+	test('returns a random string based on the given seed'
+	+ ' and count', () => {
+		const seed = 'abcd';
+		const count = 2;
 
-	retry(() => {
-		const rnd = rndString();
+		const result = rndString(count, seed);
 
-		expect(rnd.length).toBe(8);
-		expect(strSubSet(seed, rnd)).toBe(true);
+		expect(result.length).toBe(count);
+		expect(strSubSet(seed, result)).toBe(true);
+	});
+
+	test('rndString returns a randomString based on the'
+	+ ' given stringSeed', () => {
+		retry(() => {
+			const seed = rndValue(stringSeeds);
+			const count = tRndBetween(0, 9);
+
+			const result = rndString(count, seed);
+
+			expect(strSubSet(seed, result)).toBe(true);
+		});
+	});
+
+	test('count defaults to 8 and seed defaults to char', () => {
+		const { char: seed } = stringSeeds;
+		const count = 8;
+
+		retry(() => {
+			const result = rndString();
+
+			expect(result.length).toBe(count);
+			expect(strSubSet(seed, result)).toBe(true);
+		});
+	});
+
+	test('ratio test', () => {
+		const seed = 'abc';
+		const count = 1;
+		const retryCount = 50000;
+
+		const results = retry(() => rndString(count, seed), retryCount);
+
+		testRatios(results, getRatios(seed.split('')));
 	});
 });
 
 test('rndOfString returns a random sub-string of the given string.', () => {
-	const seed = rndString();
+	const seed = tRndString();
 	const seedLength = seed.length;
 
 	retry(() => {
-		const rnd = rndOfString(seed);
+		const result = rndOfString(seed);
 
-		expect(rnd.length <= seedLength).toBe(true);
-		expect(rnd.length >= 1).toBe(true);
-		expect(strSubSet(seed, rnd)).toBe(true);
+		expect(result.length <= seedLength).toBe(true);
+		expect(result.length >= 1).toBe(true);
+		expect(strSubSet(seed, result)).toBe(true);
 	});
 });
 
 describe('rndValue returns a random a value from the given iterable.', () => {
-	test('returns a value when the iterable is not empty', () => {
-		// TODO: Use rndCollection.
-		const seed = retry((i) => [i, rndString()], 10);
-		const array = secure(pick(seed, 1));
-		const object = secure(fromEntries(seed));
+	test('example', () => {
+		const iterable = {
+			a: 1,
+			b: 2,
+			c: 3,
+			d: 4,
+		};
 
-		retry(() => {
-			expect(array).toContain(rndValue(array));
-			expect(array).toContain(rndValue(object));
-		});
+		const result = rndValue(iterable);
 
-		// TODO: Remove duplicates.
-		expect(rndValue([])).toBeUndefined();
-		expect(rndValue({})).toBeUndefined();
+		expect(has(iterable, result)).toEqual(true);
 	});
 
 	test('returns undefined when the iterable is empty', () => {
 		expect(rndValue([])).toBeUndefined();
 		expect(rndValue({})).toBeUndefined();
 	});
-});
 
-// TODO: Fix the description.
-describe('rndValues returns the given count of random a values'
-+ 'from the given iterable', () => {
-	const seed = retry((i) => [i, rndString()], 10);
-	// TODO: Use rndCollection.
-	const array = secure(pick(seed, 1));
-	const object = secure(fromEntries(seed));
-	const { length } = seed;
-
-	// TODO: Fix the description.
-	test('returns count number of values when the iterable length'
-	+ 'is longer than count', () => {
-		const count = rndBetween(0, length - 1);
-		// TODO: Combine the tests.
-		const arrayTest = (iterable) => {
-			const result = rndValues(iterable, count);
-
-			expect(keys(result).length).toEqual(count);
-			result.map((val) => expect(iterable.includes(val)).toEqual(true));
-		};
-		const objectTest = (iterable) => {
-			const result = rndValues(iterable, count);
-
-			expect(keys(result).length).toEqual(count);
-			expect(contains(iterable, result)).toEqual(true);
-		};
-
+	test('randomized test', () => {
 		retry(() => {
-			arrayTest(array);
-			objectTest(object);
+			const rndColl = rndCollection();
+
+			const result = rndValue(rndColl);
+
+			expect(has(rndColl, result)).toEqual(true);
 		});
 	});
 
-	test('count is limited to the length of the source iterable', () => {
-		const test = (iterable) => {
-			const count = seed.length * 2;
+	test('ratio test', () => {
+		const retryCount = 50000;
+		const rndColl = rndCollection();
+
+		const results = retry(() => rndValue(rndColl), retryCount);
+
+		testRatios(results, getRatios(rndColl));
+	});
+});
+
+describe('rndValues returns the given count of random a values'
++ 'from the given iterable', () => {
+	describe('returns the given count number of values when the iterable length'
+	+ ' is longer than the given count', () => {
+		test('example', () => {
+			const iterable = {
+				a: 1,
+				b: 2,
+				c: 3,
+				d: 4,
+			};
+			const count = 2;
+
 			const result = rndValues(iterable, count);
 
-			// TODO: Use collection.count after publishing.
-			expect(keys(result).length).toEqual(seed.length);
-		};
+			expectEquals(contains(iterable, result), true);
+			expectEquals(values(result).length, count);
+		});
 
-		// TODO: Use rndCollection.
-		retry(() => [array, object].forEach(test));
+		test('randomized test', () => {
+			const verifiers = {
+				array: (iterable, result) => {
+					expect(result.filter(unique)).toEqual(result);
+					map(result, (value) => expect(has(iterable, value))
+						.toEqual(true));
+				},
+				object: (iterable, result) => {
+					expect(contains(iterable, result)).toEqual(true);
+				},
+			};
+
+			retry(() => {
+				const rndColl = rndCollection();
+				const count = tRndBetween(0, values(rndColl).length - 1);
+
+				const result = rndValues(rndColl, count);
+
+				expect(values(result).length).toEqual(count);
+				verifiers[inferType(rndColl)](rndColl, result);
+			});
+		});
 	});
 
-	// TODO: Fix the description.
-	test('count defaults to random value', () => {
-		expect(rndValues(array).length).toBeLessThan(array.length);
+	describe('count is limited to the length of the source iterable', () => {
+		test('example', () => {
+			const iterable = {
+				a: 1,
+				b: 2,
+				c: 3,
+				d: 4,
+			};
+			const count = 8;
+
+			const result = rndValues(iterable, count);
+
+			expect(values(result).length).toEqual(values(iterable).length);
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const rndColl = rndCollection();
+				const count = values(rndColl).length;
+				const result = rndValues(rndColl, count);
+
+				// TODO: Use collection.count after publishing.
+				expect(values(result).length).toEqual(values(rndColl).length);
+			});
+		});
+	});
+
+	describe('count defaults to random value', () => {
+		test('example', () => {
+			const iterable = {
+				a: 1,
+				b: 2,
+				c: 3,
+				d: 4,
+			};
+
+			const result = rndValues(iterable);
+
+			expect(values(result).length)
+				.not.toBeGreaterThan(values(iterable).length);
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const retryCount = 50000;
+				const array = map(range(0, 3), () => tRndString());
+
+				const results = retry(() => rndValues(array), retryCount);
+
+				const resultLengths = map(results, (result) => result.length);
+
+				testRatios(resultLengths, getRatios(keys(array)));
+			});
+		});
+	});
+
+	test('ratio test', () => {
+		const retryCount = 50000;
+		const array = map(range(0, 3), () => tRndString());
+
+		const results = retry(() => rndValues(array), retryCount);
+
+		map(results, (result) =>
+			expect(equals(result.filter(unique), result)).toBe(true));
+
+		testRatios(results.flat(), getRatios(array));
 	});
 });
 
 describe('rndValueWeighted returns a random a value from'
 	+ ' the given weight table according to the given weights.', () => {
-	// TODO: Use isAcceptable in example test.
-	// TODO: Randomize the test.
-	test('returns a value when the iterable is not empty', () => {
-		const weights = secure({ a: 1, b: 2 });
-		const getRnd = rndValueWeighted(weights);
+	test('example', () => {
+		const retryCount = 1000;
+		const weights = { a: 1, b: 3 };
 
-		const results = retry(getRnd, 1000);
-		const counts = map(weights, (dummy, key) =>
-			results.filter((v) => v === key).length);
+		const results = retry(rndValueWeighted(weights), retryCount);
 
-		expect(counts.a > 250).toEqual(true);
-		expect(counts.b > 500).toEqual(true);
-		expect(rndValue({})).toBeUndefined();
+		const summarized = summarize(results);
+		const { a, b } = summarized;
+
+		expect(a > 200 && a < 300).toBe(true);
+		expect(b > 700 && b < 800).toBe(true);
 	});
+
+	test('ratios test',
+		() => {
+			const weights = secure(reduce(
+				rndDict(0, tRndBetween(0, 3)), (
+					acc, dummy, key
+				) =>
+					({ ...acc, [key]: tRndBetween(0, 3) }), {}
+			));
+			const totalWeights = reduce(
+				weights, sum, 0
+			);
+			const ratios = reduce(weights, (
+				acc, value, key
+			) =>
+				({ ...acc, [key]: (value / totalWeights) || 0 }))
+				|| { undefined: 1 };
+
+			const results = retry(rndValueWeighted(weights), 50000);
+
+			testRatios(results, ratios);
+		});
 
 	test('returns undefined when the iterable is empty', () => {
 		expect(rndValueWeighted({})()).toBeUndefined();
