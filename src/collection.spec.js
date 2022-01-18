@@ -573,13 +573,16 @@ describe('Collection', () => {
 
 				const walker = jest.fn().mockImplementation(convey);
 
-				walk(input, walker);
+				const walkedResult = walk(input, walker);
 
 				const results = tClone(tPick(walker.mock.results, 'value'));
-				const testWalk = (base, ...rest) => {
+				const testWalk = (
+					compared, base, ...rest
+				) => {
 					const walked = isIterable(base)
 						? tMap(base, (value, key) => {
 							isIterable(value) && testWalk(
+								compared[0][key],
 								value,
 								// TODO: Remove converters post publishing.
 								converters[inferType(base)](key),
@@ -593,9 +596,10 @@ describe('Collection', () => {
 						.toHaveBeenCalledWith(
 							walked, base, ...rest
 						);
+					expect(compared).toEqual([walked, base, ...rest]);
 				};
 
-				testWalk(input);
+				testWalk(walkedResult, input);
 			});
 		});
 	});
@@ -1031,14 +1035,13 @@ describe('Collection', () => {
 				tMap(rndKeys(base), (key) =>
 					(extension[key] = Symbol(key)));
 
-				// TODO: Rename the variable.
-				const randomLayers = tReduce(
+				const propsLayer = tReduce(
 					extensions,
 					(acc, dictionary) =>
 						({ ...dictionary, ...acc }), {}
 				);
 
-				const expected = { ...randomLayers, ...base };
+				const expected = { ...propsLayer, ...base };
 
 				const filled = fill(
 					base, extension, ...extensions,
@@ -1760,23 +1763,24 @@ describe('Collection', () => {
 		test('example', () => {
 			expect(shuffle([1, 2, 3, 4, 5, 6])).not.toEqual([1, 2, 3, 4, 5, 6]);
 			expect(shuffle({ a: 1, b: 2, c: 3, d: 4 }))
-				.toEqual({ a: 1, b: 2, c: 3, d: 4 });
+				.toEqual({ a: 1, c: 3, b: 2, d: 4 });
 		});
 
 		test('randomized test', () => {
-			const types = {
-				array: (shuffled, collection) =>
-					!tEquals(shuffled, collection),
-				object: (shuffled, collection) =>
-					tEquals(shuffled, collection),
-			};
-
 			retry(() => {
 				const collection = rndCollection();
+				const testShuffled = (base, compared) =>
+					(isArray(base)
+						? expect(tEquals(base, compared)).toEqual(false)
+						: (expect(tEquals(tKeys(base), tKeys(compared)))
+						// eslint-disable-next-line no-sequences
+							.toEqual(false),
+						expect(tEquals(base, compared)).toEqual(true))
+					);
+
 				const shuffled = shuffle(collection);
 
-				expect(types[inferType(collection)](shuffled, collection))
-					.toEqual(true);
+				testShuffled(collection, shuffled);
 			});
 		});
 	});
