@@ -1,6 +1,6 @@
 import {
 	map, contains, secure,
-	has, values, equals, keys, range, reduce,
+	has, values, range, reduce,
 } from '@laufire/utils/collection';
 import {
 	rndBetween as tRndBetween, rndString as tRndString,
@@ -205,6 +205,8 @@ describe('rndValue returns a random a value from the given iterable.', () => {
 
 describe('rndValues returns the given count of random a values'
 + 'from the given iterable', () => {
+	const retryCount = 50000;
+
 	describe('returns the given count number of values when the iterable length'
 	+ ' is longer than the given count', () => {
 		test('example', () => {
@@ -225,6 +227,7 @@ describe('rndValues returns the given count of random a values'
 		test('randomized test', () => {
 			const verifiers = {
 				array: (iterable, result) => {
+					// TODO: Use library filter after publishing.
 					expect(result.filter(unique)).toEqual(result);
 					map(result, (value) => expect(has(iterable, value))
 						.toEqual(true));
@@ -237,11 +240,13 @@ describe('rndValues returns the given count of random a values'
 			retry(() => {
 				const rndColl = rndCollection();
 				const count = tRndBetween(0, values(rndColl).length - 1);
+				const rndCollType = inferType(rndColl);
 
 				const result = rndValues(rndColl, count);
 
 				expect(values(result).length).toEqual(count);
-				verifiers[inferType(rndColl)](rndColl, result);
+				expect(rndCollType).toEqual(inferType(result));
+				verifiers[rndCollType](rndColl, result);
 			});
 		});
 	});
@@ -290,28 +295,25 @@ describe('rndValues returns the given count of random a values'
 
 		test('randomized test', () => {
 			retry(() => {
-				const retryCount = 50000;
-				const array = map(range(0, 3), () => tRndString());
+				const length = tRndBetween(0, 3);
+				const rndColl = rndCollection(0, length);
+				const possibleLengths = range(0, rndColl.length + 1);
 
-				const results = retry(() => rndValues(array), retryCount);
+				const results = retry(() => rndValues(rndColl), retryCount);
 
 				const resultLengths = map(results, (result) => result.length);
 
-				testRatios(resultLengths, getRatios(keys(array)));
+				testRatios(resultLengths, getRatios(possibleLengths));
 			});
 		});
 	});
 
 	test('ratio test', () => {
-		const retryCount = 50000;
-		const array = map(range(0, 3), () => tRndString());
+		const rndColl = rndCollection(0, tRndBetween(0, 3));
 
-		const results = retry(() => rndValues(array), retryCount);
+		const results = retry(() => rndValues(rndColl), retryCount);
 
-		map(results, (result) =>
-			expect(equals(result.filter(unique), result)).toBe(true));
-
-		testRatios(results.flat(), getRatios(array));
+		testRatios(results.flat(), getRatios(rndColl));
 	});
 });
 

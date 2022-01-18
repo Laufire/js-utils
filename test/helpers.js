@@ -220,12 +220,14 @@ const testRatios = (iterable, ratios) => {
 	});
 };
 
-const getRatios = (iterable) =>
-	reduce(iterable, (acc, key) => {
-		const { length } = values(iterable);
+const getRatios = (iterable) => {
+	const { length } = values(iterable);
 
-		return { ...acc, [key]: 1 / length };
-	});
+	return reduce(
+		iterable, (acc, value) =>
+			({ ...acc, [value]: 1 / length }), {}
+	);
+};
 
 export {
 	contracted, array, object, cloned,

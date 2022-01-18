@@ -78,7 +78,7 @@ const rndValues = (() => {
 	};
 
 	return (iterable, count) => {
-		const length = defined(count, rndBetween(0, iterable.length));
+		const length = defined(count, rndBetween(0, iterable.length + 1));
 
 		return reduce(
 			iterable, (t) => (keys(t).length > length
