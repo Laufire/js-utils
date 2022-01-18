@@ -151,16 +151,106 @@ describe('rndString', () => {
 	});
 });
 
-test('rndOfString returns a random sub-string of the given string.', () => {
-	const seed = tRndString();
-	const seedLength = seed.length;
+describe('rndOfString returns a random sub-string of the given string.', () => {
+	const retryCount = 50000;
 
-	retry(() => {
-		const result = rndOfString(seed);
+	describe('count defaults to random value', () => {
+		test('example', () => {
+			const string = 'ab';
 
-		expect(result.length <= seedLength).toBe(true);
-		expect(result.length >= 1).toBe(true);
-		expect(strSubSet(seed, result)).toBe(true);
+			const expected = ['', 'a', 'b', 'ab', 'ba'];
+
+			const result = rndOfString(string);
+
+			expect(result.length)
+				.not.toBeGreaterThan(string.length);
+			expect(expected.includes(result)).toBe(true);
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const length = tRndBetween(0, 3);
+				// TODO: Use imported function rndValues after publishing.
+				const seed = 'ab';
+				const seedArray = rndValues(seed.split(''), length);
+				const seedStr = seedArray.join('');
+				const possibleLengths = range(0, seedStr.length + 1);
+
+				const results = retry(() => rndOfString(seedStr), retryCount);
+				const resultsArray = map(results, (result) =>
+					result.split(''));
+
+				const resultLengths = map(resultsArray, (result) =>
+					result.length);
+
+				testRatios(resultLengths, getRatios(possibleLengths));
+			});
+		});
+	});
+
+	describe('count is limited to the length of the source string', () => {
+		test('example', () => {
+			const string = 'abcd';
+			const count = 8;
+
+			const result = rndOfString(string, count);
+
+			expect(result.length).toEqual(string.length);
+			expect(strSubSet(string, result)).toBe(true);
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const string = tRndString();
+				const count = string.length;
+				const result = rndOfString(string, count);
+
+				// TODO: Use collection.count after publishing.
+				expect(result.length).toEqual(string.length);
+				expect(strSubSet(string, result)).toBe(true);
+			});
+		});
+	});
+
+	describe('returns the given count number of string when the string length'
+	+ ' is longer than the given count', () => {
+		test('example', () => {
+			const string = 'abcd';
+			const count = 2;
+
+			const result = rndOfString(string, count);
+
+			expectEquals(result.length, count);
+			expectEquals(strSubSet(string, result), true);
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const string = tRndString();
+				const count = tRndBetween(0, string.length - 1);
+
+				const result = rndOfString(string, count);
+
+				expectEquals(result.length, count);
+				expectEquals(strSubSet(string, result), true);
+			});
+		});
+	});
+
+	test('ratio test', () => {
+		retry(() => {
+			// TODO: Use imported function rndValues after publishing.
+			const seed = 'ab';
+			const seedArray = rndValues(seed.split(''), tRndBetween(0, 3));
+			const seedStr = seedArray.join('');
+
+			const results = retry(() => rndOfString(seedStr), retryCount);
+
+			const resultsArray = map(results, (result) =>
+				result.split(''));
+
+			testRatios(resultsArray.flat(), getRatios(seedArray));
+		});
 	});
 });
 
