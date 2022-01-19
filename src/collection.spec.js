@@ -228,14 +228,10 @@ describe('Collection', () => {
 	describe('findLast finds the last element from the collection chose'
 		+ ' by the predicate', () => {
 		test('example', () => {
-			const expectations = [
-				[44, 44],
-				[1000, undefined],
-			];
+			const iterable = [999, 12, 8, 130, 44];
 
-			tMap(expectations, ([value, expectation]) =>
-				expect(findLast([999, 12, 8, 130, 44], isEqual(value)))
-					.toEqual(expectation));
+			expect(findLast(iterable, isEqual(44))).toEqual(44);
+			expect(findLast(iterable, isEqual(1000))).toEqual(undefined);
 		});
 
 		test('randomized test', () => {
@@ -296,27 +292,25 @@ describe('Collection', () => {
 	describe('findLastKey find the key of last element from the'
 	+ ' collection chose by predicate', () => {
 		test('example', () => {
-			const expectations = [
-				[44, 5],
-				[1000, undefined],
-			];
+			const iterable = [999, 12, 8, 44, 130, 44];
 
-			tMap(expectations, ([needle, expectation]) =>
-				expect(findLastKey([999, 12, 8, 44, 130, 44], isEqual(needle)))
-					.toEqual(expectation));
+			expect(findLastKey(iterable, isEqual(44))).toEqual(5);
+			expect(findLastKey(iterable, isEqual(1000))).toEqual(undefined);
 		});
 
 		test('randomized test', () => {
 			retry(() => {
 				const fn = findLastKey;
-				const collection = rndCollection();
+				const collection = tClone(rndCollection());
 				const collectionKeys = tKeys(collection);
 				// TODO: Remove inferType after publishing.
 				const needle = converters[
 					inferType(collection)](rndValue(collectionKeys.slice(1)));
 				const index = collectionKeys.indexOf(needle);
+				const duplicateIndex = rndBetween(0, index);
 
-				collection[collectionKeys[index - 1]] = collection[needle];
+				collection[collectionKeys[duplicateIndex]] = collection[needle];
+				tSecure(collection);
 				const processor = isEqual(collection[needle]);
 				const data = [
 					[collection, needle],
@@ -528,8 +522,19 @@ describe('Collection', () => {
 		});
 	});
 
-	test('hasKey tells whether the given iterable has the given key',
-		() => {
+	describe('hasKey tells whether the given iterable has'
+	+ ' the given key', () => {
+		test('example', () => {
+			const cart = {
+				item: 'apple',
+				price: 100,
+			};
+
+			expect(hasKey(cart, 'item')).toEqual(true);
+			expect(hasKey(cart, 'discount')).toEqual(false);
+		});
+
+		test('randomized test', () => {
 			const iterables = iterableTypes();
 
 			const types = {
@@ -543,6 +548,7 @@ describe('Collection', () => {
 				expect(hasKey(type, rndString())).toEqual(false);
 			});
 		});
+	});
 
 	describe('walk recursively walks through a given object and'
 	+ ' returns the reduced value', () => {
@@ -1030,11 +1036,12 @@ describe('Collection', () => {
 				const extensions = tValues(rndNested(
 					3, 3, ['object']
 				));
-				const extension = rndValue(extensions);
-				const base = rndDict();
+				const extension = tClone(rndValue(extensions));
+				const base = tClone(rndDict());
 
 				tMap(rndKeys(base), (key) =>
 					(extension[key] = Symbol(key)));
+				tSecure(extension);
 
 				const propsLayer = tReduce(
 					extensions,
@@ -1106,22 +1113,17 @@ describe('Collection', () => {
 	describe('translate gives the translation of the source based'
 	+ ' on a translation map', () => {
 		test('example', () => {
-			const expectations = [
-				{
-					source: { a: 1, b: { c: 2 }, d: 3 },
-					selector: { x: 'a', y: '/b/c', z: { w: 'd' }},
-					expectation: { x: 1, y: 2, z: { w: 3 }},
-				},
-				{
-					source: ['a', 'b', ['c'], 'd'],
-					selector: ['1', '2/0', ['3']],
-					expectation: ['b', 'c', ['d']],
-				},
-			];
+			const sourceOne = { a: 1, b: { c: 2 }, d: 3 };
+			const selectorOne = { x: 'a', y: '/b/c', z: { w: 'd' }};
+			const expectationOne = { x: 1, y: 2, z: { w: 3 }};
+			const sourceTwo = ['a', 'b', ['c'], 'd'];
+			const selectorTwo = ['1', '2/0', ['3']];
+			const	expectationTwo = ['b', 'c', ['d']];
 
-			expectations.map(({ source, selector, expectation }) =>
-				expect(translate(source, selector))
-					.toEqual(expectation));
+			expect(translate(sourceOne, selectorOne))
+				.toEqual(expectationOne);
+			expect(translate(sourceTwo, selectorTwo))
+				.toEqual(expectationTwo);
 		});
 
 		test('randomized test', () => {

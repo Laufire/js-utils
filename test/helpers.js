@@ -1,17 +1,18 @@
 import {
 	clone, secure, map, reduce, shuffle,
 	keys, filter, range, dict, fromEntries, shell, has, values,
+	select, clean, omit,
 } from '@laufire/utils/collection';
 import { rndValue, rndBetween, rndString, rndValues }
 	from '@laufire/utils/random';
 import { inferType } from '@laufire/utils/reflection';
+import { not, isEqual } from '@laufire/utils/predicates';
 import TestConfig from './config';
 
 /* Config */
 // TODO: Change the values after importing the new version.
 const numMaxLimit = 100;
 const defaults = {
-	numberArrayMax: 100,
 	minCount: 5,
 	maxCount: 9,
 	numberPrecision: 4,
@@ -44,12 +45,12 @@ const isAcceptable = (
 const rndKey = (collection) =>
 	converters[inferType(collection)](rndValue(keys(collection)));
 
-const rndKeys = (collection) => map(rndValues(keys(collection),
+const rndKeys = (collection) => secure(map(rndValues(keys(collection),
 	rndBetween(1, keys(collection).length - 1)),
-converters[inferType(collection)]);
+converters[inferType(collection)]));
 
 const rndRange = (minCount = defaults.minCount, maxCount = defaults.maxCount) =>
-	range(0, rndBetween(minCount, maxCount));
+	secure(range(0, rndBetween(minCount, maxCount)));
 
 const rndNumber = () => rndBetween(...defaults.randomNumLimits);
 
@@ -58,11 +59,11 @@ const fixNumber = (value) => value.toFixed(defaults.numberPrecision);
 const expectEquals = (valOne, valtwo) => expect(valOne).toEqual(valtwo);
 
 const rndDict = (minCount = defaults.minCount, maxCount = defaults.maxCount) =>
-	fromEntries(map(rndRange(minCount, maxCount), (value) =>
-		[rndString(), Symbol(value)]));
+	secure(fromEntries(map(rndRange(minCount, maxCount), (value) =>
+		[rndString(), Symbol(value)])));
 
 const rndArray = (minCount = defaults.minCount, maxCount = defaults.maxCount) =>
-	rndRange(minCount, maxCount).map(() => rndString());
+	secure(rndRange(minCount, maxCount).map(() => rndString()));
 
 const rndCollection = (minCount = defaults.minCount,
 	maxCount = defaults.maxCount) =>
@@ -74,7 +75,7 @@ const findLastIndex = (arr, predicate) =>
 								.findIndex(predicate) === -1);
 
 const till = (arr, predicate) =>
-	arr.slice(0, findLastIndex(arr, predicate) + 1);
+	secure(arr.slice(0, findLastIndex(arr, predicate) + 1));
 
 const fn = function () {};
 
@@ -142,6 +143,14 @@ const getIterator = (generators) =>
 	rndValue(filter(generators, (generator) =>
 		has(keys(itrGenerators), generator))) || 'collection';
 
+const decideLeaf = (generators) => {
+	const filteredGen = generators.filter(not(isEqual('nested')));
+
+	return filteredGen.length === 0
+		? keys(omit(valueGenerators, ['nested']))
+		: filteredGen;
+};
+
 /* Exports */
 /* Data */
 const array = secure(map(rndRange(), Symbol));
@@ -158,7 +167,6 @@ const ecKeys = {
 	cloned: rndString(),
 	extended: rndString(),
 };
-const numberArray = secure(range(1, defaults.numberArrayMax));
 const collection = {
 	[ecKeys.object]: object,
 	[ecKeys.cloned]: cloned,
@@ -173,16 +181,16 @@ const rndNested = (
 	// eslint-disable-next-line no-magic-numbers
 	depth = 3, length = 3, generators = keys(valueGenerators),
 ) => (depth > 0
-	? map(valueGenerators[getIterator(generators)](length), () =>
+	? secure(map(valueGenerators[getIterator(generators)](length), () =>
 		valueGenerators[rndValue(generators)](
 			depth, length, generators
-		))
-	: rndValue(nonItrGenerators)());
+		)))
+	: valueGenerators[rndValue(decideLeaf(generators))]());
 
-const toObject = (iterator) => reduce(
+const toObject = (iterator) => secure(reduce(
 	iterator, (acc, value) =>
 		({ ...acc, [rndString()]: value }), {}
-);
+));
 
 const rnd = () => rndNested(0);
 
@@ -201,14 +209,14 @@ const similarCols = (minCount = defaults.minCount,
 		) => (acc[key] = Symbol(key), acc), shell(rndColl)
 	);
 
-	return map(rndCollections, (value) =>
-		shuffle({ ...value, ...partialObject }));
+	return secure(map(rndCollections, (value) =>
+		shuffle({ ...value, ...partialObject })));
 };
 
-const summarize = (iterable) => reduce(
+const summarize = (iterable) => secure(reduce(
 	iterable, (acc, value) =>
 		({ ...acc, [value]: (acc[value] || 0) + 1 }), {}
-);
+));
 
 const testRatios = (iterable, ratios) => {
 	const typeCounts = summarize(iterable);
@@ -223,19 +231,30 @@ const testRatios = (iterable, ratios) => {
 const getRatios = (iterable) => {
 	const { length } = values(iterable);
 
-	return reduce(
+	return secure(reduce(
 		iterable, (acc, value) =>
 			({ ...acc, [value]: 1 / length }), {}
-	);
+	));
 };
+
+// TODO: Remove post publishing.
+const randomValues = (iterable) => {
+	const selector = rndKeys(iterable);
+
+	return clean(select(iterable, selector));
+};
+
+const arrayOrObject = (iterable) =>
+	rndValue([values, toObject])(iterable);
 
 export {
 	contracted, array, object, cloned,
 	extension, extended, isolated, ecKeys,
-	collection, extCollection, numberArray, converters, simpleTypes,
+	collection, extCollection, converters, simpleTypes,
 	rndRange, rndDict, rndArray, rndCollection, rndNested,
 	rndNumber, fixNumber, toObject, rndKey, rndKeys,
 	sortArray, strSubSet, retry, isAcceptable, expectEquals,
 	allTypes, emptyTypes, rnd, similarCols, iterableTypes,
 	till, findLastIndex, summarize, testRatios, getRatios,
+	randomValues, arrayOrObject,
 };
