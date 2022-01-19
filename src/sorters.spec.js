@@ -16,27 +16,87 @@ describe('Sorters', () => {
 	const objArrayShuffled = secure(shuffled.map((i) => ({ prop: i })));
 
 	/* Tests */
-	test('ascending sorts the given collection in ascending order.', () => {
-		expect(sort(array, ascending)).toEqual(array);
+	describe('ascending sorts the given collection in'
+	+ ' ascending order.', () => {
+		test('example', () => {
+			const input = [3, 2, 1];
+
+			const expected = [1, 2, 3];
+
+			expect(sort(input, ascending)).toEqual(expected);
+		});
+
+		test('randomized', () => {
+			expect(sort(shuffled, ascending)).toEqual(array);
+		});
 	});
 
-	test('descending sorts the given collection in descending order.', () => {
-		expect(sort(shuffled, descending)).toEqual(reversed);
+	describe('descending sorts the given collection in'
+	+ ' descending order.', () => {
+		test('example', () => {
+			const input = [1, 2, 3];
+
+			const expected = [3, 2, 1];
+
+			expect(sort(input, descending)).toEqual(expected);
+		});
+
+		test('randomized', () => {
+			expect(sort(shuffled, descending)).toEqual(reversed);
+		});
 	});
 
-	test('existing preserves the existing order'
-	+ 'of the given collection.', () => {
-		expect(sort(shuffled, existing)).toEqual(shuffled);
+	describe('existing preserves the existing order'
+	+ ' of the given collection.', () => {
+		test('example', () => {
+			const input = [1, 2, 3];
+
+			const expected = input;
+
+			expect(sort(input, existing)).toEqual(expected);
+		});
+
+		test('randomized', () => {
+			expect(sort(shuffled, existing)).toEqual(shuffled);
+		});
 	});
 
-	test('reverse reverses the given collection.', () => {
-		expect(sort(shuffled, reverse)).toEqual(shuffled.slice().reverse());
+	describe('reverse reverses the given collection.', () => {
+		test('example', () => {
+			const input = [1, 3, 2];
+
+			const expected = [2, 3, 1];
+
+			expect(sort(input, reverse)).toEqual(expected);
+		});
+
+		test('randomized', () => {
+			expect(sort(shuffled, reverse)).toEqual(shuffled.slice().reverse());
+		});
 	});
 
-	test('onProp sorts the given collection with the given sorter'
+	describe('onProp sorts the given collection with the given sorter'
 	+ ' on a given property.', () => {
-		expect(sort(objArrayShuffled, onProp('prop', ascending)))
-			.toEqual(objArray);
+		test('example', () => {
+			const inputs = [
+				{ a: 3 },
+				{ a: 1 },
+				{ a: 2 },
+			];
+
+			const expected = [
+				{ a: 1 },
+				{ a: 2 },
+				{ a: 3 },
+			];
+
+			expect(sort(inputs, onProp('a', ascending))).toEqual(expected);
+		});
+
+		test('randomized', () => {
+			expect(sort(objArrayShuffled, onProp('prop', ascending)))
+				.toEqual(objArray);
+		});
 	});
 
 	describe('compile helps in sorting collection of collections.', () => {
@@ -47,34 +107,100 @@ describe('Sorters', () => {
 			{ a: 1, b: 1 },
 		]);
 
-		test('compile works with multiple props,'
+		describe('compile works with multiple props,'
 		+ 'with descending priority.', () => {
-			const config = secure({ a: 'ascending', b: 'descending' });
-			const expected = translate([2, 0, 1, 3], data);
+			test('example', () => {
+				const input = [
+					{ a: 2, b: 2 },
+					{ a: 2, b: 1 },
+					{ a: 1, b: 3 },
+				];
+				const config = secure({ a: 'ascending', b: 'descending' });
 
-			const sorted = sort(data, compile(config));
+				const expected = [
+					{ a: 1, b: 3 },
+					{ a: 2, b: 2 },
+					{ a: 2, b: 1 },
+				];
 
-			expect(sorted).toEqual(expected);
+				const sorted = sort(input, compile(config));
+
+				expect(sorted).toEqual(expected);
+			});
+
+			test('randomized', () => {
+				const config = secure({ a: 'ascending', b: 'descending' });
+				const expected = translate([2, 0, 1, 3], data);
+
+				const compiled = compile(config);
+
+				const sorted = sort(data, compiled);
+
+				expect(sorted).toEqual(expected);
+			});
 		});
 
-		test('compile supports custom grammars.', () => {
-			const grammar = secure({ descending: ascending });
-			const config = secure({ a: 'ascending', b: 'descending' });
-			const expected = translate([2, 1, 3, 0], data);
+		describe('compile supports custom grammars.', () => {
+			test('example', () => {
+				const input = [
+					{ a: 3, b: 3 },
+					{ a: 2, b: 1 },
+					{ a: 2, b: 2 },
+				];
+				const grammar = secure({ customSort: ascending });
+				const config = secure({ a: 'ascending', b: 'customSort' });
 
-			const sorted = sort(data, compile(config, grammar));
+				const expected = [
+					{ a: 2, b: 1 },
+					{ a: 2, b: 2 },
+					{ a: 3, b: 3 },
+				];
 
-			expect(sorted).toEqual(expected);
+				const sorted = sort(input, compile(config, grammar));
+
+				expect(sorted).toEqual(expected);
+			});
+
+			test('randomized', () => {
+				const grammar = secure({ customSort: ascending });
+				const config = secure({ a: 'ascending', b: 'customSort' });
+				const expected = translate([2, 1, 3, 0], data);
+
+				const sorted = sort(data, compile(config, grammar));
+
+				expect(sorted).toEqual(expected);
+			});
 		});
 
-		test('compile works with two dimensional arrays.', () => {
-			const config = secure(['ascending', 'descending']);
-			const arrData = map(data, values);
-			const expected = translate([2, 0, 1, 3], arrData);
+		describe('compile works with two dimensional arrays.', () => {
+			test('example', () => {
+				const input = [
+					[3, 1],
+					[2, 2],
+					[2, 3],
+				];
+				const config = secure(['ascending', 'descending']);
 
-			const sorted = sort(arrData, compile(config));
+				const expected = [
+					[2, 3],
+					[2, 2],
+					[3, 1],
+				];
 
-			expect(sorted).toEqual(expected);
+				const sorted = sort(input, compile(config));
+
+				expect(sorted).toEqual(expected);
+			});
+
+			test('randomized', () => {
+				const config = secure(['ascending', 'descending']);
+				const arrData = map(data, values);
+				const expected = translate([2, 0, 1, 3], arrData);
+
+				const sorted = sort(arrData, compile(config));
+
+				expect(sorted).toEqual(expected);
+			});
 		});
 	});
 });

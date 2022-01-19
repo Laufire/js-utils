@@ -40,6 +40,8 @@ import {
 const mockObj = (objKeys, value) =>
 	fromEntries(map(objKeys, (key) => [key, isDefined(value) ? value : key]));
 
+const arr = [];
+
 /* Spec */
 describe('Collection', () => {
 	/* Mocks and Stubs */
@@ -951,6 +953,156 @@ describe('Collection', () => {
 		});
 	});
 
+	describe('fill fills the missing properties of the given base'
+	+ ' from those of the extensions', () => {
+		test('example', () => {
+			const inputs = [
+				{
+					a: 1,
+					c: 3,
+					d: [1, 2, 3],
+					e: { f: 4 },
+				},
+				{
+					b: 2,
+					d: [4, 5],
+					e: { f: 6, g: 7 },
+					g: 8,
+				},
+			];
+
+			const expected = {
+				a: 1,
+				b: 2,
+				c: 3,
+				d: [1, 2, 3],
+				e: { f: 4, g: 7 },
+				g: 8,
+			};
+
+			const filled = fill(...inputs);
+
+			expect(filled).toEqual(expected);
+		});
+
+		test('complete example', () => {
+			const baseProp = Symbol('baseProp');
+			const underlayProp = Symbol('underlayProp');
+			const overlayProp = Symbol('overlayProp');
+
+			const base = mockObj(['a'], baseProp);
+			const layerOne = secure(mockObj(['a', 'b'], underlayProp));
+			const layerTwo = secure(mockObj(['b', 'c'], overlayProp));
+
+			const filled = fill(
+				base, layerOne, layerTwo
+			);
+
+			expect(filled).toEqual(base);
+			expect(base).toEqual({
+				a: baseProp,
+				b: underlayProp,
+				c: overlayProp,
+			});
+		});
+
+		test('example', () => {
+			const props = [
+				{
+					a: 1,
+					c: {
+						d: {
+							e: 5,
+						},
+					},
+				},
+				{
+					a: 1,
+					b: {
+						c: 2,
+						d: 3,
+					},
+				},
+				{
+					e: 4,
+					a: 3,
+					b: {
+						f: [1, 3, 4],
+						d: {
+							g: [5, 6, 7],
+						},
+					},
+					g: 4,
+				},
+				{
+					b: 2,
+					c: 5,
+				},
+			];
+
+			const filled = fill(...props);
+
+			console.log(1);
+		});
+
+		test('example', () => {
+			const rndNest = rndNested(
+				3, 3, ['object']
+			);
+
+			console.log(1);
+		});
+
+		test('randomized test', () => {
+			const testFill = (filled, ...collections) => {
+				tMap(filled, (value, key) => {
+					// TODO: Use library filter.
+					const getChildren = () =>
+						tMap(collections.filter((collection) =>
+							isIterable(collection)
+							&& collection.hasOwnProperty(key)), (child) =>
+							child[key]);
+
+					isIterable(value)
+						? testFill(value, ...getChildren())
+						: expectEquals(value, getChildren()[0]);
+				});
+			};
+
+			retry(() => {
+				const collections = [
+					null,
+					{},
+					{},
+					null,
+					[
+						'REMTIKRZ',
+						'ZPCFTSNT',
+						'CBUSBZVH',
+						'LRSNHCZF',
+						'NKFSJALT',
+					],
+					{},
+					null,
+				];
+
+				try {
+					const filled = fill(...collections);
+
+					testFill(filled, ...collections);
+				}
+
+				catch {
+					arr.push(collections);
+				}
+			}, 5);
+		});
+
+		test('', () => {
+			console.log(1);
+		});
+	});
+
 	describe('merge, combine and overlay shares some behaviors', () => {
 		test('they work with multiple extensions', () => {
 			expect(merge(
@@ -969,6 +1121,12 @@ describe('Collection', () => {
 			expect(overlay({ a: [1, 2, 3] }, { a: [4, 5], b: 6 })).toEqual({
 				a: [4, 5],
 				b: 6,
+			});
+
+			expect(fill({ a: 1, b: [2, 3] }, { b: 4, c: 5 })).toEqual({
+				a: 1,
+				b: [2, 3],
+				c: 5,
 			});
 		});
 
@@ -992,64 +1150,20 @@ describe('Collection', () => {
 				a: [4],
 				b: 6,
 			});
+
+			expect(fill(
+				{ a: [1] }, undefined, { a: 2, b: 3 }
+			)).toEqual({
+				a: [1],
+				b: 3,
+			});
 		});
 
 		test('they work with simple arrays', () => {
 			expect(merge([0, 1], [1])).toEqual([1, 1]);
 			expect(combine([0, 1], [1])).toEqual([0, 1, 1]);
 			expect(overlay([0, 1, 2], [3, 4])).toEqual([3, 4, 2]);
-		});
-	});
-
-	describe('fill fills the missing properties of the given base'
-	+ ' from those of the extensions', () => {
-		test('example', () => {
-			const baseProp = Symbol('baseProp');
-			const underlayProp = Symbol('underlayProp');
-			const overlayProp = Symbol('overlayProp');
-
-			const base = mockObj(['a'], baseProp);
-			const layerOne = secure(mockObj(['a', 'b'], underlayProp));
-			const layerTwo = secure(mockObj(['b', 'c'], overlayProp));
-
-			const filled = fill(
-				base, layerOne, layerTwo
-			);
-
-			expect(filled).toEqual(base);
-			expect(base).toEqual({
-				a: baseProp,
-				b: underlayProp,
-				c: overlayProp,
-			});
-		});
-
-		test('randomized test', () => {
-			retry(() => {
-				const extensions = tValues(rndNested(
-					3, 3, ['object']
-				));
-				const extension = rndValue(extensions);
-				const base = rndDict();
-
-				tMap(rndKeys(base), (key) =>
-					(extension[key] = Symbol(key)));
-
-				const propsLayer = tReduce(
-					extensions,
-					(acc, dictionary) =>
-						({ ...dictionary, ...acc }), {}
-				);
-
-				const expected = { ...propsLayer, ...base };
-
-				const filled = fill(
-					base, extension, ...extensions,
-				);
-
-				expect(filled).toEqual(base);
-				expect(base).toEqual(expected);
-			});
+			expect(fill([0, 1, 2, 3], [4, 5])).toEqual([0, 1, 2, 3]);
 		});
 	});
 
