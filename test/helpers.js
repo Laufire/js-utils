@@ -1,6 +1,6 @@
 import {
 	clone, secure, map, reduce, shuffle,
-	keys, filter, range, dict, fromEntries, shell, has, values,
+	keys, filter, range, dict, fromEntries, shell, has, values, select, clean,
 } from '@laufire/utils/collection';
 import { rndValue, rndBetween, rndString, rndValues }
 	from '@laufire/utils/random';
@@ -229,6 +229,16 @@ const getRatios = (iterable) => {
 	);
 };
 
+// TODO: Remove post publishing.
+const randomValues = (iterable) => {
+	const selector = rndKeys(iterable);
+
+	return clean(select(iterable, selector));
+};
+
+const arrayOrObject = (iterable) =>
+	rndValue([values, toObject])(iterable);
+
 export {
 	contracted, array, object, cloned,
 	extension, extended, isolated, ecKeys,
@@ -238,4 +248,5 @@ export {
 	sortArray, strSubSet, retry, isAcceptable, expectEquals,
 	allTypes, emptyTypes, rnd, similarCols, iterableTypes,
 	till, findLastIndex, summarize, testRatios, getRatios,
+	randomValues, arrayOrObject,
 };
