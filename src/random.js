@@ -84,7 +84,7 @@ const rndValues = (() => {
  * @returns {string} The resulting random substring.
  */
 const rndOfString = (string, length) =>
-	values(rndValues(string, length)).join('');
+	values(rndValues(string.split(''), length)).join('');
 
 const rndValueWeighted = (weights) => {
 	const candidates = keys(weights);
