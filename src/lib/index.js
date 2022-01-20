@@ -1,11 +1,12 @@
 const { assign, entries: objEntries, values, keys: objKeys } = Object;
 const { floor, random } = Math;
+const { ownKeys } = Reflect;
 
 const { isArray } = Array;
 
-const keys = (object) => (isArray(object)
-	? objKeys(object).map(Number)
-	: objKeys(object));
+const keys = (collection) => (isArray(collection)
+	? objKeys(collection).map(Number)
+	: ownKeys(collection));
 
 const entries = (collection) => (isArray(collection)
 	? objEntries(collection).map(([key, value]) => [Number(key), value])

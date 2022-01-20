@@ -24,7 +24,7 @@ import { select as tSelect, map as tMap, keys as tKeys,
 	shell as tShell, equals as tEquals, shuffle as tShuffle,
 	contains as tContains }
 	from '@laufire/utils/collection';
-import { isEqual } from '@laufire/utils/predicates';
+import { isEqual, unique } from '@laufire/utils/predicates';
 
 /* Tested */
 import {
@@ -1839,6 +1839,43 @@ describe('Collection', () => {
 
 				expect(keysResult.length).toEqual(expectation.length);
 				expect(keysResult).toEqual(expectation);
+			});
+		});
+
+		test.only('randomized test', () => {
+			const types = {
+				array: () => {
+					const expectedKeys = tMap(rndRange(0, 10),
+						() => rndBetween(0, 100));
+
+					const collection = [];
+
+					tMap(expectedKeys, (value) =>
+						(collection[value] = rndBetween(0, 10)));
+
+					return { collection: collection, expectedKeys:
+						expectedKeys.filter(unique).sort() };
+				},
+
+				object: () => {
+					const expectedKeys = tMap(rndRange(0, 10), () =>
+						rndValue([rndString(), Symbol(rndString())]));
+
+					const collection = tReduce(expectedKeys, (
+						acc, value, key
+					) =>
+						({ ...acc, [value]: Symbol(key) }));
+
+					return { collection, expectedKeys };
+				},
+			};
+
+			tMap(types, (fn) => {
+				const { collection, expectedKeys } = fn();
+
+				const collectionKeys = keys(collection);
+
+				expect(collectionKeys).toEqual(expectedKeys);
 			});
 		});
 	});
