@@ -2,7 +2,7 @@ import { range, map, reduce, find } from '@laufire/utils/collection';
 import { isEqual } from '@laufire/utils/predicates';
 import { rndBetween } from '@laufire/utils/random';
 import { retry, isAcceptable, expectEquals } from '../test/helpers';
-import { isProbable, possibilities } from './prob';
+import { isProbable, possibilities, ObjectPossibilities } from './prob';
 
 test('isProbable returns true based on given probability', () => {
 	const retryCount = 100000;
@@ -28,19 +28,23 @@ test('isProbable returns true based on given probability', () => {
 	testCandidates(range(2, 99).map((probability) => probability / 100), 0.08);
 });
 
-describe('possibilities', () => {
+describe.only('possibilities', () => {
 	describe('example', () => {
 		test('returns possibilities of given cases', () => {
 			const result = possibilities([['a', 'b'], [1, 2, 3]]);
 
 			expect(result).toEqual([
 				['a', 1],
-				['b', 1],
 				['a', 2],
-				['b', 2],
 				['a', 3],
+				['b', 1],
+				['b', 2],
 				['b', 3],
 			]);
+		});
+
+		test('', () => {
+			ObjectPossibilities();
 		});
 	});
 
