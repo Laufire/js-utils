@@ -1,5 +1,5 @@
 /* Helpers */
-import { combine, filter, gather, map, merge, values,
+import { combine, filter, gather, map, values, reduce,
 	keys } from './collection';
 import { unique } from './predicates';
 
@@ -13,16 +13,6 @@ const index = (collection, indexes) => {
 		) => ({ [item[indexKey]]: i === 0 ? [agg] : agg }), item))));
 };
 
-const summarize = (
-	collection, summarizer, indexes
-) => {
-	const indexKeys = values(indexes).reverse();
-
-	return merge(...values(map(collection, (item) =>
-		indexKeys.reduce((agg, key) =>
-			({ [item[key]]: agg }), summarizer(item)))));
-};
-
 const descend = (
 	collection, process, level
 ) => (level
@@ -30,6 +20,15 @@ const descend = (
 		item, process, level - 1
 	))
 	: map(collection, process));
+
+const summarize = (
+	collection, indexes, summarizer, initial
+) => descend(
+	index(collection, indexes), (indexed) =>
+		reduce(
+			indexed, summarizer, initial
+		), indexes.length - 1
+);
 
 const transpose = (collection) => gather(collection,
 	filter(values(map(collection, keys)).flat(), unique));
