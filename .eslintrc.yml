@@ -12,6 +12,8 @@ env:
   node: true
   jest: true
 extends: 'eslint:recommended'
+globals:
+  performance: true
 rules:
   # Styling
   arrow-body-style: ["error", "as-needed"]

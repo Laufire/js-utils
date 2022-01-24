@@ -6,26 +6,43 @@ import { array, rndKey } from '../test/helpers';
 /* Tested */
 import { cache, value, defined, self, identity, nothing } from './fn';
 
-test('cache caches the given function based on parameters till the next call'
-	+ ' with a new set of args', () => {
-	const testCache = (qualifier, callCount) => {
-		const fn = jest.fn((...args) => args);
-		const cachedFn = cache(fn, qualifier);
-		const symbolOne = Symbol('SymbolOne');
-		const SymbolTwo = Symbol('SymbolTwo');
+describe('cache caches the given function based on parameters'
++ ' till the next call with a new set of args', () => {
+	test('example', () => {
+		const getTime = () => performance.now();
+		const cachedFn = cache(getTime);
+		const uncachedFn = getTime;
 
-		const result = cachedFn(array, symbolOne);
+		const resultOne = cachedFn();
+		const resultTwo = cachedFn();
 
-		expect(cachedFn(array, symbolOne)).toEqual(result);
-		expect(fn).toHaveBeenCalledTimes(1);
+		const uncachedResOne = uncachedFn();
+		const uncachedResTwo = uncachedFn();
 
-		cachedFn(array, SymbolTwo);
-		cachedFn(array.slice(), SymbolTwo);
-		expect(fn).toHaveBeenCalledTimes(callCount);
-	};
+		expect(resultOne).toEqual(resultTwo);
+		expect(uncachedResOne).not.toEqual(uncachedResTwo);
+	});
 
-	testCache(undefined, 3);
-	testCache(equals, 2);
+	test('randomized test', () => {
+		const testCache = (qualifier, callCount) => {
+			const fn = jest.fn((...args) => args);
+			const cachedFn = cache(fn, qualifier);
+			const symbolOne = Symbol('SymbolOne');
+			const SymbolTwo = Symbol('SymbolTwo');
+
+			const result = cachedFn(array, symbolOne);
+
+			expect(cachedFn(array, symbolOne)).toEqual(result);
+			expect(fn).toHaveBeenCalledTimes(1);
+
+			cachedFn(array, SymbolTwo);
+			cachedFn(array.slice(), SymbolTwo);
+			expect(fn).toHaveBeenCalledTimes(callCount);
+		};
+
+		testCache(undefined, 3);
+		testCache(equals, 2);
+	});
 });
 
 test('value extracts the value from the given function or variable', () => {
