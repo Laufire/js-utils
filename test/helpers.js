@@ -1,17 +1,18 @@
 import {
 	clone, secure, map, reduce, shuffle,
 	keys, filter, range, dict, fromEntries, shell, has, values,
+	omit,
 } from '@laufire/utils/collection';
 import { rndValue, rndBetween, rndString, rndValues }
 	from '@laufire/utils/random';
 import { inferType } from '@laufire/utils/reflection';
+import { not, isEqual } from '@laufire/utils/predicates';
 import TestConfig from './config';
 
 /* Config */
 // TODO: Change the values after importing the new version.
 const numMaxLimit = 100;
 const defaults = {
-	numberArrayMax: 100,
 	minCount: 5,
 	maxCount: 9,
 	numberPrecision: 4,
@@ -142,6 +143,14 @@ const getIterator = (generators) =>
 	rndValue(filter(generators, (generator) =>
 		has(keys(itrGenerators), generator))) || 'collection';
 
+const decideLeaf = (generators) => {
+	const filteredGen = generators.filter(not(isEqual('nested')));
+
+	return filteredGen.length === 0
+		? keys(omit(valueGenerators, ['nested']))
+		: filteredGen;
+};
+
 /* Exports */
 /* Data */
 const array = secure(map(rndRange(), Symbol));
@@ -158,7 +167,6 @@ const ecKeys = {
 	cloned: rndString(),
 	extended: rndString(),
 };
-const numberArray = secure(range(1, defaults.numberArrayMax));
 const collection = {
 	[ecKeys.object]: object,
 	[ecKeys.cloned]: cloned,
@@ -177,7 +185,7 @@ const rndNested = (
 		valueGenerators[rndValue(generators)](
 			depth, length, generators
 		))
-	: rndValue(nonItrGenerators)());
+	: valueGenerators[rndValue(decideLeaf(generators))]());
 
 const toObject = (iterator) => reduce(
 	iterator, (acc, value) =>
@@ -232,7 +240,7 @@ const getRatios = (iterable) => {
 export {
 	contracted, array, object, cloned,
 	extension, extended, isolated, ecKeys,
-	collection, extCollection, numberArray, converters, simpleTypes,
+	collection, extCollection, converters, simpleTypes,
 	rndRange, rndDict, rndArray, rndCollection, rndNested,
 	rndNumber, fixNumber, toObject, rndKey, rndKeys,
 	sortArray, strSubSet, retry, isAcceptable, expectEquals,
