@@ -301,14 +301,16 @@ describe('Collection', () => {
 		test('randomized test', () => {
 			retry(() => {
 				const fn = findLastKey;
-				const collection = rndCollection();
+				const collection = tClone(rndCollection());
 				const collectionKeys = tKeys(collection);
 				// TODO: Remove inferType after publishing.
 				const needle = converters[
 					inferType(collection)](rndValue(collectionKeys.slice(1)));
 				const index = collectionKeys.indexOf(needle);
+				const duplicateIndex = rndBetween(0, index);
 
-				collection[collectionKeys[index - 1]] = collection[needle];
+				collection[collectionKeys[duplicateIndex]] = collection[needle];
+				tSecure(collection);
 				const processor = isEqual(collection[needle]);
 				const data = [
 					[collection, needle],
@@ -1034,11 +1036,12 @@ describe('Collection', () => {
 				const extensions = tValues(rndNested(
 					3, 3, ['object']
 				));
-				const extension = rndValue(extensions);
-				const base = rndDict();
+				const extension = tClone(rndValue(extensions));
+				const base = tClone(rndDict());
 
 				tMap(rndKeys(base), (key) =>
 					(extension[key] = Symbol(key)));
+				tSecure(extension);
 
 				const propsLayer = tReduce(
 					extensions,
