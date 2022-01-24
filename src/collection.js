@@ -550,6 +550,8 @@ const length = (collection) => (isArray(collection)
 	? collection
 	: libKeys(collection)).length;
 
+const count = (collection) => length(libKeys(collection));
+
 const shares = (
 	left, right, props = ['id']
 ) =>
@@ -590,5 +592,5 @@ export {
 	patch, diff, secure, equals, contains,
 	gather, pick, toArray, toDict, adopt,
 	find, findLast, lFind, findKey, findIndex, findLastKey, lFindKey,
-	range, hasSame, shares, shuffle, sort, length,
+	range, hasSame, shares, shuffle, sort, length, count,
 };
