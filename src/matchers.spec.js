@@ -1,6 +1,7 @@
 import { rndBetween } from '@laufire/utils/random';
 import { isAcceptable } from './matchers';
 
+// TODO: Introduce example & verify randomized test.
 test('isAcceptable checks whether the result is close'
 	+ 'to the expected value, by the given margin',
 () => {

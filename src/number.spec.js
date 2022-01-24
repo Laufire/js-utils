@@ -2,7 +2,7 @@ import { rndBetween } from './lib';
 import { getDR, vary } from './number';
 import * as random from './random';
 import { fixNumber } from '../test/helpers';
-
+// TODO: Add example and randomized test.
 describe('vary', () => {
 	test('vary should give a percentage between ', () => {
 		// TODO: Revisit.
@@ -21,6 +21,7 @@ describe('vary', () => {
 	});
 });
 
+// TODO: Add example and randomized test.
 describe('getDR', () => {
 	test('gives the distance ratio between two numbers', () => {
 		const numTwo = rndBetween(50, 60);

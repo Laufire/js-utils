@@ -8,6 +8,7 @@ import { cache, value, defined, self, identity, nothing } from './fn';
 
 test('cache caches the given function based on parameters till the next call'
 	+ ' with a new set of args', () => {
+	// TODO: Introduce example.
 	const testCache = (qualifier, callCount) => {
 		const fn = jest.fn((...args) => args);
 		const cachedFn = cache(fn, qualifier);
@@ -35,6 +36,7 @@ test('value extracts the value from the given function or variable', () => {
 	expect(value(() => val)).toBe(val);
 });
 
+// TODO: Introduce example and randomized test.
 test('defined filters the first defined value', () => {
 	const values = clone(array);
 
