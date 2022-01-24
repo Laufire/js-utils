@@ -546,7 +546,9 @@ const range = (
 },
 (dummy, i) => (i * step) + start);
 
-const length = (collection) => libKeys(collection).length;
+const length = (collection) => (isArray(collection)
+	? collection
+	: libKeys(collection)).length;
 
 const shares = (
 	left, right, props = ['id']
