@@ -1004,7 +1004,7 @@ describe('Collection', () => {
 			});
 		});
 
-		test.only('randomized test', () => {
+		test('randomized test', () => {
 			const testFill = (filled, ...collections) => {
 				tMap(filled, (value, key) => {
 					// TODO: Use library filter.

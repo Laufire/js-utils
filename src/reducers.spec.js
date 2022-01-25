@@ -33,7 +33,6 @@ describe('Reducers', () => {
 		test('example', () => {
 			const input = [1, 2, 3];
 			const initialValue = 0;
-
 			const expected = 6;
 
 			expect(reduce(
@@ -41,7 +40,7 @@ describe('Reducers', () => {
 			)).toEqual(expected);
 		});
 
-		test('randomized', () => {
+		test('randomized test', () => {
 			testPredicate(
 				sum, (t, c) => t + c, 0
 			);
@@ -52,7 +51,6 @@ describe('Reducers', () => {
 		test('example', () => {
 			const input = [1, 2, 3];
 			const initialValue = 1;
-
 			const expected = 6;
 
 			expect(reduce(
@@ -60,7 +58,7 @@ describe('Reducers', () => {
 			)).toEqual(expected);
 		});
 
-		test('randomized', () => {
+		test('randomized test', () => {
 			testPredicate(
 				product, (t, c) => t * c, 1
 			);
@@ -71,7 +69,6 @@ describe('Reducers', () => {
 		test('example', () => {
 			const input = [1, 2, 3];
 			const initialValue = 0;
-
 			const expected = 3;
 
 			expect(reduce(
@@ -79,7 +76,7 @@ describe('Reducers', () => {
 			)).toEqual(expected);
 		});
 
-		test('randomized', () => {
+		test('randomized test', () => {
 			testPredicate(
 				len, (t) => t + 1, 0
 			);
@@ -90,7 +87,6 @@ describe('Reducers', () => {
 		test('example', () => {
 			const input = [1, 2, 3];
 			const initialValue = 0;
-
 			const expected = 2;
 
 			expect(reduce(
@@ -98,7 +94,7 @@ describe('Reducers', () => {
 			)).toEqual(expected);
 		});
 
-		test('randomized', () => {
+		test('randomized test', () => {
 			const expected = fixNumber(reduce(
 				array, (t, c) => t + c, 0
 			) / array.length);
@@ -116,7 +112,6 @@ describe('Reducers', () => {
 		test('example', () => {
 			const input = [1, 2, 3, 1, 1, 1];
 			const initialValue = 0;
-
 			const expected = 4;
 
 			expect(reduce(
@@ -124,10 +119,9 @@ describe('Reducers', () => {
 			)).toEqual(expected);
 		});
 
-		test('randomized', () => {
+		test('randomized test', () => {
 			const existing = rndValue(array);
 			const nonExistent = Math.max(...array) + 1;
-
 			const expectations = [
 				[existing, 1],
 				[nonExistent, 0],
@@ -143,13 +137,12 @@ describe('Reducers', () => {
 	describe('min finds the smallest of the given candidates.', () => {
 		test('example', () => {
 			const input = [1, 2, 3];
-
 			const expected = 1;
 
 			expect(reduce(input, min)).toEqual(expected);
 		});
 
-		test('randomized', () => {
+		test('randomized test', () => {
 			const minValue = Math.min(...array);
 
 			expect(reduce(rndValue(collections), min)).toEqual(minValue);
@@ -162,7 +155,6 @@ describe('Reducers', () => {
 	describe('max finds the largest of the given candidates.', () => {
 		test('example', () => {
 			const input = [1, 2, 3];
-
 			const expected = 3;
 
 			expect(reduce(input, max)).toEqual(expected);
@@ -189,7 +181,6 @@ describe('Reducers', () => {
 					a: 3, b: 4, c: 5,
 				},
 			];
-
 			const expected = { a: 3, b: 4, c: 5 };
 
 			expect(reduce(
@@ -197,7 +188,7 @@ describe('Reducers', () => {
 			)).toEqual(expected);
 		});
 
-		test('randomized', () => {
+		test('randomized test', () => {
 			expect(reduce(
 				[object, extension], reducer(merge), {}
 			)).toEqual(merge(
