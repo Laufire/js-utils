@@ -1863,14 +1863,16 @@ describe('Collection', () => {
 		test('randomized test', () => {
 			retry(() => {
 				const collection = rndCollection();
-				const expectation = Object.keys(collection).map((key) =>
+				const randomKeys = rndKeys(collection);
+
+				tMap(collection, (dummy, key) =>
 				// TODO: Remove converters after publishing.
-					converters[inferType(collection)](key));
+					!randomKeys.includes(converters[inferType(collection)](key))
+						&& delete collection[key]);
 
 				const keysResult = keys(collection);
 
-				expect(keysResult.length).toEqual(expectation.length);
-				expect(keysResult).toEqual(expectation);
+				expect(keysResult).toEqual(randomKeys);
 			});
 		});
 	});
