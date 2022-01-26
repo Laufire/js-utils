@@ -1,7 +1,8 @@
 import { range, map, reduce, find } from '@laufire/utils/collection';
 import { isEqual } from '@laufire/utils/predicates';
-import { rndBetween } from '@laufire/utils/random';
-import { retry, isAcceptable, expectEquals } from '../test/helpers';
+import {
+	retry, isAcceptable, expectEquals, rndCollection, rndArray,
+} from '../test/helpers';
 import { isProbable, possibilities } from './prob';
 
 test('isProbable returns true based on given probability', () => {
@@ -31,23 +32,34 @@ test('isProbable returns true based on given probability', () => {
 describe('possibilities', () => {
 	describe('example', () => {
 		test('returns possibilities of given cases', () => {
-			const result = possibilities([['a', 'b'], [1, 2, 3]]);
+			const arrayCombos = possibilities([['a', 'b'], [1, 2, 3]]);
+			const objectCombos = possibilities({
+				item: ['apple', 'banana'],
+				price: [1, 2, 3],
+			});
 
-			expect(result).toEqual([
+			expect(arrayCombos).toEqual([
 				['a', 1],
-				['b', 1],
 				['a', 2],
-				['b', 2],
 				['a', 3],
+				['b', 1],
+				['b', 2],
 				['b', 3],
+			]);
+			expect(objectCombos).toEqual([
+				{ item: 'apple', price: 1 },
+				{ item: 'apple', price: 2 },
+				{ item: 'apple', price: 3 },
+				{ item: 'banana', price: 1 },
+				{ item: 'banana', price: 2 },
+				{ item: 'banana', price: 3 },
 			]);
 		});
 	});
 
 	describe('randomized test', () => {
 		test('returns possibilities of given cases', () => {
-			const inputs = map(range(1, rndBetween(3, 6)), () =>
-				map(range(1, rndBetween(2, 6)), Symbol));
+			const inputs = map(rndCollection(2, 3), () => rndArray(2, 3));
 
 			const expectedLength = reduce(
 				inputs, (t, c) => t * c.length, 1
@@ -56,7 +68,8 @@ describe('possibilities', () => {
 			const result = possibilities(inputs);
 
 			const mismatch = find(result, (possibility) =>
-				find(possibility, (value, i) => !inputs[i].includes(value)));
+				find(possibility, (value, key) =>
+					!inputs[key].includes(value)));
 			// TODO: Use collection.find post publishing.
 			const duplicate = result.find((
 				possibility, i, array
