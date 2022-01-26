@@ -8,11 +8,34 @@ import { rndNested, retry, similarCols, rndKeys } from '../test/helpers';
 import { descend, index, summarize, transpose } from './crunch';
 import { isDefined } from '@laufire/utils/reflection';
 
-const sum = (...numbers) => numbers.reduce((t, c) => t + c, 0);
-
 /* Spec */
 describe('Crunch', () => {
 	/* Mocks and Stubs */
+
+	const getMatcher = (acc) => (item) =>	{
+		const itemIndex = findKey(acc, (val, key) =>	(
+			val !== 'undefined'
+				? val !== item[key]
+				: item.hasOwnProperty(key)
+		));
+
+		return !isDefined(itemIndex);
+	};
+
+	const testIndex = (
+		currentLevel, currentIndex, currentKeys, verify, data
+	) => {
+		const [currentKey, ...rest] = currentKeys;
+
+		currentKey
+			? map(currentLevel, (child, key) => testIndex(
+				child, { ...currentIndex, [currentKey]: key }, rest,
+				verify, data
+			))
+			:	verify(
+				currentLevel, currentIndex, data
+			);
+	};
 
 	describe('index builds an index for the given collection'
 	+ ' on the given keys of the children to help with retrieval', () => {
@@ -34,74 +57,81 @@ describe('Crunch', () => {
 			/* eslint-enable dot-notation */
 		});
 
-		test('randomized', () => {
+		test('randomized test', () => {
+			const verifyIndexed = (
+				result, acc, data
+			) => {
+				const expected = values(data).filter(getMatcher(acc));
+
+				expect(result).toEqual(expected);
+			};
+
 			retry(() => {
 				// TODO: Revert iterables to use Symbols after fixing collection.keys.
-				const iterable = map(similarCols(1, 2), (value) =>
-					map(value, () => rndString()));
-				const randomKeys = keys(rndValue(iterable));
-				const indexKeys = rndKeys(randomKeys);
+				const data = map(similarCols(), (collection) =>
+					map(collection, () => rndString()));
+				const indexKeys = rndKeys(rndValue(data));
 
-				const indexed = index(iterable, indexKeys);
-
-				const testIndex = (
-					currentLevel, currentIndex, currentKeys
-				) => {
-					const [currentKey, ...rest] = currentKeys;
-
-					const verifyIndexed = (result, expected) => {
-						const predicate = (item) =>	{
-							const itemIndex = findKey(expected,
-								(val, key) =>	(
-									val !== 'undefined'
-										? val !== item[key]
-										: item.hasOwnProperty(key)
-								));
-
-							return !isDefined(itemIndex);
-						};
-						const filtered = values(iterable).filter(predicate);
-
-						expect(result).toEqual(filtered);
-					};
-
-					// eslint-disable-next-line no-unused-expressions
-					currentKey
-						? map(currentLevel, (child, key) => testIndex(
-							child, { ...currentIndex, [currentKey]: key }, rest
-						))
-						:	verifyIndexed(currentLevel, currentIndex);
-				};
+				const indexed = index(data, indexKeys);
 
 				testIndex(
-					indexed, {}, indexKeys
+					indexed, {}, indexKeys, verifyIndexed, data
 				);
-			}, 10000);
+			});
 		});
 	});
 
 	describe('summarize summarizes the given collection'
 	+ ' and builds an index on the given keys', () => {
 		test('example', () => {
-			const elmOne = { price: 10, tax: 2 };
-			const elmTwo = { price: 20, tax: 3 };
-			const iterable = secure([elmOne, elmTwo]);
-			const summarizer = (item) => sum(...values(item));
-			const indexKeys = ['price', 'tax'];
+			const summarizer = (acc, { cost }) => acc + cost;
+			const indexKeys = ['category', 'item'];
+			const data = secure([
+				{ item: 'apple', category: 'fruit', cost: 2 },
+				{ item: 'burger', category: 'snack', cost: 1 },
+				{ item: 'burger', category: 'snack', cost: 2 },
+			]);
 			const expected = {
-				10: {
-					2: 12,
+				fruit: {
+					apple: 2,
 				},
-				20: {
-					3: 23,
+				snack: {
+					burger: 3,
 				},
 			};
 
 			const result = summarize(
-				iterable, summarizer, indexKeys
+				data, indexKeys, summarizer, 0
 			);
 
 			expect(result).toEqual(expected);
+		});
+
+		test('randomized test', () => {
+			const summarizer = (acc, item) => acc.concat(item);
+			const initial = [];
+			const verifySummarized = (
+				result, acc, data
+			) => {
+				const filtered = values(data).filter(getMatcher(acc));
+				const expected = filtered.reduce(summarizer, initial);
+
+				expect(result).toEqual(expected);
+			};
+
+			retry(() => {
+				const data = map(similarCols(), (collection) =>
+					map(collection, () => rndString()));
+				const indexKeys = rndKeys(rndValue(data));
+
+				const summarized = summarize(
+					data, indexKeys, summarizer, initial
+				);
+
+				testIndex(
+					summarized, {}, indexKeys, verifySummarized, data
+				);
+			});
 		});
 	});
 
@@ -111,12 +141,12 @@ describe('Crunch', () => {
 		test('example', () => {
 			const elmOne = { price: 10, tax: 2 };
 			const elmTwo = { price: 20, tax: 3 };
-			const iterable = secure([elmOne, elmTwo]);
+			const data = secure([elmOne, elmTwo]);
 			const increase = (val) => val + 1;
 			const expected = [{ price: 11, tax: 3 }, { price: 21, tax: 4 }];
 
 			const result = descend(
-				iterable, increase, 1
+				data, increase, 1
 			);
 
 			expect(result).toEqual(expected);
