@@ -33,9 +33,21 @@ const summarize = (
 const transpose = (collection) => gather(collection,
 	filter(values(map(collection, keys)).flat(), unique));
 
+const group = (collection, grouper) => reduce(
+	collection, (
+		acc, item, ...rest
+	) => {
+		const category = grouper(item, ...rest);
+
+		acc[category] = [...acc[category] || [], item];
+		return acc;
+	}, {}
+);
+
 export {
 	index,
 	summarize,
 	descend,
 	transpose,
+	group,
 };
