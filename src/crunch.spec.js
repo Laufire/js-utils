@@ -3,14 +3,16 @@ import { secure, values, keys, reduce, map, findKey }
 	from '@laufire/utils/collection';
 import { rndBetween, rndString, rndValue }
 	from '@laufire/utils/random';
-import { rndNested, retry, similarCols, rndKeys } from '../test/helpers';
+import {
+	rndNested, retry, similarCols, rndKeys, rndCollection, convertKey,
+} from '../test/helpers';
 /* Tested */
-import { descend, index, summarize, transpose } from './crunch';
+import { descend, index, summarize, transpose, group } from './crunch';
 import { isDefined } from '@laufire/utils/reflection';
 
 /* Spec */
 describe('Crunch', () => {
-	/* Mocks and Stubs */
+	/* Helpers */
 
 	const getMatcher = (acc) => (item) =>	{
 		const itemIndex = findKey(acc, (val, key) =>	(
@@ -269,6 +271,57 @@ describe('Crunch', () => {
 
 				testTransposed(input, transposed);
 				testTransposed(transposed, input);
+			});
+		});
+	});
+
+	describe('groups the given collection according to given grouper', () => {
+		test('example', () => {
+			const taskOne = { task: 'bugFix', priority: 1 };
+			const taskTwo = { task: 'feature', priority: 2 };
+			const data = [taskOne, taskTwo];
+			const grouper = ({ priority }) =>
+				(priority === 1 ? 'urgent' : 'trivial');
+			const expected = {
+				urgent: [taskOne],
+				trivial: [taskTwo],
+			};
+
+			const result = group(data, grouper);
+
+			expect(result).toEqual(expected);
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const data = rndCollection();
+				const a = Symbol('groupA');
+				const b = Symbol('groupB');
+				const indexKeys = [a, b];
+				const expected = [];
+				const mockGrouper = jest.fn().mockImplementation((item) => {
+					const key = rndValue(indexKeys);
+
+					expected.push([key, item]);
+
+					return key;
+				});
+
+				const grouped = group(data, mockGrouper);
+
+				// TODO: Use map instead of reduce post publishing.
+				reduce(
+					data, (
+						acc, item, key, collection
+					) => {
+						expect(mockGrouper).toHaveBeenCalledWith(
+							item, convertKey(collection, key), collection
+						);
+					}, {}
+				);
+				map(expected, ([key, item]) => {
+					expect(grouped[key].includes(item)).toEqual(true);
+				});
 			});
 		});
 	});
