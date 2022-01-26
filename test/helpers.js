@@ -25,6 +25,8 @@ const converters = {
 	array: Number,
 	object: String,
 };
+// TODO: Remove the converters after using published functions.
+const convertKey = (collection, key) =>	converters[inferType(collection)](key);
 
 /* Functions */
 const sortArray = (arr) => arr.slice().sort();
@@ -246,4 +248,5 @@ export {
 	sortArray, strSubSet, retry, isAcceptable, expectEquals,
 	allTypes, emptyTypes, rnd, similarCols, iterableTypes,
 	till, findLastIndex, summarize, testRatios, getRatios,
+	convertKey,
 };
