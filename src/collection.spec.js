@@ -316,14 +316,16 @@ describe('Collection', () => {
 		test('randomized test', () => {
 			retry(() => {
 				const fn = findLastKey;
-				const collection = rndCollection();
+				const collection = tClone(rndCollection());
 				const collectionKeys = tKeys(collection);
 				// TODO: Remove inferType after publishing.
 				const needle = converters[
 					inferType(collection)](rndValue(collectionKeys.slice(1)));
 				const index = collectionKeys.indexOf(needle);
+				const duplicateIndex = rndBetween(0, index);
 
-				collection[collectionKeys[index - 1]] = collection[needle];
+				collection[collectionKeys[duplicateIndex]] = collection[needle];
+				tSecure(collection);
 				const processor = isEqual(collection[needle]);
 				const data = [
 					[collection, needle],
@@ -1085,6 +1087,59 @@ describe('Collection', () => {
 			expect(combine([0, 1], [1])).toEqual([0, 1, 1]);
 			expect(overlay([0, 1, 2], [3, 4])).toEqual([3, 4, 2]);
 			expect(fill([0, 1, 2, 3], [4, 5])).toEqual([0, 1, 2, 3]);
+		});
+	});
+
+	describe('fill fills the missing properties of the given base'
+	+ ' from those of the extensions', () => {
+		test('example', () => {
+			const baseProp = Symbol('baseProp');
+			const underlayProp = Symbol('underlayProp');
+			const overlayProp = Symbol('overlayProp');
+
+			const base = mockObj(['a'], baseProp);
+			const layerOne = secure(mockObj(['a', 'b'], underlayProp));
+			const layerTwo = secure(mockObj(['b', 'c'], overlayProp));
+
+			const filled = fill(
+				base, layerOne, layerTwo
+			);
+
+			expect(filled).toEqual(base);
+			expect(base).toEqual({
+				a: baseProp,
+				b: underlayProp,
+				c: overlayProp,
+			});
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const extensions = tValues(rndNested(
+					3, 3, ['object']
+				));
+				const extension = tClone(rndValue(extensions));
+				const base = tClone(rndDict());
+
+				tMap(rndKeys(base), (key) =>
+					(extension[key] = Symbol(key)));
+				tSecure(extension);
+
+				const propsLayer = tReduce(
+					extensions,
+					(acc, dictionary) =>
+						({ ...dictionary, ...acc }), {}
+				);
+
+				const expected = { ...propsLayer, ...base };
+
+				const filled = fill(
+					base, extension, ...extensions,
+				);
+
+				expect(filled).toEqual(base);
+				expect(base).toEqual(expected);
+			});
 		});
 	});
 
@@ -1870,13 +1925,14 @@ describe('Collection', () => {
 
 		test('randomized test', () => {
 			retry(() => {
-				const collection = rndCollection();
+				const collection = tClone(rndCollection());
 				const randomKeys = rndKeys(collection);
 
 				tMap(collection, (dummy, key) =>
 				// TODO: Remove converters after publishing.
 					!randomKeys.includes(converters[inferType(collection)](key))
 						&& delete collection[key]);
+				tSecure(collection);
 
 				const keysResult = keys(collection);
 
