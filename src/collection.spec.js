@@ -8,8 +8,8 @@ import { rndKey, array, object, expectEquals,
 	rndDict, rndNested, extended, isolated, ecKeys,
 	extCollection, collection as hCollection, toObject,
 	rndKeys, rndRange, rnd, similarCols,
-	iterableTypes, allTypes, retry, rndCollection, converters, till }
-	from '../test/helpers';
+	iterableTypes, allTypes, retry, rndCollection, converters, till,
+	isAcceptable } from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
 import { isDefined, inferType, isIterable,
@@ -1799,21 +1799,31 @@ describe('Collection', () => {
 		});
 
 		test('randomized test', () => {
-			retry(() => {
+			const retryCount = 10000;
+			const typeTests = {
+				array: (collection, shuffled) => {
+					map(shuffled, (value) =>
+						expect(collection.includes(value)).toEqual(true));
+					return !tEquals(collection, shuffled);
+				},
+				object: (collection, shuffled) => {
+					expect(tEquals(collection, shuffled)).toEqual(true);
+					return !tEquals(tKeys(collection), tKeys(shuffled));
+				},
+			};
+
+			const results = retry(() => {
 				const collection = rndCollection();
-				const testShuffled = (base, compared) =>
-					(isArray(base)
-						? expect(tEquals(base, compared)).toEqual(false)
-						: (expect(tEquals(tKeys(base), tKeys(compared)))
-						// eslint-disable-next-line no-sequences
-							.toEqual(false),
-						expect(tEquals(base, compared)).toEqual(true))
-					);
 
 				const shuffled = shuffle(collection);
 
-				testShuffled(collection, shuffled);
-			});
+				return typeTests[inferType(collection)](collection, shuffled);
+			}, retryCount);
+
+			// TODO: Replace with fn.self & collection.filter post publishing.
+			const successCount = results.filter((value) => value).length;
+
+			expect(isAcceptable(successCount, retryCount)).toEqual(true);
 		});
 	});
 
