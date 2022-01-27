@@ -1399,16 +1399,17 @@ describe('Collection', () => {
 		test('randomized test', () => {
 			retry(() => {
 				const valueOne = rndNested(
-					3, 3, ['nested']
+					3, 3, ['nested', 'array', 'object']
 				);
 				const valueTwo = rndNested(
-					3, 3, ['nested']
+					3, 3, ['nested', 'array', 'object']
 				);
 
-				expect(patch(valueOne, valueTwo))
-					.toEqual(sanitize(tMerge(
-						tShell(valueOne), valueOne, valueTwo
-					)));
+				const patched = patch(valueOne, valueTwo);
+
+				testMerge(
+					patched, valueOne, valueTwo
+				);
 			});
 		});
 	});
