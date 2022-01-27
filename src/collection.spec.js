@@ -123,8 +123,7 @@ describe('Collection', () => {
 
 	const getUnlike = (() => {
 		const unlikeGenerator = {
-			true: (valOne, valTwo) => tContains(valOne, valTwo)
-				&& tContains(valTwo, valOne),
+			true: (valOne, valTwo) => tContains(valOne, valTwo),
 			false: (valOne, valTwo) => valTwo === valOne,
 		};
 
