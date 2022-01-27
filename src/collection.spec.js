@@ -1943,6 +1943,11 @@ describe('Collection', () => {
 
 	describe('length returns the length of given collection', () => {
 		test('example', () => {
+			const collection = [];
+
+			collection[4] = 'a';
+
+			expect(length(collection)).toEqual(5);
 			expect(length([1, 2, 3])).toEqual(3);
 			expect(length({ a: 1, b: 2 })).toEqual(2);
 		});
