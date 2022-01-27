@@ -34,7 +34,7 @@ import {
 	patch, pick, omit, range, reduce, result,
 	sanitize, secure, select, shell, shuffle, sort, squash, hasKey,
 	translate, traverse, walk, values, keys, length, toArray, nReduce,
-	findIndex, findLast, lFind, findLastKey, lFindKey,
+	findIndex, findLast, lFind, findLastKey, lFindKey, count,
 } from './collection';
 
 const mockObj = (objKeys, value) =>
@@ -1957,6 +1957,28 @@ describe('Collection', () => {
 				const collection = rndCollection();
 
 				expect(length(collection)).toEqual(tValues(collection).length);
+			});
+		});
+	});
+
+	describe('count returns the number of values in give collection', () => {
+		test('example', () => {
+			const collection = [];
+
+			collection[4] = 'a';
+
+			expect(count(collection)).toEqual(1);
+			expect(count({ a: 1, b: 2 })).toEqual(2);
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const iterable = rndCollection();
+				const selector = rndKeys(iterable);
+				const collection = arrayOrObject(tMap(selector, (value) =>
+					iterable[value]));
+
+				expect(count(collection)).toEqual(selector.length);
 			});
 		});
 	});
