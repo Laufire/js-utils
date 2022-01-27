@@ -5,8 +5,7 @@
 
 /* Helpers */
 import { rndKey, array, object, expectEquals,
-	rndDict, rndNested, extended, isolated, ecKeys,
-	extCollection, collection as hCollection, toObject,
+	rndDict, rndNested, extended, isolated, toObject,
 	rndKeys, rndRange, rnd, similarCols,
 	iterableTypes, allTypes, retry, rndCollection, converters, till,
 	isAcceptable } from '../test/helpers';
@@ -1437,23 +1436,38 @@ describe('Collection', () => {
 		});
 
 		test('randomized test', () => {
-			// TODO: Randomize while randomizing result test.
-			// TODO: Use rndNested.
-			const properties = rndDict();
+			retry(() => {
+				const type = rndValue(['array', 'object']);
 
-			// TODO: Secure after bug fixing.
-			const base = { ...hCollection, ...properties };
-			const expectedProps = tReduce(
-				properties, (
-					t, dummy, key
-				) => ({ ...t, [key]: undefined }), {}
-			);
-			const expectation = { [ecKeys.extended]: extended,
-				...expectedProps };
+				// eslint-disable-next-line no-shadow
+				const baseCol = tSecure(rndNested(
+					3, 3, [type]
+				));
+				const compareCol = rndNested(
+					3, 3, [type]
+				);
 
-			const difference = diff(base, extCollection);
+				const differenceCol = diff(baseCol, compareCol);
 
-			expect(difference).toEqual(expectation);
+				const testDifference = (
+					difference, base, compare
+				) => {
+					const compareKeys = tKeys(compare);
+
+					return tMap(difference, (value, key) =>
+						(isIterable(value)
+							? testDifference(
+								value, base[key], compare[key]
+							)
+							: compareKeys.includes(key)
+								? expect(value).toEqual(compare[key])
+								: expect(value).toEqual(undefined)));
+				};
+
+				testDifference(
+					differenceCol, baseCol, compareCol
+				);
+			});
 		});
 	});
 
