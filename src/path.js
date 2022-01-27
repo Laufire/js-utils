@@ -6,7 +6,7 @@ const initialSlash = /^\//;
 const fix = (path) => [
 	[/^(?!(?:\.+\/)|\/|^\.+$)/, './'],
 	[/^(\.+)$/, '$1/'],
-	[/([^\\/]$)/, '$1/'],
+	[/([^/]|(^|[^\\])((?:\\{2})*)\\\/)$/, '$1/'],
 ].reduce((acc, [matcher, replacement]) =>
 	(acc.match(matcher)
 		? acc.replace(matcher, replacement)
@@ -15,22 +15,22 @@ const fix = (path) => [
 
 const parts = (() => {
 	const matcher = /(?:(?:[^/\\]|\\.)*\/)/g;
-	const escapedSequence = /\\(.)/g;
 
 	return (path) => (`${ fix(path) }`.replace(initialSlash, '').match(matcher) || [])
-		.map((part) => part.replace(escapedSequence, '$1').slice(0, -1));
+		.map((part) => part.slice(0, -1));
 })();
 
-// TODO: Test with unescaped paths.
 const join = (pathParts) => `${ pathParts.join('/') }/`;
 
-const types = {
-	absolute: /^\/(?:[^\\/]*\/)*$/,
-	relative: /^\.+\/(?:[^\\/]*\/)*$/,
-	lax: /.*/,
-};
+const pathType = (() => {
+	const types = {
+		absolute: /^\/(?:(?:[^\\/\\]|\\.)*\/)*$/,
+		relative: /^\.+\/(?:(?:[^\\/\\]|\\.)*\/)*$/,
+		lax: /.*/,
+	};
 
-const pathType = (path) => findKey(types, (matcher) => matcher.test(path));
+	return (path) => findKey(types, (matcher) => matcher.test(path));
+})();
 
 const appendLabel = (baseParts, part) => baseParts.concat(part);
 

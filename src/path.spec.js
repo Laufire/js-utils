@@ -1,14 +1,15 @@
 import {
-	find,	findKey, map, pick, range, reduce, filter,
+	find,	findKey, map, pick, range, reduce, filter, shuffle,
 } from '@laufire/utils/collection';
-import { sum } from '@laufire/utils/reducers';
 import {
-	rndString, rndValue, rndBetween, rndValueWeighted,
+	rndValue, rndBetween, rndValueWeighted, rndValues,
 } from '@laufire/utils/random';
+import { sum } from '@laufire/utils/reducers';
 // TODO: Use published import when available.
 import { isProbable } from './prob';
-import { retry, findLastIndex, summarize, testRatios } from '../test/helpers';
-
+import {
+	retry, findLastIndex, summarize, testRatios, rndRange,
+} from '../test/helpers';
 import { fix, parts, pathType, resolve } from './path';
 
 /* Config */
@@ -18,10 +19,16 @@ const lowerLimit = 0;
 // TODO: Use rndRange from helpers.
 const getRndRange = () => range(0, rndBetween(lowerLimit, higherLimit));
 
+const labelChars = [
+	...'abcdefghijklmnopqrstuvwxyz'.split(''),
+	...['\\.', '\\\\', '\\/'],
+];
+
 const partGenerators = {
 	relative: () => '.'.repeat(rndBetween(1, 5)),
 	empty: () => '',
-	label: () => rndString(rndBetween(5, 10),	'abcdefghijklmnopqrstuvwxyz.'),
+	label: () => shuffle(rndRange(1, rndBetween(3, 5)).map(() =>
+		rndValues(labelChars))).join(''),
 };
 
 const randomParts = () => map(getRndRange(), () =>
@@ -30,7 +37,7 @@ const randomParts = () => map(getRndRange(), () =>
 const matchers = {
 	relative: /^\.+$/,
 	empty: /^$/,
-	label: /^(?:\.*[^\\.]+\.*)*$/,
+	label: /(?:[^\\/\\]|\\.)+/,
 };
 
 const getPartType = (part) =>
