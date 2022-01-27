@@ -1,7 +1,7 @@
 /* Helpers */
 import { secure, values, keys, reduce, map, findKey }
 	from '@laufire/utils/collection';
-import { rndBetween, rndString, rndValue }
+import { rndBetween, rndValue }
 	from '@laufire/utils/random';
 import {
 	rndNested, retry, similarCols, rndKeys, rndCollection, convertKey,
@@ -69,9 +69,7 @@ describe('Crunch', () => {
 			};
 
 			retry(() => {
-				// TODO: Revert iterables to use Symbols after fixing collection.keys.
-				const data = map(similarCols(), (collection) =>
-					map(collection, () => rndString()));
+				const data = similarCols();
 				const indexKeys = rndKeys(rndValue(data));
 
 				const indexed = index(data, indexKeys);
@@ -122,8 +120,7 @@ describe('Crunch', () => {
 			};
 
 			retry(() => {
-				const data = map(similarCols(), (collection) =>
-					map(collection, () => rndString()));
+				const data = similarCols();
 				const indexKeys = rndKeys(rndValue(data));
 
 				const summarized = summarize(

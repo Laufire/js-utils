@@ -9,26 +9,26 @@ const isProbable = (probability) =>
 	rndBetween(1, 101) <= probability * 100;
 
 // eslint-disable-next-line max-lines-per-function
-const possibilities = (data) => {
+const possibilities = (() => {
 	const arrayWorker = (source) => {
 		const [first, ...rest] = clone(source).reverse();
 
 		return rest.reduce((acc, currentArray) =>
 			currentArray.reduce((accOne, currentItem) =>
+				// eslint-disable-next-line max-nested-callbacks
 				[...accOne, ...acc.map((prevItems) =>
 					[currentItem, ...prevItems])], [])
 		, first.map((x) => [x]));
 	};
 
 	const objectWorker = (source) => {
-		const input = map(entries(source), (value) => {
+		const transformed = map(entries(source), (value) => {
 			const [name, combos] = value;
 
 			return arrayWorker([[name], combos]);
 		});
-		const result = arrayWorker(input);
 
-		return map(result, fromEntries);
+		return map(arrayWorker(transformed), fromEntries);
 	};
 
 	const workers = {
@@ -36,7 +36,7 @@ const possibilities = (data) => {
 		array: arrayWorker,
 	};
 
-	return workers[inferType(data)](data);
-};
+	return (data) => workers[inferType(data)](data);
+})();
 
 export { isProbable, possibilities };

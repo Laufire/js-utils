@@ -60,7 +60,6 @@ describe('possibilities', () => {
 	describe('randomized test', () => {
 		test('returns possibilities of given cases', () => {
 			const inputs = map(rndCollection(2, 3), () => rndArray(2, 3));
-
 			const expectedLength = reduce(
 				inputs, (t, c) => t * c.length, 1
 			);
