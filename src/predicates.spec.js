@@ -2,11 +2,12 @@
 import { contains, filter, shares, values,
 	find, clone, shell,
 	clean, select, keys, equals,
-	secure, shuffle, omit } from '@laufire/utils/collection';
+	secure, shuffle, omit, findIndex, map } from '@laufire/utils/collection';
 import { rndValue, rndValues } from '@laufire/utils/random';
 import { isolated, collection, extCollection, sortArray,
 	rndKey, rndCollection, retry, rndDict,
 	randomValues, arrayOrObject, rndNested } from '../test/helpers';
+import { filter as tFilter } from './collection';
 
 /* Tested */
 import { isEqual, isSame, isPart, doesContain,
@@ -188,9 +189,32 @@ describe('Predicates', () => {
 		});
 	});
 
-	test('first tests for the first occurrence of the element in'
-	+ ' the collection', () => {
-		expect(truthies.concat(truthies).filter(first)).toEqual(truthies);
+	describe('first tests for the first occurrence of the element in '
+	+ 'the collection', () => {
+		test('example', () => {
+			expect(['a', 'b', 'c', 'a'].filter(first)).toEqual(['a', 'b', 'c']);
+			// TODO: Use imported filter post publishing.
+			expect(tFilter({ a: 1, b: 2, c: 1, d: 2 }, first))
+				.toEqual({ a: 1, b: 2 });
+		});
+
+		test('randomized test', () => {
+			const haystack = clone(rndCollection());
+			const collectionKeys = keys(haystack);
+			const randomKey = rndKey(haystack);
+			const needle = haystack[randomKey];
+			const index = findIndex(collectionKeys,
+				isEqual(String(randomKey)));
+			const keysToOmit = randomValues(collectionKeys.slice(index + 1));
+
+			// eslint-disable-next-line no-return-assign
+			map(keysToOmit, (keyToOmit) => haystack[keyToOmit] = needle);
+			secure(haystack);
+			const expectation = clean(omit(haystack, keysToOmit));
+
+			// TODO: Use imported filter post publishing.
+			expect(tFilter(haystack, first)).toEqual(expectation);
+		});
 	});
 
 	test('unique is an alias of first.', () => {

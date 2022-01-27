@@ -3,7 +3,7 @@
  *
  */
 
-import { equals, find, contains } from './collection';
+import { equals, find, contains, findIndex } from './collection';
 import { values } from './lib';
 import { isDefined } from './reflection';
 
@@ -28,7 +28,7 @@ const nothing = () => false;
 
 const first = (
 	value, i, collection
-) => values(collection).indexOf(value) === i;
+) => findIndex(collection, isEqual(value)) === i;
 
 const unique = first;
 
