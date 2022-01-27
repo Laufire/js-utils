@@ -13,7 +13,7 @@ describe('vary', () => {
 	});
 
 	test('ratio test', () => {
-		const retryCount = 10000;
+		const retryCount = 50000;
 		const variance = 0.01;
 		const possibilities = range(99, 102).map((value) => value / 100);
 

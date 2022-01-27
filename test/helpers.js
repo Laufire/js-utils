@@ -5,6 +5,7 @@ import {
 import { rndValue, rndBetween, rndString, rndValues }
 	from '@laufire/utils/random';
 import { inferType } from '@laufire/utils/reflection';
+import { defined } from '../src/fn';
 import TestConfig from './config';
 
 /* Config */
@@ -44,8 +45,8 @@ const isAcceptable = (
 const rndKey = (collection) =>
 	converters[inferType(collection)](rndValue(keys(collection)));
 
-const rndKeys = (collection) => map(rndValues(keys(collection),
-	rndBetween(1, keys(collection).length - 1)),
+const rndKeys = (collection, count) => map(rndValues(keys(collection),
+	defined(count, rndBetween(1, keys(collection).length - 1))),
 converters[inferType(collection)]);
 
 const rndRange = (minCount = defaults.minCount, maxCount = defaults.maxCount) =>

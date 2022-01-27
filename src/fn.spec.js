@@ -52,14 +52,25 @@ test('value extracts the value from the given function or variable', () => {
 	expect(value(() => val)).toBe(val);
 });
 
-test('defined filters the first defined value', () => {
-	const values = clone(array);
+describe('defined filters the first defined value', () => {
+	test('example', () => {
+		const input = [undefined, 1, undefined, 2, 3];
+		const expected = 1;
 
-	values[rndKey(values)] = undefined;
+		const result = defined(...input);
 
-	values.forEach((item, i) =>
-		expect(defined(...values.slice(i)))
-			.toEqual(isDefined(item) ? item : values[i + 1]));
+		expect(result).toEqual(expected);
+	});
+
+	test('randomized test', () => {
+		const values = clone(array);
+
+		values[rndKey(values)] = undefined;
+
+		values.forEach((item, i) =>
+			expect(defined(...values.slice(i)))
+				.toEqual(isDefined(item) ? item : values[i + 1]));
+	});
 });
 
 test('self returns the same input value', () => {
