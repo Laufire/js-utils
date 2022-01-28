@@ -65,11 +65,11 @@ const rndDict = (minCount = defaults.minCount, maxCount = defaults.maxCount) =>
 		[rndString(), Symbol(value)])));
 
 const rndArray = (minCount = defaults.minCount, maxCount = defaults.maxCount) =>
-	secure(rndRange(minCount, maxCount).map(() => rndString()));
+	secure(rndRange(minCount, maxCount).map((value) => Symbol(value)));
 
 const rndCollection = (minCount = defaults.minCount,
 	maxCount = defaults.maxCount) =>
-	rndValue([rndRange, rndDict])(minCount, maxCount);
+	rndValue([rndArray, rndDict])(minCount, maxCount);
 
 const findLastIndex = (arr, predicate) =>
 	arr.findIndex((item, i) => predicate(item)
