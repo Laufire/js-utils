@@ -311,19 +311,21 @@ describe('Collection', () => {
 		test('randomized test', () => {
 			retry(() => {
 				const fn = findLastKey;
-				const collection = tClone(rndCollection());
-				const collectionKeys = tKeys(collection);
-				// TODO: Remove inferType after publishing.
-				const needle = converters[
-					inferType(collection)](rndValue(collectionKeys.slice(1)));
+				const baseCol = rndCollection();
+				const collectionKeys = tKeys(baseCol);
+				const needle = rndValue(collectionKeys.slice(1));
 				const index = collectionKeys.indexOf(needle);
-				const duplicateIndex = rndBetween(0, index);
+				const duplicateIndex = rndBetween(0, index - 1);
+				const collection = tSecure(tMap(baseCol, (value, key) =>
+					(key === collectionKeys[duplicateIndex]
+						? baseCol[needle]
+						: value)));
+				// TODO: Remove converters post publishing.
+				const expectation = converters[inferType(collection)](needle);
 
-				collection[collectionKeys[duplicateIndex]] = collection[needle];
-				tSecure(collection);
 				const processor = isEqual(collection[needle]);
 				const data = [
-					[collection, needle],
+					[collection, expectation],
 				];
 
 				testIterator({ fn, processor, data });
