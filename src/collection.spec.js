@@ -1935,8 +1935,7 @@ describe('Collection', () => {
 			retry(() => {
 				const iterable = rndCollection();
 				const selector = rndKeys(iterable);
-				const collection = arrayOrObject(tMap(selector, (value) =>
-					iterable[value]));
+				const collection = tSelect(iterable, selector);
 
 				expect(count(collection)).toEqual(selector.length);
 			});
