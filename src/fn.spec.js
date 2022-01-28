@@ -1,7 +1,7 @@
 /* Helpers */
 import { equals, clone } from '@laufire/utils/collection';
 import { isDefined } from '@laufire/utils/reflection';
-import { array, rndKey } from '../test/helpers';
+import { array, retry, rndKey } from '../test/helpers';
 
 /* Tested */
 import { cache, value, defined, self, identity, nothing } from './fn';
@@ -24,24 +24,26 @@ describe('cache caches the given function based on parameters'
 	});
 
 	test('randomized test', () => {
-		const testCache = (qualifier, callCount) => {
-			const fn = jest.fn((...args) => args);
-			const cachedFn = cache(fn, qualifier);
-			const symbolOne = Symbol('SymbolOne');
-			const SymbolTwo = Symbol('SymbolTwo');
+		retry(() => {
+			const testCache = (qualifier, callCount) => {
+				const fn = jest.fn((...args) => args);
+				const cachedFn = cache(fn, qualifier);
+				const symbolOne = Symbol('SymbolOne');
+				const SymbolTwo = Symbol('SymbolTwo');
 
-			const result = cachedFn(array, symbolOne);
+				const result = cachedFn(array, symbolOne);
 
-			expect(cachedFn(array, symbolOne)).toEqual(result);
-			expect(fn).toHaveBeenCalledTimes(1);
+				expect(cachedFn(array, symbolOne)).toEqual(result);
+				expect(fn).toHaveBeenCalledTimes(1);
 
-			cachedFn(array, SymbolTwo);
-			cachedFn(array.slice(), SymbolTwo);
-			expect(fn).toHaveBeenCalledTimes(callCount);
-		};
+				cachedFn(array, SymbolTwo);
+				cachedFn(array.slice(), SymbolTwo);
+				expect(fn).toHaveBeenCalledTimes(callCount);
+			};
 
-		testCache(undefined, 3);
-		testCache(equals, 2);
+			testCache(undefined, 3);
+			testCache(equals, 2);
+		});
 	});
 });
 
@@ -52,14 +54,27 @@ test('value extracts the value from the given function or variable', () => {
 	expect(value(() => val)).toBe(val);
 });
 
-test('defined filters the first defined value', () => {
-	const values = clone(array);
+describe('defined filters the first defined value', () => {
+	test('example', () => {
+		const input = [undefined, 1, undefined, 2, 3];
+		const expected = 1;
 
-	values[rndKey(values)] = undefined;
+		const result = defined(...input);
 
-	values.forEach((item, i) =>
-		expect(defined(...values.slice(i)))
-			.toEqual(isDefined(item) ? item : values[i + 1]));
+		expect(result).toEqual(expected);
+	});
+
+	test('randomized test', () => {
+		retry(() => {
+			const values = clone(array);
+
+			values[rndKey(values)] = undefined;
+
+			values.forEach((item, i) =>
+				expect(defined(...values.slice(i)))
+					.toEqual(isDefined(item) ? item : values[i + 1]));
+		});
+	});
 });
 
 test('self returns the same input value', () => {
