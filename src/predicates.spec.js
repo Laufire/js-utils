@@ -199,21 +199,21 @@ describe('Predicates', () => {
 		});
 
 		test('randomized test', () => {
-			const haystack = clone(rndCollection());
+			const haystack = rndCollection();
 			const collectionKeys = keys(haystack);
 			const randomKey = rndKey(haystack);
 			const needle = haystack[randomKey];
 			const index = findIndex(collectionKeys,
 				isEqual(String(randomKey)));
-			const keysToOmit = randomValues(collectionKeys.slice(index + 1));
+			const keysToDuplicate = randomValues(collectionKeys
+				.slice(index + 1));
 
-			// eslint-disable-next-line no-return-assign
-			map(keysToOmit, (keyToOmit) => haystack[keyToOmit] = needle);
-			secure(haystack);
-			const expectation = clean(omit(haystack, keysToOmit));
+			const modifiedHaystack = secure(map(haystack, (val, haystackKey) =>
+				(keysToDuplicate.includes(haystackKey) ? needle : val)));
+			const expectation = clean(omit(modifiedHaystack, keysToDuplicate));
 
 			// TODO: Use imported filter post publishing.
-			expect(tFilter(haystack, first)).toEqual(expectation);
+			expect(tFilter(modifiedHaystack, first)).toEqual(expectation);
 		});
 	});
 
