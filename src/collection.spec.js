@@ -8,7 +8,7 @@ import { rndKey, array, object, expectEquals,
 	rndDict, rndNested, extended, isolated, toObject,
 	rndKeys, rndRange, rnd, similarCols,
 	iterableTypes, allTypes, retry, rndCollection, converters, till,
-	isAcceptable } from '../test/helpers';
+	isAcceptable, randomValues } from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
 import { isDefined, inferType, isIterable,
@@ -20,9 +20,8 @@ import { select as tSelect, map as tMap, keys as tKeys,
 	dict as tDict, filter as tFilter, reduce as tReduce,
 	clean as tClean, fromEntries as tFromEntries,
 	pick as tPick, clone as tClone, merge as tMerge,
-	shell as tShell, equals as tEquals, shuffle as tShuffle,
-	contains as tContains }
-	from '@laufire/utils/collection';
+	shell as tShell, equals as tEquals,
+	shuffle as tShuffle } from '@laufire/utils/collection';
 import { isEqual } from '@laufire/utils/predicates';
 
 /* Tested */
@@ -121,18 +120,15 @@ describe('Collection', () => {
 	const convey = (...args) => args;
 
 	const getUnlike = (() => {
-		const unlikeGenerator = {
-			true: (valOne, valTwo) => tContains(valOne, valTwo),
-			false: (valOne, valTwo) => valTwo === valOne,
-		};
-
-		return (value) => {
+		const unlikeGenerator = (value) => {
 			const unlike = rnd();
 
-			return unlikeGenerator[isIterable(unlike)](value, unlike)
-				? getUnlike(value)
-				: unlike;
+			return value !== unlike ? unlike : unlikeGenerator(value);
 		};
+
+		return (value) => (isIterable(value)
+			? randomValues(value, tKeys(value).length - 1)
+			: unlikeGenerator(value));
 	})();
 
 	const symbolize = (iterable) =>
@@ -1558,11 +1554,11 @@ describe('Collection', () => {
 
 		test('randomized test', () => {
 			retry(() => {
-				const valueOne = rnd();
+				const valueOne = rndDict();
 				const valueTwo = getUnlike(valueOne);
 
-				expect(contains(valueOne, tClone(valueOne))).toEqual(true);
-				expect(contains(valueOne, valueTwo)).toEqual(false);
+				expect(contains(valueOne, valueTwo)).toEqual(true);
+				expect(contains(valueTwo, valueOne)).toEqual(false);
 			});
 		});
 	});
