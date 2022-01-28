@@ -2,11 +2,13 @@
 import { contains, filter, shares, values,
 	find, clone, shell,
 	clean, select, keys, equals,
-	secure, shuffle, omit, findIndex, map } from '@laufire/utils/collection';
+	secure, shuffle, omit, findIndex,
+	map } from '@laufire/utils/collection';
 import { rndValue, rndValues } from '@laufire/utils/random';
+import { inferType } from '@laufire/utils/reflection';
 import { isolated, collection, extCollection, sortArray,
 	rndKey, rndCollection, retry, rndDict,
-	randomValues, arrayOrObject, rndNested } from '../test/helpers';
+	randomValues, arrayOrObject, rndNested, rndArray } from '../test/helpers';
 import { filter as tFilter } from './collection';
 
 /* Tested */
@@ -37,7 +39,7 @@ describe('Predicates', () => {
 	];
 
 	describe('isEqual returns a predicate to test value equality'
-	+ ' between the candidates.', () => {
+	+ ' between the candidates', () => {
 		test('example', () => {
 			const taskToFind = { name: 'commit', effort: 1 };
 
@@ -57,7 +59,7 @@ describe('Predicates', () => {
 	describe('isSame returns a predicate to test referential equality'
 	+ ' between the candidates', () => {
 		test('example', () => {
-			const taskToFind = tasks[0];
+			const [taskToFind] = tasks;
 
 			expect(find(tasks, isSame(taskToFind))).toEqual(taskToFind);
 		});
@@ -79,9 +81,10 @@ describe('Predicates', () => {
 	describe('isPart returns a predicate to test whether the tested object is'
 	+ ' wholly contained in any of the elements', () => {
 		test('example', () => {
-			const taskToFind = { ...tasks[0], author: 'author' };
+			const [taskToFind] = tasks;
+			const extendedTask = { ...taskToFind, author: 'author' };
 
-			expect(find(tasks, isPart(taskToFind))).toEqual(tasks[0]);
+			expect(find(tasks, isPart(extendedTask))).toEqual(taskToFind);
 		});
 
 		test('randomized test', () => {
@@ -89,8 +92,12 @@ describe('Predicates', () => {
 				const haystack = rndNested(
 					3, 3, ['nested']
 				);
+				const extenders = {
+					array: (needle) => [...needle, ...rndArray()],
+					object: (needle) => ({ ...needle, ...rndDict() }),
+				};
 				const needle = rndValue(haystack);
-				const extendedNeedle = { ...needle, ...rndDict() };
+				const extendedNeedle = extenders[inferType(needle)](needle);
 				const partialNeedle = randomValues(needle);
 
 				expect(find(haystack, isPart(extendedNeedle))).toEqual(needle);
@@ -278,7 +285,7 @@ describe('Predicates', () => {
 	describe('or returns a predicate to test the candidates to pass'
 	+ ' at least one among multiple predicates', () => {
 		test('example', () => {
-			const taskToFind = tasks[1];
+			const [taskToFind] = tasks;
 			// eslint-disable-next-line no-shadow
 			const predicate = or(isSame(taskToFind),
 				isEqual(Symbol('additionalTask')));
@@ -366,7 +373,7 @@ describe('Predicates', () => {
 	describe('predicate derives predicates from relevant'
 	+ ' collection functions', () => {
 		test('example', () => {
-			const taskToFind = tasks[1];
+			const [taskToFind] = tasks;
 
 			expect(find(tasks, predicate(equals, taskToFind)))
 				.toEqual(taskToFind);
@@ -400,9 +407,9 @@ describe('Predicates', () => {
 	describe('isIn returns a predicate to check for a given values'
 	+ ' in collections', () => {
 		test('example', () => {
-			const iterable = [...tasks, { name: 'rebase', effort: 3 }];
+			const extendedTasks = [...tasks, { name: 'rebase', effort: 3 }];
 
-			expect(filter(iterable, isIn(tasks))).toEqual(tasks);
+			expect(filter(extendedTasks, isIn(tasks))).toEqual(tasks);
 		});
 
 		test('randomized test', () => {
