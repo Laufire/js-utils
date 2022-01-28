@@ -1385,32 +1385,32 @@ describe('Collection', () => {
 				const type = rndValue(['array', 'object']);
 
 				// eslint-disable-next-line no-shadow
-				const baseCol = tSecure(rndNested(
+				const base = tSecure(rndNested(
 					3, 3, [type]
 				));
-				const compareCol = rndNested(
+				const compare = rndNested(
 					3, 3, [type]
 				);
 
-				const differenceCol = diff(baseCol, compareCol);
+				const difference = diff(base, compare);
 
 				const testDifference = (
-					difference, base, compare
+					childDiff, childBase, childCompare
 				) => {
-					const compareKeys = tKeys(compare);
+					const compareKeys = tKeys(childCompare);
 
-					return tMap(difference, (value, key) =>
+					return tMap(childDiff, (value, key) =>
 						(isIterable(value)
 							? testDifference(
-								value, base[key], compare[key]
+								value, childBase[key], childCompare[key]
 							)
 							: compareKeys.includes(key)
-								? expect(value).toEqual(compare[key])
+								? expect(value).toEqual(childCompare[key])
 								: expect(value).toEqual(undefined)));
 				};
 
 				testDifference(
-					differenceCol, baseCol, compareCol
+					difference, base, compare
 				);
 			});
 		});
@@ -1903,11 +1903,11 @@ describe('Collection', () => {
 
 	describe('length returns the length of given collection', () => {
 		test('example', () => {
-			const collection = [];
+			const sparseArray = [];
 
-			collection[4] = 'a';
+			sparseArray[4] = 'a';
 
-			expect(length(collection)).toEqual(5);
+			expect(length(sparseArray)).toEqual(5);
 			expect(length([1, 2, 3])).toEqual(3);
 			expect(length({ a: 1, b: 2 })).toEqual(2);
 		});
@@ -1923,11 +1923,11 @@ describe('Collection', () => {
 
 	describe('count returns the number of values in give collection', () => {
 		test('example', () => {
-			const collection = [];
+			const sparseArray = [];
 
-			collection[4] = 'a';
+			sparseArray[4] = 'a';
 
-			expect(count(collection)).toEqual(1);
+			expect(count(sparseArray)).toEqual(1);
 			expect(count({ a: 1, b: 2 })).toEqual(2);
 		});
 
