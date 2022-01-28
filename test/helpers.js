@@ -161,7 +161,7 @@ const cloned = secure(clone(object));
 const extension = secure(rndDict());
 const isolated = secure(rndDict());
 const removedKey = rndValue(keys(object));
-const contracted = filter(object, (dummy, key) => key !== removedKey);
+const contracted = secure(filter(object, (dummy, key) => key !== removedKey));
 const extended = secure({ ...object, ...extension });
 const ecKeys = {
 	object: rndString(),
