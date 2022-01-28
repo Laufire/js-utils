@@ -1085,59 +1085,6 @@ describe('Collection', () => {
 		});
 	});
 
-	describe('fill fills the missing properties of the given base'
-	+ ' from those of the extensions', () => {
-		test('example', () => {
-			const baseProp = Symbol('baseProp');
-			const underlayProp = Symbol('underlayProp');
-			const overlayProp = Symbol('overlayProp');
-
-			const base = mockObj(['a'], baseProp);
-			const layerOne = secure(mockObj(['a', 'b'], underlayProp));
-			const layerTwo = secure(mockObj(['b', 'c'], overlayProp));
-
-			const filled = fill(
-				base, layerOne, layerTwo
-			);
-
-			expect(filled).toEqual(base);
-			expect(base).toEqual({
-				a: baseProp,
-				b: underlayProp,
-				c: overlayProp,
-			});
-		});
-
-		test('randomized test', () => {
-			retry(() => {
-				const extensions = tValues(rndNested(
-					3, 3, ['object']
-				));
-				const extension = tClone(rndValue(extensions));
-				const base = tClone(rndDict());
-
-				tMap(rndKeys(base), (key) =>
-					(extension[key] = Symbol(key)));
-				tSecure(extension);
-
-				const propsLayer = tReduce(
-					extensions,
-					(acc, dictionary) =>
-						({ ...dictionary, ...acc }), {}
-				);
-
-				const expected = { ...propsLayer, ...base };
-
-				const filled = fill(
-					base, extension, ...extensions,
-				);
-
-				expect(filled).toEqual(base);
-				expect(base).toEqual(expected);
-			});
-		});
-	});
-
 	describe('flip swaps the keys and values of the given object', () => {
 		test('example', () => {
 			expect(flip(simpleObj)).toEqual({
