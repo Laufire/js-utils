@@ -19,6 +19,16 @@ import { isEqual, isSame, isPart, doesContain,
 	not, or, and, onProp,
 	predicate, isIn, value, key, is } from './predicates';
 
+/* Configs */
+const numbers = [1, 2, 3, 4];
+const oddNumbers = [1, 3];
+const evenNumbers = [2, 4];
+const primeNumbers = [2, 3];
+const odd = (val) => oddNumbers.includes(val);
+const even = (val) => evenNumbers.includes(val);
+const prime = (val) => primeNumbers.includes(val);
+const number = (val) => numbers.includes(val);
+
 /* Helpers */
 
 // eslint-disable-next-line no-shadow
@@ -144,8 +154,9 @@ describe('Predicates', () => {
 				const tAndFIterable = arrayOrObject(tAndFArray);
 				const fIterable = arrayOrObject(falsies);
 
-				expect(sortArray(values(filter(tAndFIterable, truthy))))
-					.toEqual(sortArray(truthies));
+				const filtered = values(filter(tAndFIterable, truthy));
+
+				expect(sortArray(filtered)).toEqual(sortArray(truthies));
 				expect(filter(fIterable, truthy)).toEqual(shell(fIterable));
 			});
 		});
@@ -162,8 +173,9 @@ describe('Predicates', () => {
 				const tAndFIterable = arrayOrObject(tAndFArray);
 				const tIterable = arrayOrObject(truthies);
 
-				expect(sortArray(values(filter(tAndFIterable, falsy))))
-					.toEqual(sortArray(falsies));
+				const filtered = values(filter(tAndFIterable, falsy));
+
+				expect(sortArray(filtered)).toEqual(sortArray(falsies));
 				expect(filter(tIterable, falsy)).toEqual(shell(tIterable));
 			});
 		});
@@ -229,15 +241,9 @@ describe('Predicates', () => {
 
 	describe('not returns the inverse of the given predicate', () => {
 		test('example', () => {
-			// eslint-disable-next-line no-shadow
-			const predicate = not(isEqual({ name: 'commit', effort: 1 }));
-			const expectation = [
-				{ name: 'commit', effort: 2 },
-				{ name: 'push', effort: 3 },
-			];
-
 			// TODO: Remove clean post publishing.
-			expect(clean(filter(tasks, predicate))).toEqual(expectation);
+			expect(clean(filter(numbers, not(odd)))).toEqual(evenNumbers);
+			expect(find(numbers, not(number))).toEqual(undefined);
 		});
 
 		test('randomized test', () => {
@@ -258,13 +264,9 @@ describe('Predicates', () => {
 	describe('and returns a predicate to test the candidates to pass'
 	+ ' all the given predicates', () => {
 		test('example', () => {
-			const taskToFind = rndValue(tasks);
-			// eslint-disable-next-line no-shadow
-			const predicate = and(isSame(taskToFind), isEqual(taskToFind));
-			const partialTasks = filter(tasks, not(isEqual(taskToFind)));
-
-			expect(find(tasks, predicate)).toEqual(taskToFind);
-			expect(find(partialTasks, predicate)).toEqual(undefined);
+			expect(find(numbers, and(odd, prime))).toEqual(3);
+			expect(find(numbers, and(even, prime))).toEqual(2);
+			expect(find(numbers, and(prime, not(number)))).toEqual(undefined);
 		});
 
 		test('randomized test', () => {
@@ -284,14 +286,10 @@ describe('Predicates', () => {
 	describe('or returns a predicate to test the candidates to pass'
 	+ ' at least one among multiple predicates', () => {
 		test('example', () => {
-			const [taskToFind] = tasks;
-			// eslint-disable-next-line no-shadow
-			const predicate = or(isSame(taskToFind),
-				isEqual(Symbol('additionalTask')));
-			const partialTasks = filter(tasks, not(isEqual(taskToFind)));
-
-			expect(find(tasks, predicate)).toEqual(taskToFind);
-			expect(find(partialTasks, predicate)).toEqual(undefined);
+			expect(find(numbers, or(even, prime))).toEqual(2);
+			expect(filter(numbers, or(odd, even))).toEqual(numbers);
+			expect(find(numbers, or(isEqual('a'), isEqual('b'))))
+				.toEqual(undefined);
 		});
 
 		test('randomized test', () => {
@@ -312,13 +310,10 @@ describe('Predicates', () => {
 	describe('onProp returns a predicate to test the given prop across'
 	+ ' candidates of a collection', () => {
 		test('example', () => {
-			const prop = 'name';
-			const taskToFind = 'push';
 			// eslint-disable-next-line no-shadow
-			const predicate = onProp(prop, isEqual(taskToFind));
-			const expectation = { name: 'push', effort: 3 };
+			const predicate = onProp('name', isEqual('push'));
 
-			expect(find(tasks, predicate)).toEqual(expectation);
+			expect(find(tasks, predicate)).toEqual({ name: 'push', effort: 3 });
 		});
 
 		test('randomized test', () => {
