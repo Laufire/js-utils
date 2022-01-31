@@ -14,8 +14,8 @@ describe('vary', () => {
 
 	test('ratio test', () => {
 		const retryCount = 10000;
-		const variance = 0.01;
-		const possibilities = range(99, 102).map((value) => value / 100);
+		const variance = 0.005;
+		const possibilities = range(100, 102).map((value) => value / 100);
 
 		const results = retry(() => vary(variance), retryCount);
 

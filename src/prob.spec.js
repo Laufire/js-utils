@@ -26,7 +26,7 @@ test('isProbable returns true based on given probability', () => {
 	};
 
 	testCandidates([0, 1, 2], 0);
-	testCandidates(range(2, 10).map((probability) => probability / 100), 0.08);
+	testCandidates(range(2, 20).map((probability) => probability / 100), 0.08);
 });
 
 describe('possibilities', () => {
