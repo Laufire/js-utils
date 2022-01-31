@@ -8,6 +8,7 @@ import { isolated, collection, extCollection, sortArray,
 	rndKey, rndCollection, retry, rndDict,
 	randomValues, arrayOrObject, rndNested } from '../test/helpers';
 import { filter as tFilter } from './collection';
+import { rndBetween } from './lib';
 
 /* Tested */
 import { isEqual, isSame, isPart, doesContain,
@@ -199,21 +200,19 @@ describe('Predicates', () => {
 		});
 
 		test('randomized test', () => {
-			const haystack = clone(rndCollection());
-			const collectionKeys = keys(haystack);
-			const randomKey = rndKey(haystack);
-			const needle = haystack[randomKey];
-			const index = findIndex(collectionKeys,
-				isEqual(String(randomKey)));
-			const keysToOmit = randomValues(collectionKeys.slice(index + 1));
+			retry(() => {
+				const baseCollection = rndCollection();
+				const baseValues = values(baseCollection);
+				const subset = rndValues(baseValues,
+					rndBetween(1, baseValues.length - 1));
+				const haystack = map(baseCollection, () => rndValue(subset));
+				// TODO: Remove clean post publishing.
+				const expectation = clean(filter(haystack, (val, i) =>
+					findIndex(haystack, (childValue) =>
+						childValue === val) === i));
 
-			// eslint-disable-next-line no-return-assign
-			map(keysToOmit, (keyToOmit) => haystack[keyToOmit] = needle);
-			secure(haystack);
-			const expectation = clean(omit(haystack, keysToOmit));
-
-			// TODO: Use imported filter post publishing.
-			expect(tFilter(haystack, first)).toEqual(expectation);
+				expect(tFilter(haystack, first)).toEqual(expectation);
+			});
 		});
 	});
 
