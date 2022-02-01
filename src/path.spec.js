@@ -1,5 +1,5 @@
 import {
-	find,	findKey, map, pick, range, reduce, filter, shuffle,
+	find, findKey, map, pick, range, reduce, filter, shuffle,
 } from '@laufire/utils/collection';
 import {
 	rndValue, rndBetween, rndValueWeighted, rndValues,
@@ -8,9 +8,11 @@ import { sum } from '@laufire/utils/reducers';
 // TODO: Use published import when available.
 import { isProbable } from './prob';
 import {
-	retry, findLastIndex, summarize, testRatios, rndRange,
+	retry, findLastIndex, summarize, testRatios,
 } from '../test/helpers';
-import { fix, parts, pathType, resolve } from './path';
+import {
+	fix, parts, pathType, resolve, escape, unescape,
+} from './path';
 
 /* Config */
 const higherLimit = 8;
@@ -19,16 +21,22 @@ const lowerLimit = 0;
 // TODO: Use rndRange from helpers.
 const getRndRange = () => range(0, rndBetween(lowerLimit, higherLimit));
 
+const navMarkers = ['.', '/'];
+const escapeChar = '\\';
+const specialChars = [...navMarkers, escapeChar];
+const escapedChars = map(specialChars, (char) => `\\${ char }`);
 const labelChars = [
 	...'abcdefghijklmnopqrstuvwxyz'.split(''),
-	...['\\.', '\\\\', '\\/'],
+	...escapedChars,
 ];
+
+const rndChars = (collection) =>
+	shuffle(rndValues(collection, rndBetween(1, 8)));
 
 const partGenerators = {
 	relative: () => '.'.repeat(rndBetween(1, 5)),
 	empty: () => '',
-	label: () => shuffle(rndRange(1, rndBetween(3, 5)).map(() =>
-		rndValues(labelChars))).join(''),
+	label: () => rndChars(labelChars).join(''),
 };
 
 const randomParts = () => map(getRndRange(), () =>
@@ -41,7 +49,7 @@ const matchers = {
 };
 
 const getPartType = (part) =>
-	findKey(matchers, (matcher) =>	matcher.test(part));
+	findKey(matchers, (matcher) => matcher.test(part));
 
 const isLabel = (part) => getPartType(part) === 'label';
 
@@ -165,7 +173,7 @@ describe('path', () => {
 					[...acc, ...currentParts], []
 			);
 
-			const summary = summarize(map(flattenedParts,	getPartType));
+			const summary = summarize(map(flattenedParts, getPartType));
 
 			const knownTypeCount = reduce(
 				summary, sum, 0
@@ -344,6 +352,81 @@ describe('path', () => {
 				const result = resolve(...paths);
 
 				expect(result).toEqual(expected);
+			});
+		});
+	});
+
+	describe('escaping and unescaping', () => {
+		const inputs = retry(() =>
+			rndChars([...labelChars, ...specialChars, ...escapedChars]));
+		const cases = map(inputs, (characters) => {
+			const input = characters.join('');
+			const escaped = map(characters, (character) =>
+				character.split('').map((item) =>
+					(specialChars.includes(item) ? `${ escapeChar }${ item }` : item))
+					.join('')).join('');
+			const unescaped = input.split(escapeChar.repeat(2))
+				.map((part) =>	part.split(escapeChar).join(''))
+				.join(escapeChar);
+
+			return { input, escaped, unescaped };
+		});
+
+		describe('escape escapes the given path', () => {
+			test('example', () => {
+				const escapeCases = [
+					{
+						input: 'a.',
+						expectation: 'a\\.',
+					},
+					{
+						input: 'a\\b/',
+						expectation: 'a\\\\b\\/',
+					},
+					{
+						input: 'a./\\',
+						expectation: 'a\\.\\/\\\\',
+					},
+				];
+
+				testCases(escape, escapeCases);
+			});
+
+			test('randomized test', () => {
+				map(cases, ({ input, escaped }) => {
+					const result = escape(input);
+
+					expect(result).toEqual(escaped);
+				});
+			});
+		});
+
+		describe('unescape unescapes the given path', () => {
+			test('example', () => {
+				const unescapeCases = [
+					{
+						input: 'a\\.',
+						expectation: 'a.',
+					},
+					{
+						input: 'a\\\\b\\/',
+						expectation: 'a\\b/',
+					},
+					{
+						input: 'a\\.\\/\\\\',
+						expectation: 'a./\\',
+					},
+				];
+
+				testCases(unescape, unescapeCases);
+			});
+
+			test('randomized test', () => {
+				map(cases, ({ input, unescaped }) => {
+					const result = unescape(input);
+
+					expect(result).toEqual(unescaped);
+				});
 			});
 		});
 	});

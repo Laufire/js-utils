@@ -70,9 +70,23 @@ const resolve = (() => {
 	};
 })();
 
+const escape = (() => {
+	const escapePattern = /([\\.\\/\\])/g;
+
+	return (path) => path.replace(escapePattern, '\\$1');
+})();
+
+const unescape = (() => {
+	const unescapePattern = /\\(.|$)/g;
+
+	return (path) => path.replace(unescapePattern, '$1');
+})();
+
 export {
 	parts,
 	fix,
 	pathType,
 	resolve,
+	escape,
+	unescape,
 };
