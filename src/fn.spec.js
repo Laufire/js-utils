@@ -1,7 +1,7 @@
 /* Helpers */
 import { equals, clone } from '@laufire/utils/collection';
 import { isDefined } from '@laufire/utils/reflection';
-import { array, rndKey } from '../test/helpers';
+import { array, retry, rndArray, rndKey } from '../test/helpers';
 
 /* Tested */
 import { cache, value, defined, self, identity, nothing } from './fn';
@@ -23,7 +23,7 @@ describe('cache caches the given function based on parameters'
 		expect(uncachedResOne).not.toEqual(uncachedResTwo);
 	});
 
-	test('randomized test', () => {
+	test('complete test', () => {
 		const testCache = (qualifier, callCount) => {
 			const fn = jest.fn((...args) => args);
 			const cachedFn = cache(fn, qualifier);
@@ -52,14 +52,27 @@ test('value extracts the value from the given function or variable', () => {
 	expect(value(() => val)).toBe(val);
 });
 
-test('defined filters the first defined value', () => {
-	const values = clone(array);
+describe('defined filters the first defined value', () => {
+	test('example', () => {
+		const input = [undefined, 1, undefined, 2, 3];
+		const expected = 1;
 
-	values[rndKey(values)] = undefined;
+		const result = defined(...input);
 
-	values.forEach((item, i) =>
-		expect(defined(...values.slice(i)))
-			.toEqual(isDefined(item) ? item : values[i + 1]));
+		expect(result).toEqual(expected);
+	});
+
+	test('randomized test', () => {
+		retry(() => {
+			const values = clone(rndArray());
+
+			values[rndKey(values)] = undefined;
+
+			values.forEach((item, i) =>
+				expect(defined(...values.slice(i)))
+					.toEqual(isDefined(item) ? item : values[i + 1]));
+		});
+	});
 });
 
 test('self returns the same input value', () => {
