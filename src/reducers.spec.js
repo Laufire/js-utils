@@ -1,9 +1,11 @@
 /* Helpers */
-import { dict, map, merge,
-	reduce, secure, shuffle } from '@laufire/utils/collection';
-import { rndValue } from '@laufire/utils/random';
-import { rndRange, extension, fixNumber, expectEquals, rndNested }
-	from '../test/helpers';
+import { map, merge,
+	reduce, secure, shell, values } from '@laufire/utils/collection';
+import { rndBetween, rndValue } from '@laufire/utils/random';
+import {
+	fixNumber, rndNested, rndCollection,
+	retry, summarize, rndArray, rndDict, rndRange,
+} from '../test/helpers';
 
 /* Tested */
 import { avg, count, flat, len, max, min, product, reducer, sum }
@@ -11,95 +13,232 @@ import { avg, count, flat, len, max, min, product, reducer, sum }
 
 /* Spec */
 describe('Reducers', () => {
-	const array = secure(shuffle(rndRange()));
-	const object = secure(dict(array));
-	const collections = [object, array];
+	const getRndCollection = () =>
+		secure(map(rndCollection(), () => rndBetween(-10, 10)));
 
-	const testPredicate = (
-		predicate, buildExpectation, initial
-	) => {
-		const expected = reduce(
-			array, buildExpectation, initial
-		);
+	describe('sum sums the given candidates', () => {
+		test('example', () => {
+			const input = [1, 2, 3];
+			const initial = 0;
+			const expected = 6;
 
-		map(collections, (collection) => {
-			expect(reduce(
-				collection, predicate, initial
-			)).toEqual(expected);
+			const result = reduce(
+				input, sum, initial
+			);
+
+			expect(result).toEqual(expected);
 		});
-	};
 
-	test('sum sums the given candidates.', () => {
-		testPredicate(
-			sum, (t, c) => t + c, 0
-		);
-	});
+		test('randomized test', () => {
+			retry(() => {
+				const randomCollection = getRndCollection();
+				let expected = 0;
 
-	test('product multiples the given candidates.', () => {
-		testPredicate(
-			product, (t, c) => t * c, 1
-		);
-	});
+				map(randomCollection, (value) => (expected += value));
 
-	test('length returns the length of the given collection.', () => {
-		testPredicate(
-			len, (t) => t + 1, 0
-		);
-	});
+				const result = reduce(
+					randomCollection, sum, 0
+				);
 
-	test('avg computes the average of the given candidates.', () => {
-		const expected = fixNumber(reduce(
-			array, (t, c) => t + c, 0
-		) / array.length);
-
-		map(collections, (collection) => {
-			expectEquals(fixNumber(reduce(
-				collection, avg, 0
-			)), expected);
+				expect(result).toEqual(expected);
+			});
 		});
 	});
 
-	test('count returns the number of occurrences of the given counted'
-	+ ' among the given candidates.', () => {
-		const existing = rndValue(array);
-		const nonExistent = Math.max(...array) + 1;
+	describe('product multiplies the given candidates', () => {
+		test('example', () => {
+			const input = [1, 2, 3];
+			const initial = 1;
+			const expected = 6;
 
-		const expectations = [
-			[existing, 1],
-			[nonExistent, 0],
-		];
+			const result = reduce(
+				input, product, initial
+			);
 
-		map(expectations, ([value, expected]) =>
-			expect(reduce(
-				rndValue(collections), count(value), 0
-			)).toEqual(expected));
+			expect(result).toEqual(expected);
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const randomCollection = getRndCollection();
+				let expected = 1;
+
+				map(randomCollection, (value) => (expected *= value));
+
+				const result = reduce(
+					randomCollection, product, 1
+				);
+
+				expect(result).toEqual(expected);
+			});
+		});
 	});
 
-	test('min finds the smallest of the given candidates.', () => {
-		const minValue = Math.min(...array);
+	describe('length returns the length of the given collection', () => {
+		test('example', () => {
+			const input = [1, 2, 3];
+			const initial = 0;
+			const expected = 3;
 
-		expect(reduce(rndValue(collections), min)).toEqual(minValue);
-		expect(reduce(
-			rndValue(collections), min, minValue - 1
-		)).toEqual(minValue - 1);
+			const result = reduce(
+				input, len, initial
+			);
+
+			expect(result).toEqual(expected);
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const randomCollection = getRndCollection();
+				let expected = 0;
+
+				map(randomCollection, () => (expected += 1));
+
+				const result = reduce(
+					randomCollection, len, 0
+				);
+
+				expect(result).toEqual(expected);
+			});
+		});
 	});
 
-	test('max finds the largest of the given candidates.', () => {
-		const maxValue = Math.max(...array);
+	describe('avg computes the average of the given candidates', () => {
+		test('example', () => {
+			const input = [1, 2, 3];
+			const initial = 0;
+			const expected = 2;
 
-		expect(reduce(rndValue(collections), max)).toEqual(maxValue);
-		expect(reduce(
-			rndValue(collections), max, maxValue + 1
-		)).toEqual(maxValue + 1);
+			const result = reduce(
+				input, avg, initial
+			);
+
+			expect(result).toEqual(expected);
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const randomCollection = getRndCollection();
+				let total = 0;
+
+				map(randomCollection, (value) => (total += value));
+				const expected = total / values(randomCollection).length;
+
+				const result = reduce(
+					randomCollection, avg, 0
+				);
+
+				expect(fixNumber(Math.abs(result)))
+					.toEqual(fixNumber(Math.abs(expected)));
+			});
+		});
 	});
 
-	test('reducer derives reducers from '
-	+ 'relevant collection functions.', () => {
-		expect(reduce(
-			[object, extension], reducer(merge), {}
-		)).toEqual(merge(
-			{}, object, extension
-		));
+	describe('count returns the number of occurrences of the given counted'
+	+ ' among the given candidates', () => {
+		test('example', () => {
+			const input = [1, 2, 3, 1, 1, 1];
+			const initial = 0;
+			const expected = 4;
+
+			const result = reduce(
+				input, count(1), initial
+			);
+
+			expect(result).toEqual(expected);
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const randomCollection = getRndCollection();
+				const existing = rndValue(randomCollection);
+				const nonExistent = Math.max(...values(randomCollection)) + 1;
+				const summarized = summarize(randomCollection);
+				const expectations = [
+					[existing, summarized[existing]],
+					[nonExistent, 0],
+				];
+
+				map(expectations, ([value, expected]) =>
+					expect(reduce(
+						randomCollection, count(value), 0
+					)).toEqual(expected));
+			});
+		});
+	});
+
+	describe('min finds the smallest of the given candidates', () => {
+		test('example', () => {
+			const input = [1, 2, 3];
+			const expected = 1;
+
+			expect(reduce(input, min)).toEqual(expected);
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const randomCollection = getRndCollection();
+				const minValue = Math.min(...values(randomCollection));
+
+				expect(reduce(randomCollection, min)).toEqual(minValue);
+				expect(reduce(
+					randomCollection, min, Infinity
+				)).toEqual(minValue);
+			});
+		});
+	});
+
+	describe('max finds the largest of the given candidates', () => {
+		test('example', () => {
+			const input = [1, 2, 3];
+			const expected = 3;
+
+			expect(reduce(input, max)).toEqual(expected);
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const randomCollection = getRndCollection();
+				const maxValue = Math.max(...values(randomCollection));
+
+				expect(reduce(randomCollection, max)).toEqual(maxValue);
+				expect(reduce(
+					randomCollection, max, -Infinity
+				)).toEqual(maxValue);
+			});
+		});
+	});
+
+	describe('reducer derives reducers from '
+	+ 'relevant collection functions', () => {
+		test('example', () => {
+			const input = [
+				{ a: 1, b: 2, c: 5 },
+				{ a: 3, b: 4, d: 6 },
+			];
+			const expected = { a: 3, b: 4, c: 5, d: 6 };
+
+			const result = reduce(
+				input, reducer(merge), {}
+			);
+
+			expect(result).toEqual(expected);
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const generator = rndValue([rndArray, rndDict]);
+				const extensions = map(rndRange(), () => generator());
+				const [base] = extensions;
+				const expected = merge(shell(base), ...extensions);
+
+				const result = reduce(
+					extensions, reducer(merge), shell(base)
+				);
+
+				expect(result).toEqual(expected);
+			});
+		});
 	});
 
 	describe('flat flattens the given collection recursively', () => {
@@ -107,20 +246,26 @@ describe('Reducers', () => {
 			const nestedArray = [1, 2, [3, [4]]];
 			const expectation = [1, 2, 3, 4];
 
-			expect(reduce(
+			const result = reduce(
 				nestedArray, flat, []
-			)).toEqual(expectation);
+			);
+
+			expect(result).toEqual(expectation);
 		});
 
 		test('randomized test', () => {
-			const nestedArray = rndNested(
-				3, 3, ['nested', 'array']
-			);
-			const expectation = nestedArray.flat(Infinity);
+			retry(() => {
+				const nestedArray = rndNested(
+					3, 3, ['nested', 'array']
+				);
+				const expectation = nestedArray.flat(Infinity);
 
-			expect(reduce(
-				nestedArray, flat, []
-			)).toEqual(expectation);
+				const result = reduce(
+					nestedArray, flat, []
+				);
+
+				expect(result).toEqual(expectation);
+			});
 		});
 	});
 });
