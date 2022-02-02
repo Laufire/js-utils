@@ -1279,20 +1279,52 @@ describe('Collection', () => {
 		});
 	});
 
-	test('result returns the value for the given simple path'
+	describe('result returns the value for the given simple path'
 	+ ' or escaped path', () => {
-		expect(result(complexObject, 'single')).toEqual(complexObject.single);
-		expect(result(complexObject, '/single')).toEqual(complexObject.single);
-		expect(result(complexObject, 'parent/child'))
-			.toEqual(complexObject.parent.child);
-		expect(result(complexObject, 'parent/\\/unescaped\\/child'))
-			.toEqual(complexObject.parent['/unescaped/child']);
-		expect(result(complexObject, 'parent/escaped\\\\\\/child'))
-			.toEqual(complexObject.parent['escaped\\/child']);
-		expect(result(complexObject, 'non-existent')).toEqual(undefined);
-		expect(result(complexObject, 'array/1')).toEqual(2);
-		expect(result({ '': 1 }, '/')).toEqual(1);
-		expect(result(complexObject, '')).toEqual(complexObject);
+		test('example', () => {
+			const { single, parent } = complexObject;
+
+			expect(result(complexObject, 'single')).toEqual(single);
+			expect(result(complexObject, '/single')).toEqual(single);
+			expect(result(complexObject, 'parent/child'))
+				.toEqual(parent.child);
+			expect(result(complexObject, 'parent/\\/unescaped\\/child'))
+				.toEqual(parent['/unescaped/child']);
+			expect(result(complexObject, 'parent/escaped\\\\\\/child'))
+				.toEqual(parent['escaped\\/child']);
+			expect(result(complexObject, 'array/1')).toEqual(2);
+			expect(result(complexObject, '')).toEqual(complexObject);
+			expect(result(complexObject, 'non-existent')).toEqual(undefined);
+			expect(result(complexObject, 'non-existent/child'))
+				.toEqual(undefined);
+			expect(result({ '': 1 }, '//')).toEqual(1);
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const data = rndNested(rndBetween(0, 3));
+				const flatMap = walk(data, (
+					digest, value, key = ''
+				) => {
+					const childData = digest && reduce(
+						digest, (acc, childDigest) => reduce(
+							childDigest, (
+								accOne, val, childPath
+							) => {
+								accOne[`${ key }/${ childPath }`] = val;
+								return accOne;
+							}, acc
+						), {}
+					);
+
+					return { [`${ key }/`]: value, ...isDefined(digest) ? childData : {}};
+				});
+
+				map(flatMap, (value, path) => {
+					expect(result(data, path)).toEqual(value);
+				});
+			});
+		});
 	});
 
 	describe('compose returns an object from a list of objects,'

@@ -15,6 +15,7 @@ import { isArray, isIterable, isDict, isDefined } from './reflection';
 import { rndBetween, assign as libAssign, entries as libEntries,
 	values as libValues, keys as libKeys } from './lib';
 import { ascending } from './sorters';
+import { parts, resolve, unescape } from './path';
 
 /* NOTE: Exporting named imports (like keys) turns them into getters
  (probably by the compiler), this leads to some inconsistencies when
@@ -408,25 +409,17 @@ const squash = (...objects) =>
  * And backslash is the escape char.
  * @returns {*} The value from the path or undefined.
  */
-const result = (() => {
-	const initialSlash = /^\//;
-	const matcher = /(?:(?:[^/\\]|\\.)*\/)/g;
-	const escapedSequence = /\\(.)/g;
+const result = (obj, path) => {
+	const pathParts = map(parts(resolve('/', path)), unescape);
+	const partCount = pathParts.length;
+	let currentObject = obj;
+	let cursor = 0;
 
-	return (obj, path) => {
-		const parts = (`${ path }/`.replace(initialSlash, '').match(matcher) || [])
-			.map((part) => part.replace(escapedSequence, '$1').slice(0, -1));
+	while(cursor < partCount && isDefined(currentObject))
+		currentObject = currentObject[pathParts[cursor++]];
 
-		const partCount = parts.length;
-		let currentObject = obj;
-		let cursor = 0;
-
-		while(cursor < partCount && isIterable(currentObject))
-			currentObject = currentObject[parts[cursor++]];
-
-		return currentObject;
-	};
-})();
+	return currentObject;
+};
 
 // Swaps the keys and values of a collection.
 const flip = (collection) => reduce(
