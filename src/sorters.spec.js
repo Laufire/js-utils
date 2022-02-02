@@ -1,6 +1,14 @@
 /* Helpers */
-import { map, range, secure, shuffle, sort, translate, values } from
-	'@laufire/utils/collection';
+import {
+	clone, keys, map, merge,
+	reduce, secure, shell, shuffle, sort,
+} from '@laufire/utils/collection';
+import { rndValue } from '@laufire/utils/random';
+import { inferType } from '@laufire/utils/reflection';
+import {
+	retry, rndCollection, rndKey,
+	rndKeys, rndNumber, similarCols,
+} from '../test/helpers';
 
 /* Tested */
 import { ascending, compile, descending, existing,
@@ -8,73 +16,232 @@ import { ascending, compile, descending, existing,
 
 /* Spec */
 describe('Sorters', () => {
-	/* Mocks and Stubs */
-	const array = secure(range(1, 100).concat(100));
-	const reversed = secure(array.slice().reverse());
-	const shuffled = secure(shuffle(array));
-	const objArray = secure(array.map((i) => ({ prop: i })));
-	const objArrayShuffled = secure(shuffled.map((i) => ({ prop: i })));
+	const getRndCollection = () => {
+		let number = rndNumber();
+
+		return secure(map(rndCollection(), () => number++));
+	};
+	const reversers = {
+		array: (array) => clone(array).reverse(),
+		object: (object) => {
+			const randomCollection = object;
+			const reversedKeys = keys(randomCollection).reverse();
+
+			return reduce(
+				reversedKeys, (acc, key) => {
+					acc[key] = randomCollection[key];
+
+					return acc;
+				}, shell(randomCollection)
+			);
+		},
+	};
 
 	/* Tests */
-	test('ascending sorts the given collection in ascending order.', () => {
-		expect(sort(array, ascending)).toEqual(array);
-	});
+	describe('ascending sorts the given collection in'
+	+ ' ascending order', () => {
+		test('example', () => {
+			const input = [2, 3, 1];
+			const expected = [1, 2, 3];
 
-	test('descending sorts the given collection in descending order.', () => {
-		expect(sort(shuffled, descending)).toEqual(reversed);
-	});
-
-	test('existing preserves the existing order'
-	+ 'of the given collection.', () => {
-		expect(sort(shuffled, existing)).toEqual(shuffled);
-	});
-
-	test('reverse reverses the given collection.', () => {
-		expect(sort(shuffled, reverse)).toEqual(shuffled.slice().reverse());
-	});
-
-	test('onProp sorts the given collection with the given sorter'
-	+ ' on a given property.', () => {
-		expect(sort(objArrayShuffled, onProp('prop', ascending)))
-			.toEqual(objArray);
-	});
-
-	describe('compile helps in sorting collection of collections.', () => {
-		const data = secure([
-			{ a: 1, b: 2 },
-			{ a: 1, b: 1 },
-			{ a: 0, b: 3 },
-			{ a: 1, b: 1 },
-		]);
-
-		test('compile works with multiple props,'
-		+ 'with descending priority.', () => {
-			const config = secure({ a: 'ascending', b: 'descending' });
-			const expected = translate([2, 0, 1, 3], data);
-
-			const sorted = sort(data, compile(config));
-
-			expect(sorted).toEqual(expected);
+			expect(sort(shuffle(input), ascending)).toEqual(expected);
 		});
 
-		test('compile supports custom grammars.', () => {
-			const grammar = secure({ descending: ascending });
-			const config = secure({ a: 'ascending', b: 'descending' });
-			const expected = translate([2, 1, 3, 0], data);
+		test('randomized test', () => {
+			retry(() => {
+				const collection = getRndCollection();
+				const input = shuffle(collection);
 
-			const sorted = sort(data, compile(config, grammar));
+				expect(sort(input, ascending)).toEqual(collection);
+			});
+		});
+	});
 
-			expect(sorted).toEqual(expected);
+	describe('descending sorts the given collection in'
+	+ ' descending order', () => {
+		test('example', () => {
+			const input = [2, 1, 3];
+			const expected = [3, 2, 1];
+
+			expect(sort(shuffle(input), descending)).toEqual(expected);
 		});
 
-		test('compile works with two dimensional arrays.', () => {
+		test('randomized test', () => {
+			retry(() => {
+				const collection = getRndCollection();
+				const expected = reversers[inferType(collection)](collection);
+				const input = shuffle(collection);
+
+				expect(sort(input, descending)).toEqual(expected);
+			});
+		});
+	});
+
+	describe('existing preserves the existing order'
+	+ ' of the given collection', () => {
+		test('example', () => {
+			const input = [2, 1, 3];
+
+			expect(sort(input, existing)).toEqual(input);
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const collection = getRndCollection();
+				const input = shuffle(collection);
+
+				expect(sort(input, existing)).toEqual(input);
+			});
+		});
+	});
+
+	describe('reverse reverses the given collection', () => {
+		test('example', () => {
+			const input = [1, 3, 2];
+			const expected = [2, 3, 1];
+
+			expect(sort(input, reverse)).toEqual(expected);
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const collection = getRndCollection();
+				const input = shuffle(collection);
+				const expected = reversers[inferType(input)](input);
+
+				expect(sort(input, reverse)).toEqual(expected);
+			});
+		});
+	});
+
+	describe('onProp sorts the given collection with the given sorter'
+	+ ' on a given property', () => {
+		test('example', () => {
+			const inputs = [
+				{ a: 3 },
+				{ a: 1 },
+				{ a: 2 },
+			];
+			const expected = [
+				{ a: 1 },
+				{ a: 2 },
+				{ a: 3 },
+			];
+
+			expect(sort(inputs, onProp('a', ascending))).toEqual(expected);
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const collection = similarCols();
+				const rndProp = rndKey(rndValue(collection));
+				const sorter = rndValue([ascending, descending]);
+				let count = 0;
+				const expected = map(collection, (result) =>
+					merge(clone(result),
+						{
+							[rndProp]: sorter === ascending
+								? ++count
+								: --count,
+						}));
+				const input = secure(shuffle(expected));
+
+				expect(sort(input, onProp(rndProp, sorter))).toEqual(expected);
+			});
+		});
+	});
+
+	describe('compile helps in sorting collection of collections', () => {
+		describe('compile works with multiple props,'
+		+ ' with descending priority', () => {
+			test('example', () => {
+				const input = [
+					{ name: 'guava', price: 10 },
+					{ name: 'guava', price: 5 },
+					{ name: 'apple', price: 5 },
+				];
+				const expected = [
+					{ name: 'apple', price: 5 },
+					{ name: 'guava', price: 10 },
+					{ name: 'guava', price: 5 },
+				];
+				const config = {
+					name: 'ascending',
+					price: 'descending',
+				};
+
+				expect(sort(input, compile(config))).toEqual(expected);
+			});
+
+			test('randomized test', () => {
+				retry(() => {
+					const collections = similarCols();
+					const [
+						ascendingKey,
+						descendingKey,
+					] = rndKeys(rndValue(collections), 2);
+					const config = secure(shuffle({
+						[ascendingKey]: 'ascending',
+						[descendingKey]: 'descending',
+					}));
+					const [firstKey, secondKey] = keys(config);
+					const counters = {
+						ascending: 0,
+						descending: 0,
+					};
+					const updateCounter = (key) => (key === 'ascending'
+						? counters.ascending++
+						: counters.descending--);
+					const expected = map(collections, (collection) => {
+						rndValue([0, 1]) && updateCounter(config[firstKey]);
+						updateCounter(config[secondKey]);
+
+						return merge(clone(collection), {
+							[firstKey]: counters[config[firstKey]],
+							[secondKey]: counters[config[secondKey]],
+						});
+					});
+					const input = secure(shuffle(expected));
+
+					expect(sort(input, compile(config))).toEqual(expected);
+				});
+			});
+		});
+
+		test('compile supports custom grammars', () => {
+			const products = [
+				{ name: 'banana', price: 1 },
+				{ name: 'apple', price: 1 },
+				{ name: 'apple', price: 3 },
+			];
+			const expected = [
+				{ name: 'apple', price: 1 },
+				{ name: 'apple', price: 3 },
+				{ name: 'banana', price: 1 },
+			];
+			const grammar = secure({ customSort: ascending });
+			const config = secure({
+				name: 'ascending',
+				price: 'customSort',
+			});
+
+			expect(sort(products, compile(config, grammar))).toEqual(expected);
+		});
+
+		test('compile works with two dimensional arrays', () => {
+			const input = [
+				[3, 1],
+				[2, 2],
+				[2, 3],
+			];
+			const expected = [
+				[2, 3],
+				[2, 2],
+				[3, 1],
+			];
 			const config = secure(['ascending', 'descending']);
-			const arrData = map(data, values);
-			const expected = translate([2, 0, 1, 3], arrData);
 
-			const sorted = sort(arrData, compile(config));
-
-			expect(sorted).toEqual(expected);
+			expect(sort(input, compile(config))).toEqual(expected);
 		});
 	});
 });
