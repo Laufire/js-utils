@@ -574,6 +574,22 @@ const sort = (collection, sorter = ascending) => (isArray(collection)
 	? collection.slice().sort(sorter)
 	: fromEntries(entries(collection).sort((a, b) => sorter(a[1], b[1]))));
 
+const flatMap = (collection) => walk(collection, (
+	digest, value, key = ''
+) => ({ [`${ key }/`]: value,
+	...isDefined(digest)
+		? reduce(
+			digest, (acc, childDigest) => reduce(
+				childDigest, (
+					accOne, val, childPath
+				) => {
+					accOne[`${ key }/${ childPath }`] = val;
+					return accOne;
+				}, acc
+			), {}
+		)
+		: {}}));
+
 export {
 	keys, values, entries, fromEntries,
 	each, map, filter, reduce, nReduce,
@@ -584,5 +600,5 @@ export {
 	patch, diff, secure, equals, contains,
 	gather, pick, toArray, toDict, adopt,
 	find, findLast, lFind, findKey, findIndex, findLastKey, lFindKey,
-	range, hasSame, shares, shuffle, sort, length, count,
+	range, hasSame, shares, shuffle, sort, length, count, flatMap,
 };

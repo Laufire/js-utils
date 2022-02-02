@@ -32,7 +32,7 @@ import {
 	patch, pick, omit, range, reduce, result,
 	sanitize, secure, select, shell, shuffle, sort, squash, hasKey,
 	translate, traverse, walk, values, keys, length, toArray, nReduce,
-	findIndex, findLast, lFind, findLastKey, lFindKey, count,
+	findIndex, findLast, lFind, findLastKey, lFindKey, count, flatMap,
 } from './collection';
 
 const mockObj = (objKeys, value) =>
@@ -1303,7 +1303,8 @@ describe('Collection', () => {
 		test('randomized test', () => {
 			retry(() => {
 				const data = rndNested(rndBetween(0, 3));
-				const flatMap = walk(data, (
+				// TODO: use flatMap post publishing
+				const flattened = walk(data, (
 					digest, value, key = ''
 				) => {
 					const childData = digest && reduce(
@@ -1320,7 +1321,7 @@ describe('Collection', () => {
 					return { [`${ key }/`]: value, ...isDefined(digest) ? childData : {}};
 				});
 
-				map(flatMap, (value, path) => {
+				map(flattened, (value, path) => {
 					expect(result(data, path)).toEqual(value);
 				});
 			});
@@ -1966,6 +1967,48 @@ describe('Collection', () => {
 				const collection = tSelect(iterable, selector);
 
 				expect(count(collection)).toEqual(selector.length);
+			});
+		});
+	});
+
+	describe('flatMap return combination of path with values', () => {
+		test('example', () => {
+			const data = {
+				a: 1,
+				b: {
+					c: 3,
+				},
+			};
+			const expected = {
+				'/': data,
+				'/a/': 1,
+				'/b/': {
+					c: 3,
+				},
+				'/b/c/': 3,
+			};
+
+			expect(flatMap(data)).toEqual(expected);
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const data = rndNested(rndBetween(0, 5));
+				const buildExpectation = (input, parentPath = '') =>
+					({ ...reduce(
+						isIterable(input) ? input : {}, (
+							acc, child, key
+						) => ({
+							...acc,
+							[`${ parentPath }/${ key }/`]: child,
+							...isIterable(child) && buildExpectation(child, `${ parentPath }/${ key }`),
+						}), {}
+					), '/': input });
+				const expected = buildExpectation(data);
+
+				const flattened = flatMap(data);
+
+				expect(flattened).toEqual(expected);
 			});
 		});
 	});
