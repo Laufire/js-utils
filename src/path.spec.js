@@ -208,6 +208,10 @@ describe('path', () => {
 					input: './a/b/',
 					expectation: './a/b/',
 				},
+				{
+					input: 0,
+					expectation: './0/',
+				},
 			];
 
 			testCases(fix, cases);

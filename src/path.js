@@ -11,7 +11,7 @@ const fix = (path) => [
 	(acc.match(matcher)
 		? acc.replace(matcher, replacement)
 		: acc
-	), path);
+	), String(path));
 
 const parts = (() => {
 	const matcher = /(?:(?:[^/\\]|\\.)*\/)/g;
