@@ -14,9 +14,11 @@ import
 	from '../test/helpers';
 
 /* Tested */
-import { rndBetween, rndOfString, rndString,
+import {
+	rndBetween, rndOfString, rndString,
 	rndValue, rndValues, rndValueWeighted,
-	stringSeeds, withProb } from './random';
+	stringSeeds,
+} from './random';
 
 /* Tests */
 describe('rndBetween helps in generating random numbers', () => {
@@ -440,25 +442,5 @@ describe('rndValueWeighted returns a random a value from'
 
 	test('returns undefined when the iterable is empty', () => {
 		expect(rndValueWeighted({})()).toBeUndefined();
-	});
-});
-
-describe('withProb returns a function which returns true once in a while'
-	+ ' based on the given probability value.', () => {
-	// TODO: Rewrite the example test properly.
-	// TODO: Randomize the test.
-	test('returns true based on the given probability.', () => {
-		const probability = 0.3;
-		const allowedDeviation = 0.2;
-		const retryCount = 10000;
-		const checkProbability = withProb(probability);
-
-		const results = retry(checkProbability, retryCount);
-
-		const counts = results.filter((result) => result === true).length;
-		const prevalence = counts / retryCount;
-
-		expect(prevalence > probability * (1 - allowedDeviation)).toEqual(true);
-		expect(prevalence < probability * (1 + allowedDeviation)).toEqual(true);
 	});
 });

@@ -103,14 +103,6 @@ const rndValueWeighted = (weights) => {
 	};
 };
 
-const withProb = (prob) => {
-	// NOTE: Precision is not dynamic to avoid js floating point arithmetic.
-	const precision = 1000;
-	const inverse = 1 / prob * precision;
-
-	return () => rndBetween(0, inverse) < precision;
-};
-
 export {
 	rndBetween,
 	rndString,
@@ -119,5 +111,4 @@ export {
 	rndValues,
 	rndValueWeighted,
 	stringSeeds,
-	withProb,
 };
