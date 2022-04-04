@@ -1,5 +1,5 @@
 /* Helpers */
-import { secure, values, keys, reduce, map, findKey }
+import { secure, values, keys, reduce, map, findKey, shell, merge }
 	from '@laufire/utils/collection';
 import { rndBetween, rndValue }
 	from '@laufire/utils/random';
@@ -29,9 +29,11 @@ describe('Crunch', () => {
 	) => {
 		const [currentKey, ...rest] = currentKeys;
 
-		currentKey
+		isDefined(currentKey)
 			? map(currentLevel, (child, key) => testIndex(
-				child, { ...currentIndex, [currentKey]: key }, rest,
+				child, merge(
+					shell(currentIndex), currentIndex, { [currentKey]: key }
+				), rest,
 				verify, data
 			))
 			:	verify(
@@ -75,7 +77,7 @@ describe('Crunch', () => {
 				const indexed = index(data, indexKeys);
 
 				testIndex(
-					indexed, {}, indexKeys, verifyIndexed, data
+					indexed, shell(data[0]), indexKeys, verifyIndexed, data
 				);
 			});
 		});

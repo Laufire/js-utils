@@ -1,7 +1,7 @@
 import {
 	clone, secure, map, reduce, shuffle,
 	keys, filter, range, dict, fromEntries, shell, has, values,
-	omit, clean, select,
+	omit, clean, select, merge,
 } from '@laufire/utils/collection';
 import { rndValue, rndBetween, rndString, rndValues }
 	from '@laufire/utils/random';
@@ -211,8 +211,9 @@ const similarCols = (minCount = defaults.minCount,
 		) => (acc[key] = Symbol(key), acc), shell(rndColl)
 	);
 
-	return secure(map(rndCollections, (value) =>
-		shuffle({ ...value, ...partialObject })));
+	return secure(map(rndCollections, (value) => shuffle(merge(
+		shell(value), value, partialObject
+	))));
 };
 
 const summarize = (iterable) => secure(reduce(
