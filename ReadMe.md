@@ -43,6 +43,14 @@
 
 		* till / findResult - a findKey like function which returns the return value of the predicate instead.
 
+* Pre-release
+
+	* Audit the packages.
+
+	* Update the packages.
+
+	* Support at least the last four LTS vesrions of Node JS.
+
 ## Later
 
 * Test for and improve performance.
