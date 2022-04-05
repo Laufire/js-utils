@@ -944,6 +944,7 @@ describe('Collection', () => {
 			retry(() => {
 				const inputs = tValues(rndNested());
 
+				// TODO: Fix. Coverage requirement is not met sometimes.
 				const combined = combine({}, ...inputs);
 
 				testCombine(combined, ...reverseArray(inputs));

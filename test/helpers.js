@@ -39,9 +39,9 @@ const strSubSet = (superStr, tested) =>
 		!(superStr.indexOf(char) > -1)) === -1;
 
 // TODO: Use library function post publishing.
-const thirdStdDev = 0.03;
+const secondStdDev = 0.05;
 const isAcceptable = (
-	actual, expected, margin = thirdStdDev
+	actual, expected, margin = secondStdDev
 ) => Math.abs((expected - actual) / (expected || 1)) <= margin;
 
 const rndKey = (collection) =>

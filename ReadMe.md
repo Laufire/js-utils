@@ -11,6 +11,8 @@
 	* overlay - uses extension arrays, as they are, allowing for greater control.
 	* combine - adds the extension arrays to the source arrays, thus makes array lengths the sum of the two.
 
+* Randomized tests are expected to have an accuracy above second standard deviation, to allow for faster testing cycles.
+
 ## HowTo
 
 * When immutability is required for functions like collection.merge and collection.combine, pass an empty base object. Ex: *merge({}, someObj)*
@@ -30,6 +32,8 @@
 * Test the index file for the integrity of imports.
 
 * Coverage might not cover all paths. Especially those of shared functions, as they might be partially covered by multiple functions, yet report full coverage. Find a fix for this.
+
+* Make randomized testing to achieve accuracy above third standard deviation, when publishing (to NPM). Use environment variables.
 
 * Functionalities:
 
