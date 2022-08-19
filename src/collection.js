@@ -590,6 +590,9 @@ const flatMap = (collection) => walk(collection, (
 		)
 		: {}}));
 
+const some = (collection, predicate) =>
+	isDefined(findKey(collection, predicate));
+
 export {
 	keys, values, entries, fromEntries,
 	each, map, filter, reduce, nReduce,
@@ -600,5 +603,5 @@ export {
 	patch, diff, secure, equals, contains,
 	gather, pick, toArray, toDict, adopt,
 	find, findLast, lFind, findKey, findIndex, findLastKey, lFindKey,
-	range, hasSame, shares, shuffle, sort, length, count, flatMap,
+	range, hasSame, shares, shuffle, sort, length, count, flatMap, some,
 };

@@ -23,6 +23,7 @@ import { select as tSelect, map as tMap, keys as tKeys,
 	shell as tShell, equals as tEquals,
 	shuffle as tShuffle } from '@laufire/utils/collection';
 import { isEqual } from '@laufire/utils/predicates';
+import { isProbable } from './prob';
 
 /* Tested */
 import {
@@ -32,7 +33,7 @@ import {
 	patch, pick, omit, range, reduce, result,
 	sanitize, secure, select, shell, shuffle, sort, squash, hasKey,
 	translate, traverse, walk, values, keys, length, toArray, nReduce,
-	findIndex, findLast, lFind, findLastKey, lFindKey, count, flatMap,
+	findIndex, findLast, lFind, findLastKey, lFindKey, count, flatMap, some,
 } from './collection';
 
 const mockObj = (objKeys, value) =>
@@ -40,7 +41,7 @@ const mockObj = (objKeys, value) =>
 
 /* Spec */
 describe('Collection', () => {
-	/* Mocks and Stubs */
+/* Mocks and Stubs */
 	const simpleObj = secure({
 		a: 1,
 		b: 2,
@@ -96,7 +97,7 @@ describe('Collection', () => {
 	const stitch = (val, key) => String(key) + String(val);
 	const reverseArray = (input) => sort(input, reverse);
 	const testForArguments = (fn, collection) => {
-		// TODO: Use imported nothing after publishing.
+	// TODO: Use imported nothing after publishing.
 		const mockPredicate = jest.fn(() => false);
 
 		fn(collection, mockPredicate);
@@ -136,11 +137,11 @@ describe('Collection', () => {
 
 	const testMerge = (merged, ...collections) => {
 		tMap(merged, (value, key) => {
-			// TODO: Use library filter.
+		// TODO: Use library filter.
 			const getChildren = () =>
 				tMap(collections.filter((collection) =>
 					isIterable(collection)
-							&& collection.hasOwnProperty(key)), (child) =>
+						&& collection.hasOwnProperty(key)), (child) =>
 					child[key]);
 
 			const expected = getChildren();
@@ -156,7 +157,7 @@ describe('Collection', () => {
 	+ ' the given callback', () => {
 		describe('examples', () => {
 			test('map works with all the properties of the object'
-			+ ' and builds a new object', () => {
+		+ ' and builds a new object', () => {
 				expect(map(simpleObj, stitch)).toEqual({
 					a: 'a1',
 					b: 'b2',
@@ -236,7 +237,7 @@ describe('Collection', () => {
 	});
 
 	describe('findLast finds the last element from the collection chose'
-		+ ' by the predicate', () => {
+	+ ' by the predicate', () => {
 		test('example', () => {
 			const iterable = [999, 12, 8, 130, 44];
 
@@ -552,7 +553,7 @@ describe('Collection', () => {
 
 			tMap(types, (type) => {
 				has(iterables, type)
-						&& expect(hasKey(type, rndKey(type))).toEqual(true);
+					&& expect(hasKey(type, rndKey(type))).toEqual(true);
 				expect(hasKey(type, rndString())).toEqual(false);
 			});
 		});
@@ -812,17 +813,17 @@ describe('Collection', () => {
 			expect(overlaid.complexArray === topLevel.complexArray)
 				.toEqual(true);
 			expect(overlaid.complexArray.innerArray
-			=== topLevel.complexArray.innerArray).toEqual(true);
+		=== topLevel.complexArray.innerArray).toEqual(true);
 		});
 
 		test('randomized test', () => {
 			const testOverlay = (overlaid, ...collections) => {
 				tMap(overlaid, (value, key) => {
-					// TODO: Use library filter.
+				// TODO: Use library filter.
 					const getChildren = () =>
 						tMap(collections.filter((collection) =>
 							isIterable(collection)
-								&& collection.hasOwnProperty(key)), (child) =>
+							&& collection.hasOwnProperty(key)), (child) =>
 							child[key]);
 
 					isDict(value)
@@ -927,7 +928,7 @@ describe('Collection', () => {
 			// TODO: Use library filter.
 				tMap(collections.filter((collection) =>
 					isIterable(collection)
-								&& collection.hasOwnProperty(key)), (child) =>
+							&& collection.hasOwnProperty(key)), (child) =>
 					child[key]);
 
 			const testCombine = (combined, ...collections) =>
@@ -1106,7 +1107,7 @@ describe('Collection', () => {
 	describe('flipMany builds an one-to-one inverted mapping of'
 	+ ' a many to one object', () => {
 		test('example', () => {
-			// TODO: Decide whether the values could be objects.
+		// TODO: Decide whether the values could be objects.
 			const oneToMany = {
 				a: [1, 2],
 			};
@@ -1204,11 +1205,11 @@ describe('Collection', () => {
 	describe('select helps building sub-objects with selectors', () => {
 		describe('examples', () => {
 			test('select returns a sub-object of the given object,'
-		+ ' with the given array of properties', () => {
+	+ ' with the given array of properties', () => {
 				expect(select(simpleObj, ['a'])).toEqual({ a: 1 });
 			});
 			test('select returns a sub-object of the given object,'
-		+ ' with the properties in the given selector object', () => {
+	+ ' with the properties in the given selector object', () => {
 				expect(select(simpleObj, {
 					'some-thing': 'a',
 					'some value': 'keyNotInSource',
@@ -1216,14 +1217,14 @@ describe('Collection', () => {
 			});
 
 			test('select returns a sub-array of the given array,'
-		+ ' with the given array of properties', () => {
+	+ ' with the given array of properties', () => {
 				expect(select(simpleArray, [0])).toEqual([1]);
 			});
 		});
 
 		describe('randomized tests', () => {
 			test('select returns a sub-collection of the given collection,'
-			+ 'with the given selector collection', () => {
+		+ 'with the given selector collection', () => {
 				retry(() => {
 					const collection = rndCollection();
 					// eslint-disable-next-line max-len
@@ -1244,25 +1245,25 @@ describe('Collection', () => {
 	describe('omit helps building sub-objects through omitters', () => {
 		describe('examples', () => {
 			test('omit returns a sub-object of the given object,'
-		+ ' without the given array of properties', () => {
+	+ ' without the given array of properties', () => {
 				expect(omit(simpleObj, ['a'])).toEqual({ b: 2 });
 			});
 
 			test('omit returns a sub-object of the given object,'
-		+ ' without the properties in the given selector object', () => {
+	+ ' without the properties in the given selector object', () => {
 				expect(omit(simpleObj, { 'some-thing': 'a' }))
 					.toEqual({ b: 2 });
 			});
 
 			test('omit returns a sub-array of the given array,'
-		+ ' without the given array of properties', () => {
+	+ ' without the given array of properties', () => {
 				expect(clean(omit(simpleArray, [0]))).toEqual([2]);
 			});
 		});
 
 		describe('randomized tests', () => {
 			test('omit returns a sub-collection of the given collection,'
-			+ ' without the given collection of properties', () => {
+		+ ' without the given collection of properties', () => {
 				retry(() => {
 					const collection = rndCollection();
 					// eslint-disable-next-line max-len
@@ -1598,7 +1599,7 @@ describe('Collection', () => {
 				a: [1, 2],
 				b: [2, 1],
 				c: [undefined, undefined, 3],
-				// NOTE: Arrays do hold references to undefined values, to preserve indices.
+			// NOTE: Arrays do hold references to undefined values, to preserve indices.
 			};
 
 			expect(gather(arrayOfObjects, ['a', 'b', 'c']))
@@ -1620,8 +1621,8 @@ describe('Collection', () => {
 								expectedChild, child, childKey
 							) => {
 								isDefined(child[selectorKey])
-									&& (expectedChild[childKey]
-										= child[selectorKey]);
+								&& (expectedChild[childKey]
+									= child[selectorKey]);
 								return expectedChild;
 							}, tShell(collections)
 						);
@@ -1674,10 +1675,10 @@ describe('Collection', () => {
 			retry(() => {
 				const randomArray = rndRange();
 				const expectedArray = tReduce(
-					// eslint-disable-next-line no-return-assign
+				// eslint-disable-next-line no-return-assign
 					randomArray, (
 						acc, value, key
-					// eslint-disable-next-line no-sequences
+						// eslint-disable-next-line no-sequences
 					) => (acc[value] = Number(key), acc),
 					{}
 				);
@@ -1745,7 +1746,7 @@ describe('Collection', () => {
 		};
 
 		test('range returns an array of numbers with the given start, end'
-		+ ' and step values', () => {
+	+ ' and step values', () => {
 			testRange(...buildRange(
 				[5, 9], [5, 9], [1, 3]
 			));
@@ -1777,7 +1778,7 @@ describe('Collection', () => {
 			});
 
 			test('start to end direction and step direction '
-			+ 'are different', () => {
+		+ 'are different', () => {
 				const start = rndBetween(-10, 10);
 				const step = rndBetween(-5, 5);
 				const end = start - (step * rndBetween(1, 10));
@@ -1818,7 +1819,7 @@ describe('Collection', () => {
 
 		describe('randomized test', () => {
 			test('shares tests whether the given objects share the same value'
-			+ ' on given properties', () => {
+		+ ' on given properties', () => {
 				retry(() => {
 					const collection = rndCollection();
 					const properties = rndKeys(collection);
@@ -1921,7 +1922,7 @@ describe('Collection', () => {
 				tMap(collection, (dummy, key) =>
 				// TODO: Remove converters after publishing.
 					!randomKeys.includes(converters[inferType(collection)](key))
-						&& delete collection[key]);
+					&& delete collection[key]);
 				tSecure(collection);
 
 				const keysResult = keys(collection);
@@ -2010,6 +2011,32 @@ describe('Collection', () => {
 				const flattened = flatMap(data);
 
 				expect(flattened).toEqual(expected);
+			});
+		});
+	});
+
+	describe('some', () => {
+		test('example', () => {
+			expect(some(simpleArray, isEqual(1))).toBeTruthy();
+			expect(some(simpleArray, isEqual(5))).toBeFalsy();
+			expect(some(simpleObj, isEqual(1))).toBeTruthy();
+			expect(some(simpleObj, isEqual(5))).toBeFalsy();
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const fn = some;
+				const collection = rndCollection();
+				const expectation = isProbable(0.5);
+				const needle = expectation
+					? rndValue(collection)
+					: Symbol(rndString());
+				const processor = isEqual(needle);
+				const data = [
+					[collection, expectation],
+				];
+
+				testIterator({ fn, processor, data });
 			});
 		});
 	});
