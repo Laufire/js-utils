@@ -119,8 +119,8 @@ describe('Sorters', () => {
 		test('example', () => {
 			const inputs = [
 				{ a: 3 },
-				{ a: 1 },
 				{ a: 2 },
+				{ a: 1 },
 			];
 			const expected = [
 				{ a: 1 },
@@ -129,6 +129,8 @@ describe('Sorters', () => {
 			];
 
 			expect(sort(inputs, onProp('a', ascending))).toEqual(expected);
+			expect(sort(inputs, onProp('a', descending))).toEqual(inputs);
+			expect(sort(inputs, onProp('a'))).toEqual(expected);
 		});
 
 		test('randomized test', () => {

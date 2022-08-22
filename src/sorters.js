@@ -15,7 +15,7 @@ const existing = () => 0;
 
 const reverse = () => -1;
 
-const onProp = (prop, sorter) => (a, b) => sorter(a[prop], b[prop]);
+const onProp = (prop, sorter = ascending) => (a, b) => sorter(a[prop], b[prop]);
 
 const defaultGrammar = {
 	ascending,
