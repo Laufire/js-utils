@@ -23,7 +23,6 @@ import { select as tSelect, map as tMap, keys as tKeys,
 	shell as tShell, equals as tEquals,
 	shuffle as tShuffle } from '@laufire/utils/collection';
 import { isEqual } from '@laufire/utils/predicates';
-import { isProbable } from './prob';
 
 /* Tested */
 import {
@@ -223,15 +222,25 @@ describe('Collection', () => {
 
 		test('randomized test', () => {
 			retry(() => {
-				const fn = find;
 				const collection = rndCollection();
+				const rndSymbol = rndNested(
+					3, 0, ['symbol']
+				);
 				const needle = rndValue(collection);
-				const processor = isEqual(needle);
-				const data = [
-					[collection, needle],
+				const expectations = [
+					[needle, needle],
+					[rndSymbol, undefined],
 				];
 
-				testIterator({ fn, processor, data });
+				tMap(expectations, ([value, expectation]) => {
+					const fn = find;
+					const processor = isEqual(value);
+					const data = [
+						[collection, expectation],
+					];
+
+					testIterator({ fn, processor, data });
+				});
 			});
 		});
 	});
@@ -2025,18 +2034,25 @@ describe('Collection', () => {
 
 		test('randomized test', () => {
 			retry(() => {
-				const fn = some;
 				const collection = rndCollection();
-				const expectation = isProbable(0.5);
-				const needle = expectation
-					? rndValue(collection)
-					: Symbol(rndString());
-				const processor = isEqual(needle);
-				const data = [
-					[collection, expectation],
+				const rndSymbol = rndNested(
+					0, 0, ['symbol']
+				);
+				const needle = rndValue(collection);
+				const expectations = [
+					[needle, true],
+					[rndSymbol, false],
 				];
 
-				testIterator({ fn, processor, data });
+				tMap(expectations, ([value, expectation]) => {
+					const fn = some;
+					const processor = isEqual(value);
+					const data = [
+						[collection, expectation],
+					];
+
+					testIterator({ fn, processor, data });
+				});
 			});
 		});
 	});
