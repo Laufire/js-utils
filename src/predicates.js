@@ -5,7 +5,7 @@
 
 import { equals, find, contains, findIndex } from './collection';
 import { values } from './lib';
-import { isDefined } from './reflection';
+import { isDefined as rIsDefined } from './reflection';
 
 /* Exports */
 const isEqual = (left) => (right) => equals(left, right);
@@ -42,10 +42,10 @@ const value = (predicate) => (item) => predicate(item);
 const not = (predicate) => (right, ...rest) => !predicate(right, ...rest);
 
 const and = (...predicates) => (right, ...rest) =>
-	!isDefined(find(predicates, (predicate) => !predicate(right, ...rest)));
+	!rIsDefined(find(predicates, (predicate) => !predicate(right, ...rest)));
 
 const or = (...predicates) => (right, ...rest) =>
-	isDefined(find(predicates, (predicate) => predicate(right, ...rest)));
+	rIsDefined(find(predicates, (predicate) => predicate(right, ...rest)));
 
 const onProp = (prop, predicate) =>
 	(right, ...rest) => predicate(right[prop], ...rest);
@@ -60,9 +60,11 @@ const predicate = (
 	right, left, ...rest
 );
 
+const isDefined = (data) => rIsDefined(data);
+
 export {
 	isEqual, isSame, isPart, doesContain,
 	truthy, falsy, everything, nothing,
 	first, unique, not, and, or, onProp,
-	predicate, isIn, key, value, is,
+	predicate, isIn, key, value, is, isDefined,
 };

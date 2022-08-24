@@ -4,7 +4,7 @@ import { contains, filter, shares, values,
 	clean, select, keys, equals,
 	secure, shuffle, omit, findIndex,
 	map } from '@laufire/utils/collection';
-import { rndValue, rndValues } from '@laufire/utils/random';
+import { rndValue, rndValues, rndString } from '@laufire/utils/random';
 import { inferType } from '@laufire/utils/reflection';
 import { isolated, collection, extCollection, sortArray,
 	rndKey, rndCollection, retry, rndDict,
@@ -17,7 +17,7 @@ import { isEqual, isSame, isPart, doesContain,
 	truthy, falsy, everything, nothing,
 	first, unique,
 	not, or, and, onProp,
-	predicate, isIn, value, key, is } from './predicates';
+	predicate, isIn, value, key, is, isDefined } from './predicates';
 
 /* Configs */
 const numbers = [1, 2, 3, 4];
@@ -458,6 +458,27 @@ describe('Predicates', () => {
 				const needle = rndValue(haystack);
 
 				expect(find(haystack, value(isEqual(needle)))).toEqual(needle);
+			});
+		});
+	});
+
+	describe('isDefined return true or false by given value', () => {
+		test('example', () => {
+			const symbol = Symbol(rndString());
+			const data = {
+				undefined,
+				symbol,
+			};
+
+			expect(tFilter(data, isDefined)).toEqual({ symbol });
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const haystack = rndNested(1);
+				const needle = clean(haystack);
+
+				expect(tFilter(haystack, isDefined)).toEqual(needle);
 			});
 		});
 	});
