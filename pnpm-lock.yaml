@@ -6,7 +6,7 @@ specifiers:
   '@babel/plugin-transform-runtime': ^7.13.15
   '@babel/preset-env': ^7.14.1
   '@babel/runtime': ^7.14.0
-  '@laufire/utils': ^2.9.2
+  '@laufire/utils': ^3.0.0-0
   acorn: ^6.4.2
   babel-core: ^7.0.0-bridge.0
   babel-eslint: ^10.1.0
@@ -28,7 +28,7 @@ devDependencies:
   '@babel/core': 7.15.5
   '@babel/plugin-transform-runtime': 7.15.0_@babel+core@7.15.5
   '@babel/preset-env': 7.15.6_@babel+core@7.15.5
-  '@laufire/utils': 2.9.2
+  '@laufire/utils': 3.0.0-0
   acorn: 6.4.2
   babel-core: 7.0.0-bridge.0_@babel+core@7.15.5
   babel-eslint: 10.1.0_eslint@5.16.0
@@ -1412,8 +1412,8 @@ packages:
       chalk: 4.1.2
     dev: true
 
-  /@laufire/utils/2.9.2:
-    resolution: {integrity: sha512-faEv6RkFJujqrkcrbyDmE30VIBhm6NRAXwVhhvQgQdYFgtATOSNeyWHuHOTLyajC1JFIKPv+em3ySxxc7+GMMQ==}
+  /@laufire/utils/3.0.0-0:
+    resolution: {integrity: sha512-NQK/odg5weAAG9UqFhibSfW0BLgGcT+H7yNc82jEbqfToCyJL0SBI40pB34HqlF850IhKRUQ6uBFA6Ip6K66ww==}
     dependencies:
       '@babel/runtime': 7.15.4
     optionalDependencies:

@@ -243,33 +243,40 @@ describe('Crunch', () => {
 
 		describe('randomized test', () => {
 			test('transpose can transpose objects & arrays', () => {
-				const input = rndNested(
-					3, 3, ['nested']
-				);
-
-				const testTransposed = (base, result) => {
-					const levelOneKeys = keys(base);
-					const levelTwoKeys = reduce(
-						base, (acc, child) =>
-							[
-								...acc,
-								// TODO: Use collections.filter after publishing.
-								...keys(child).filter((childKey) =>
-									!acc.includes(childKey)),
-							],
-						[]
+				retry(() => {
+					const similarCol = rndNested(
+						3, 3, ['nested', rndValue(['array', 'object'])]
 					);
+					const arrayOfObjects = values(rndNested(
+						3, 3, ['nested', 'object']
+					));
+					const input = rndValue([similarCol, arrayOfObjects]);
 
-					map(levelOneKeys, (levelOneKey) =>
-						map(levelTwoKeys, (levelTwoKey) =>
-							expect(base[levelOneKey][levelTwoKey])
-								.toEqual(result[levelTwoKey][levelOneKey])));
-				};
+					const testTransposed = (base, result) => {
+						const levelOneKeys = keys(base);
+						const levelTwoKeys = reduce(
+							base, (acc, child) =>
+								[
+									...acc,
+									// TODO: Use collections.filter after publishing.
+									...keys(child).filter((childKey) =>
+										!acc.includes(childKey)),
+								],
+							[]
+						);
 
-				const transposed = transpose(input);
+						map(levelOneKeys, (levelOneKey) =>
+							map(levelTwoKeys, (levelTwoKey) => {
+								expect(base[levelOneKey][levelTwoKey])
+									.toEqual(result[levelTwoKey][levelOneKey]);
+							}));
+					};
 
-				testTransposed(input, transposed);
-				testTransposed(transposed, input);
+					const transposed = transpose(input);
+
+					testTransposed(input, transposed);
+					testTransposed(transposed, input);
+				});
 			});
 		});
 	});

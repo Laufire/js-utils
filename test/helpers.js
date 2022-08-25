@@ -1,6 +1,6 @@
 import {
 	clone, secure, map, reduce, shuffle,
-	keys, filter, range, dict, fromEntries, shell, has, values,
+	keys, filter, range, toDict, fromEntries, shell, has, values,
 	omit, clean, select, merge,
 } from '@laufire/utils/collection';
 import { rndValue, rndBetween, rndString, rndValues }
@@ -156,7 +156,7 @@ const getLeaf = (generators) => {
 /* Exports */
 /* Data */
 const array = secure(map(rndRange(), Symbol));
-const object = secure(dict(array));
+const object = secure(toDict(array));
 const cloned = secure(clone(object));
 const extension = secure(rndDict());
 const isolated = secure(rndDict());

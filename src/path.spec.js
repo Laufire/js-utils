@@ -153,7 +153,7 @@ describe('path', () => {
 
 			// TODO: Change the values after using published rndBetween.
 			// NOTE: Published rndBetween will be exclusive.
-			const expectation = range(lowerLimit, higherLimit + 2);
+			const expectation = range(lowerLimit, higherLimit + 1);
 
 			expect(lengths).toEqual(expectation);
 		});

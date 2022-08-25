@@ -273,8 +273,7 @@ const gather = (collection, props) => {
 	values(props).forEach((prop) => {
 		const child = shell(propShell);
 
-		map(collection, (value, key) =>
-			(value.hasOwnProperty(prop) && (child[key] = value[prop])));
+		map(collection, (value, key) => (child[key] = value[prop]));
 		ret[prop] = child;
 	});
 
