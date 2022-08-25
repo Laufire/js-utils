@@ -395,7 +395,7 @@ describe('rndValues returns the given count of random a values'
 	});
 
 	test('ratio test', () => {
-		const rndColl = rndCollection(0, tRndBetween(0, 3));
+		const rndColl = rndCollection(0, tRndBetween(0, 2));
 
 		const results = retry(() => rndValues(rndColl), retryCount);
 

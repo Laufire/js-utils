@@ -379,7 +379,7 @@ describe('Predicates', () => {
 			const mockCollection = { ...extCollection, isolated };
 
 			expect(filter(mockCollection, predicate(
-				shares, isolated, rndKey(isolated)
+				shares, isolated, [rndKey(isolated)]
 			))).toEqual({ isolated });
 		});
 
@@ -390,7 +390,7 @@ describe('Predicates', () => {
 				);
 				const needle = rndValue(haystack);
 				const predicateFn = predicate(
-					shares, needle, rndKey(needle)
+					shares, needle, [rndKey(needle)]
 				);
 
 				expect(find(haystack, predicateFn)).toEqual(needle);
@@ -434,7 +434,8 @@ describe('Predicates', () => {
 				const needle = String(rndKey(haystack));
 				const expectation = haystack[needle];
 
-				expect(find(haystack, key(isEqual(needle))))
+				expect(find(haystack, (dummy, val) =>
+					key(isEqual(needle))(dummy, String(val))))
 					.toEqual(expectation);
 			});
 		});

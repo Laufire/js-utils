@@ -17,7 +17,7 @@ import { ascending, descending, reverse } from '@laufire/utils/sorters';
 import { sum, product } from '@laufire/utils/reducers';
 import { select as tSelect, map as tMap, keys as tKeys,
 	values as tValues, secure as tSecure, entries as tEntries,
-	dict as tDict, filter as tFilter, reduce as tReduce,
+	toDict as tToDict, filter as tFilter, reduce as tReduce,
 	clean as tClean, fromEntries as tFromEntries,
 	pick as tPick, clone as tClone, merge as tMerge,
 	shell as tShell, equals as tEquals,
@@ -355,11 +355,13 @@ describe('Collection', () => {
 				const predicate = jest.fn().mockImplementation((
 					dummy, dummyOne, key
 				) => accumlators[collectionKeys.findIndex((cKey) =>
-					cKey === String(key)) + 1]);
+					String(cKey) === String(key)) + 1]);
 
-				expect(reduce(
+				const received = reduce(
 					collection, predicate, initial
-				)).toEqual(expectation);
+				);
+
+				expect(received).toEqual(expectation);
 
 				tMap(collectionKeys, (key, i) =>
 					expect(predicate.mock.calls[i]).toEqual([
@@ -1174,7 +1176,7 @@ describe('Collection', () => {
 			retry(() => {
 				const iterable = rndCollection();
 				const expectation = isArray(iterable)
-					? tDict(values(iterable))
+					? tToDict(values(iterable))
 					: iterable;
 
 				expect(fromEntries(tEntries(iterable))).toEqual(expectation);
@@ -1285,6 +1287,8 @@ describe('Collection', () => {
 		test('example', () => {
 			const { single, parent } = complexObject;
 
+			expect(result(complexObject, '/')).toEqual(complexObject);
+			expect(result(complexObject, './')).toEqual(complexObject);
 			expect(result(complexObject, 'single')).toEqual(single);
 			expect(result(complexObject, '/single')).toEqual(single);
 			expect(result(complexObject, 'parent/child'))
@@ -1349,7 +1353,7 @@ describe('Collection', () => {
 				const input = tValues(similarCols());
 
 				const expectation = tSelect(tMerge({}, ...input),
-					keys(input[0]));
+					map(keys(input[0]), String));
 
 				expect(compose(...input)).toEqual(expectation);
 			});
@@ -1595,8 +1599,8 @@ describe('Collection', () => {
 				{ c: 3 },
 			];
 			const objectOfArrays = {
-				a: [1, 2],
-				b: [2, 1],
+				a: [1, 2, undefined],
+				b: [2, 1, undefined],
 				c: [undefined, undefined, 3],
 				// NOTE: Arrays do hold references to undefined values, to preserve indices.
 			};
@@ -1619,9 +1623,8 @@ describe('Collection', () => {
 							collections, (
 								expectedChild, child, childKey
 							) => {
-								isDefined(child[selectorKey])
-									&& (expectedChild[childKey]
-										= child[selectorKey]);
+								expectedChild[childKey]
+										= child[selectorKey];
 								return expectedChild;
 							}, tShell(collections)
 						);
@@ -1642,8 +1645,9 @@ describe('Collection', () => {
 				{ a: 2, b: 3 },
 				{ c: 4 },
 			]);
+			const received = pick(arrayOfObjects, 'a');
 
-			expect(pick(arrayOfObjects, 'a')).toEqual([1, 2]);
+			expect(received).toEqual([1, 2, undefined]);
 		});
 
 		test('randomized test', () => {
@@ -1651,9 +1655,7 @@ describe('Collection', () => {
 				const collections = similarCols();
 				const prop = rndKey(rndValue(collections));
 
-				const expectation = tMap(tFilter(collections, (child) =>
-					child.hasOwnProperty(prop)),
-				(child) => child[prop]);
+				const expectation = tMap(collections, (child) => child[prop]);
 
 				expect(pick(collections, prop)).toEqual(expectation);
 			});
@@ -1836,7 +1838,10 @@ describe('Collection', () => {
 
 	describe('shuffle shuffles the given collection', () => {
 		test('example', () => {
-			expect(shuffle([1, 2, 3, 4, 5, 6])).not.toEqual([1, 2, 3, 4, 5, 6]);
+			const input = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+			expect(shuffle(input)).not
+				.toEqual(input);
 			expect(shuffle({ a: 1, b: 2, c: 3, d: 4 }))
 				.toEqual({ a: 1, c: 3, b: 2, d: 4 });
 		});
