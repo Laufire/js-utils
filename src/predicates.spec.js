@@ -17,7 +17,7 @@ import { isEqual, isSame, isPart, doesContain,
 	truthy, falsy, everything, nothing,
 	first, unique,
 	not, or, and, onProp,
-	predicate, isIn, value, key, is, isDefined } from './predicates';
+	predicate, isIn, value, key, is, isDefined, hasProp } from './predicates';
 
 /* Configs */
 const numbers = [1, 2, 3, 4];
@@ -108,6 +108,7 @@ describe('Predicates', () => {
 					object: (needle) => ({ ...needle, ...rndDict() }),
 				};
 				const needle = rndValue(haystack);
+
 				const extendedNeedle = extenders[inferType(needle)](needle);
 				const partialNeedle = randomValues(needle);
 
@@ -340,7 +341,7 @@ describe('Predicates', () => {
 		};
 		const mockPredicate = jest.fn();
 
-		test.each(values(generators))('testing the generator: %s for args',
+		test.each(values(generators))('testing the generator: %p for args',
 			(generator) => {
 				const args = [
 					childCollection[childKey],
@@ -479,6 +480,33 @@ describe('Predicates', () => {
 				const needle = clean(haystack);
 
 				expect(tFilter(haystack, isDefined)).toEqual(needle);
+			});
+		});
+	});
+
+	describe('hasProp', () => {
+		test('example', () => {
+			const haystack = [
+				{ a: 1, b: 2 },
+				{ b: 3 },
+			];
+
+			const expected = [{ a: 1, b: 2 }];
+
+			expect(tFilter(haystack, hasProp('a'))).toEqual(expected);
+			expect(tFilter(haystack, hasProp('b'))).toEqual(haystack);
+			expect(tFilter(haystack, hasProp('c'))).toEqual([]);
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const haystack = rndNested(
+					3, 3, ['array', 'object']
+				);
+				const needle = rndKey(rndValue(haystack));
+
+				map(tFilter(haystack, hasProp(needle)), (result) =>
+					expect(keys(result).includes(needle)).toBeDefined());
 			});
 		});
 	});
