@@ -27,12 +27,12 @@ import { isEqual } from '@laufire/utils/predicates';
 /* Tested */
 import {
 	adopt, shares, clean, clone, compose, combine, contains, toDict, diff,
-	each, entries, equals, find, findKey, fill, filter, flip,
-	flipMany, fromEntries, gather, has, hasSame, map, merge, overlay,
-	patch, pick, omit, range, reduce, result,
-	sanitize, secure, select, shell, shuffle, sort, squash, hasKey,
-	translate, traverse, walk, values, keys, length, toArray, nReduce,
-	findIndex, findLast, lFind, findLastKey, lFindKey, count, flatMap, some,
+	each, entries, equals, find, findKey, fill, filter, flip, flipMany,
+	fromEntries, gather, has, hasSame, map, merge, overlay, patch, pick,
+	omit, range, reduce, result, sanitize, secure, select, shell, shuffle,
+	sort, squash, hasKey, translate, traverse, walk, values, keys,
+	length, toArray, nReduce, findIndex, findLast, lFind, findLastKey,
+	lFindKey, count, flatMap, some, every,
 } from './collection';
 
 const mockObj = (objKeys, value) =>
@@ -2024,36 +2024,61 @@ describe('Collection', () => {
 		});
 	});
 
-	describe('some', () => {
-		test('example', () => {
-			expect(some(simpleArray, isEqual(1))).toBeTruthy();
-			expect(some(simpleArray, isEqual(5))).toBeFalsy();
-			expect(some(simpleObj, isEqual(1))).toBeTruthy();
-			expect(some(simpleObj, isEqual(5))).toBeFalsy();
-		});
+	describe('some, returns true when any values satisfy given predicate',
+		() => {
+			test('example', () => {
+				expect(some(simpleArray, isEqual(1))).toBeTruthy();
+				expect(some(simpleArray, isEqual(5))).toBeFalsy();
+				expect(some(simpleObj, isEqual(1))).toBeTruthy();
+				expect(some(simpleObj, isEqual(5))).toBeFalsy();
+			});
 
-		test('randomized test', () => {
-			retry(() => {
-				const collection = rndCollection();
-				const rndSymbol = rndNested(
-					0, 0, ['symbol']
-				);
-				const needle = rndValue(collection);
-				const expectations = [
-					[needle, true],
-					[rndSymbol, false],
-				];
-
-				tMap(expectations, ([value, expectation]) => {
-					const fn = some;
-					const processor = isEqual(value);
-					const data = [
-						[collection, expectation],
+			test('randomized test', () => {
+				retry(() => {
+					const collection = rndCollection();
+					const rndSymbol = rndNested(
+						0, 0, ['symbol']
+					);
+					const needle = rndValue(collection);
+					const expectations = [
+						[needle, true],
+						[rndSymbol, false],
 					];
 
-					testIterator({ fn, processor, data });
+					tMap(expectations, ([value, expectation]) => {
+						const fn = some;
+						const processor = isEqual(value);
+						const data = [
+							[collection, expectation],
+						];
+
+						testIterator({ fn, processor, data });
+					});
 				});
 			});
 		});
-	});
+
+	describe('every, returns true when all values satisfy given predicate',
+		() => {
+			test('example', () => {
+				const haystack = {
+					a: 1,
+					b: 1,
+				};
+
+				expect(every(haystack, isEqual(1))).toEqual(true);
+				expect(every(simpleObj, isEqual(1))).toEqual(false);
+			});
+
+			test('randomized test', () => {
+				retry(() => {
+					const haystack = rndCollection();
+
+					expect(every(getUnlike(haystack), (prop) =>
+						has(haystack, prop))).toBeTruthy();
+					expect(every(haystack, (prop) =>
+						has(getUnlike(haystack), prop))).toBeFalsy();
+				});
+			});
+		});
 });
