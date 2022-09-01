@@ -1,12 +1,11 @@
 /* Helpers */
 import {
-	clone, keys, map, merge,
-	reduce, secure, shell, shuffle, sort,
+	clone, keys, map, merge, secure, shuffle, sort,
 } from '@laufire/utils/collection';
 import { rndValue } from '@laufire/utils/random';
 import { inferType } from '@laufire/utils/reflection';
 import {
-	retry, rndCollection, rndKey,
+	retry, rndCollection, rndKey, reversers,
 	rndKeys, rndNumber, similarCols,
 } from '../test/helpers';
 
@@ -20,21 +19,6 @@ describe('Sorters', () => {
 		let number = rndNumber();
 
 		return secure(map(rndCollection(), () => number++));
-	};
-	const reversers = {
-		array: (array) => clone(array).reverse(),
-		object: (object) => {
-			const randomCollection = object;
-			const reversedKeys = keys(randomCollection).reverse();
-
-			return reduce(
-				reversedKeys, (acc, key) => {
-					acc[key] = randomCollection[key];
-
-					return acc;
-				}, shell(randomCollection)
-			);
-		},
 	};
 
 	/* Tests */

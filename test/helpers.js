@@ -250,6 +250,22 @@ const randomValues = (iterable) => {
 const arrayOrObject = (iterable) =>
 	secure(rndValue([values, toObject])(iterable));
 
+const reversers = {
+	array: (data) => clone(data).reverse(),
+	object: (data) => {
+		const randomCollection = data;
+		const reversedKeys = keys(randomCollection).reverse();
+
+		return reduce(
+			reversedKeys, (acc, key) => {
+				acc[key] = randomCollection[key];
+
+				return acc;
+			}, shell(randomCollection)
+		);
+	},
+};
+
 export {
 	contracted, array, object, cloned,
 	extension, extended, isolated, ecKeys,
@@ -259,5 +275,5 @@ export {
 	sortArray, strSubSet, retry, isAcceptable, expectEquals,
 	allTypes, emptyTypes, rnd, similarCols, iterableTypes,
 	till, findLastIndex, summarize, testRatios, getRatios,
-	convertKey, randomValues, arrayOrObject,
+	convertKey, randomValues, arrayOrObject, reversers,
 };
