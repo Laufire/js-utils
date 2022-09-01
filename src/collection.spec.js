@@ -2073,11 +2073,12 @@ describe('Collection', () => {
 			test('randomized test', () => {
 				retry(() => {
 					const haystack = rndCollection();
+					const needle = isEqual('symbol');
 
-					expect(every(getUnlike(haystack), (prop) =>
-						has(haystack, prop))).toBeTruthy();
-					expect(every(haystack, (prop) =>
-						has(getUnlike(haystack), prop))).toBeFalsy();
+					expect(every(haystack, (value) =>
+						needle(inferType(value)))).toBeTruthy();
+					expect(every(haystack, (value) =>
+						!needle(inferType(value)))).toBeFalsy();
 				});
 			});
 		});
