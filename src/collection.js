@@ -14,7 +14,7 @@ TODO: Complete the doc comments.
 import { isArray, isIterable, isDict, isDefined } from './reflection';
 import { rndBetween, assign as libAssign, entries as libEntries,
 	values as libValues, keys as libKeys } from './lib';
-import { ascending } from './sorters';
+import { ascending, reverse as sReverse } from './sorters';
 import { parts, resolve, unescape } from './path';
 
 /* NOTE: Exporting named imports (like keys) turns them into getters
@@ -596,15 +596,14 @@ const some = (collection, predicate) =>
 const every = (collection, predicate) =>
 	!some(collection, (...args) => !predicate(...args));
 
+const reverse = (collection) => sort(collection, sReverse);
+
 export {
-	keys, values, entries, fromEntries,
-	each, map, filter, reduce, nReduce,
-	traverse, walk, has, hasKey,
-	clean, sanitize, omit, select, result,
-	flip, flipMany, translate,
-	shell, assign, clone, squash, combine, merge, overlay, compose, fill,
-	patch, diff, secure, equals, contains,
-	gather, pick, toArray, toDict, adopt,
-	find, findLast, lFind, findKey, findIndex, findLastKey, lFindKey,
-	range, hasSame, shares, shuffle, sort, length, count, flatMap, some, every,
+	keys, values, entries, fromEntries, each, map, filter, reduce,
+	nReduce, traverse, walk, has, hasKey, clean, sanitize, omit, select,
+	result, flip, flipMany, translate, shell, assign, clone, squash,
+	combine, merge, overlay, compose, fill, patch, diff, secure, equals,
+	contains, gather, pick, toArray, toDict, adopt, find, findLast,
+	lFind, findKey, findIndex, findLastKey, lFindKey, range, hasSame,
+	shares, shuffle, sort, length, count, flatMap, some, every, reverse,
 };

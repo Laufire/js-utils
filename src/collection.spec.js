@@ -8,12 +8,13 @@ import { rndKey, array, object, expectEquals,
 	rndDict, rndNested, extended, isolated, toObject,
 	rndKeys, rndRange, rnd, similarCols,
 	iterableTypes, allTypes, retry, rndCollection, converters, till,
-	isAcceptable, randomValues } from '../test/helpers';
+	isAcceptable, randomValues, reversers } from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
 import { isDefined, inferType, isIterable,
 	isDict, isArray } from '@laufire/utils/reflection';
-import { ascending, descending, reverse } from '@laufire/utils/sorters';
+import { ascending, descending,
+	reverse as sReverse } from '@laufire/utils/sorters';
 import { sum, product } from '@laufire/utils/reducers';
 import { select as tSelect, map as tMap, keys as tKeys,
 	values as tValues, secure as tSecure, entries as tEntries,
@@ -32,7 +33,7 @@ import {
 	omit, range, reduce, result, sanitize, secure, select, shell, shuffle,
 	sort, squash, hasKey, translate, traverse, walk, values, keys,
 	length, toArray, nReduce, findIndex, findLast, lFind, findLastKey,
-	lFindKey, count, flatMap, some, every,
+	lFindKey, count, flatMap, some, every, reverse,
 } from './collection';
 
 const mockObj = (objKeys, value) =>
@@ -94,7 +95,7 @@ describe('Collection', () => {
 
 	/* Helpers */
 	const stitch = (val, key) => String(key) + String(val);
-	const reverseArray = (input) => sort(input, reverse);
+	const reverseArray = (input) => sort(input, sReverse);
 	const testForArguments = (fn, collection) => {
 	// TODO: Use imported nothing after publishing.
 		const mockPredicate = jest.fn(() => false);
@@ -2082,4 +2083,20 @@ describe('Collection', () => {
 				});
 			});
 		});
+
+	describe('reverse, reverse the given collection', () => {
+		test('example', () => {
+			expect(reverse([2, 1])).toEqual([1, 2]);
+			expect(reverse({ a: 1, b: 5 })).toEqual({ b: 5, a: 1 });
+		});
+
+		test('randomized test', () => {
+			retry(() => {
+				const collection = rndCollection();
+				const expected = reversers[inferType(collection)](collection);
+
+				expect(reverse(collection)).toEqual(expected);
+			});
+		});
+	});
 });
