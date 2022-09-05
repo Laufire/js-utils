@@ -1,14 +1,17 @@
-/* Helpers */
-import { secure, values, keys, reduce, map, findKey, shell, merge }
-	from '@laufire/utils/collection';
-import { rndBetween, rndValue }
-	from '@laufire/utils/random';
-import {
-	rndNested, retry, similarCols, rndKeys, rndCollection, convertKey,
-} from '../test/helpers';
 /* Tested */
 import { descend, index, summarize, transpose, group } from './crunch';
+import {
+	secure, values, keys,
+	reduce, map, findKey,
+	shell, merge, filter,
+} from '@laufire/utils/collection';
+import { rndBetween, rndValue } from '@laufire/utils/random';
 import { isDefined } from '@laufire/utils/reflection';
+/* Helpers */
+import {
+	rndNested, retry, similarCols,
+	rndKeys, rndCollection,
+} from '../test/helpers';
 
 /* Spec */
 describe('Crunch', () => {
@@ -258,8 +261,7 @@ describe('Crunch', () => {
 							base, (acc, child) =>
 								[
 									...acc,
-									// TODO: Use collections.filter after publishing.
-									...keys(child).filter((childKey) =>
+									...filter(keys(child), (childKey) =>
 										!acc.includes(childKey)),
 								],
 							[]
@@ -315,16 +317,7 @@ describe('Crunch', () => {
 
 				const grouped = group(data, mockGrouper);
 
-				// TODO: Use map instead of reduce post publishing.
-				reduce(
-					data, (
-						acc, item, key, collection
-					) => {
-						expect(mockGrouper).toHaveBeenCalledWith(
-							item, convertKey(collection, key), collection
-						);
-					}, {}
-				);
+				map(data, expect(mockGrouper).toHaveBeenCalledWith);
 				map(expected, ([key, item]) => {
 					expect(grouped[key].includes(item)).toEqual(true);
 				});
