@@ -1,25 +1,28 @@
 import {
-	find, findKey, map, pick, range, reduce, filter, shuffle,
+	fix, parts, pathType,
+	resolve, escape, unescape,
+} from './path';
+import {
+	find, findKey, map,
+	pick, range, reduce,
+	filter, shuffle, sort,
 } from '@laufire/utils/collection';
 import {
-	rndValue, rndBetween, rndValueWeighted, rndValues,
+	rndValue, rndBetween, rndValueWeighted,
+	rndValues,
 } from '@laufire/utils/random';
 import { sum } from '@laufire/utils/reducers';
-// TODO: Use published import when available.
-import { isProbable } from './prob';
+import { isProbable } from '@laufire/utils/prob';
+import { unique } from '@laufire/utils/predicates';
 import {
-	retry, findLastIndex, summarize, testRatios,
+	retry, findLastIndex, summarize,
+	testRatios,
+	rndRange,
 } from '../test/helpers';
-import {
-	fix, parts, pathType, resolve, escape, unescape,
-} from './path';
 
 /* Config */
 const higherLimit = 8;
 const lowerLimit = 0;
-
-// TODO: Use rndRange from helpers.
-const getRndRange = () => range(0, rndBetween(lowerLimit, higherLimit));
 
 const navMarkers = ['.', '/'];
 const escapeChar = '\\';
@@ -39,7 +42,7 @@ const partGenerators = {
 	label: () => rndChars(labelChars).join(''),
 };
 
-const randomParts = () => map(getRndRange(), () =>
+const randomParts = () => map(rndRange(lowerLimit, higherLimit), () =>
 	rndValue(partGenerators)());
 
 const matchers = {
@@ -148,8 +151,7 @@ describe('path', () => {
 		() => {
 			// NOTE: Length is one more than higherLimit due relative partFixer.
 			const items = map(generatedCases, ({ parts: { length }}) => length);
-			// TODO: Use library functions post publish.
-			const lengths = [...new Set(items)].sort();
+			const lengths = sort(filter(items, unique));
 
 			// TODO: Change the values after using published rndBetween.
 			// NOTE: Published rndBetween will be exclusive.

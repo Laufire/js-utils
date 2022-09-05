@@ -1,9 +1,13 @@
-import { range, map, reduce, find } from '@laufire/utils/collection';
+import { isProbable, possibilities } from './prob';
+import {
+	range, map, reduce,
+	find,
+} from '@laufire/utils/collection';
 import { isEqual } from '@laufire/utils/predicates';
 import {
-	retry, isAcceptable, expectEquals, rndCollection, rndArray,
+	retry, isAcceptable, expectEquals,
+	rndCollection, rndArray,
 } from '../test/helpers';
-import { isProbable, possibilities } from './prob';
 
 test('isProbable returns true based on given probability', () => {
 	const retryCount = 50000;
@@ -69,8 +73,7 @@ describe('possibilities', () => {
 			const mismatch = find(result, (possibility) =>
 				find(possibility, (value, key) =>
 					!inputs[key].includes(value)));
-			// TODO: Use collection.find post publishing.
-			const duplicate = result.find((
+			const duplicate = find(result, (
 				possibility, i, array
 			) =>
 				array.slice(i + 1).includes(possibility));
