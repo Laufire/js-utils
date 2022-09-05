@@ -12,7 +12,6 @@ const entries = (collection) => (isArray(collection)
 	? objEntries(collection).map(([key, value]) => [Number(key), value])
 	: objEntries(collection));
 
-// eslint-disable-next-line no-magic-numbers
 const rndBetween = (from, to) =>
 	floor(random() * (to - from)) + from;
 
