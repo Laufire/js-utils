@@ -8,7 +8,7 @@ import { rndKey, array, object, expectEquals,
 	rndDict, rndNested, extended, isolated, toObject,
 	rndKeys, rndRange, rnd, similarCols,
 	iterableTypes, allTypes, retry, rndCollection, converters, till,
-	isAcceptable, randomValues } from '../test/helpers';
+	isAcceptable } from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
 import { isDefined, inferType, isIterable,
@@ -127,7 +127,7 @@ describe('Collection', () => {
 		};
 
 		return (value) => (isIterable(value)
-			? randomValues(value, tKeys(value).length - 1)
+			? rndValues(value, tKeys(value).length - 1)
 			: unlikeGenerator(value));
 	})();
 

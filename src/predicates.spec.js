@@ -1,23 +1,31 @@
-/* Helpers */
-import { contains, filter, shares, values,
-	find, clone, shell,
-	clean, select, keys, equals,
-	secure, shuffle, omit, findIndex,
-	map } from '@laufire/utils/collection';
-import { rndValue, rndValues } from '@laufire/utils/random';
-import { inferType } from '@laufire/utils/reflection';
-import { isolated, collection, extCollection, sortArray,
-	rndKey, rndCollection, retry, rndDict,
-	randomValues, arrayOrObject, rndNested, rndArray } from '../test/helpers';
-import { filter as tFilter } from './collection';
-import { rndBetween } from './lib';
-
 /* Tested */
-import { isEqual, isSame, isPart, doesContain,
-	truthy, falsy, everything, nothing,
-	first, unique,
-	not, or, and, onProp,
-	predicate, isIn, value, key, is } from './predicates';
+import {
+	isEqual, isSame, isPart,
+	doesContain,	truthy, falsy,
+	everything, nothing,	first,
+	unique,	not, or,
+	and, onProp,	predicate,
+	isIn, value, key,
+	is,
+} from './predicates';
+import {
+	contains, filter, shares,
+	values,	find, clone,
+	shell,	clean, select,
+	keys, equals,	secure,
+	shuffle, omit, findIndex,
+	map, length,
+} from '@laufire/utils/collection';
+import { rndValue, rndValues, rndBetween } from '@laufire/utils/random';
+import { inferType } from '@laufire/utils/reflection';
+
+/* Helpers */
+import {
+	isolated, collection, extCollection,
+	sortArray, rndKey, rndCollection,
+	retry, rndDict,	arrayOrObject,
+	rndNested, rndArray,
+} from '../test/helpers';
 
 /* Configs */
 const numbers = [1, 2, 3, 4];
@@ -35,13 +43,11 @@ const number = (val) => numbers.includes(val);
 const testIterator = ({ predicate, iterable, expectation }) =>
 	expect(clean(filter(iterable, predicate))).toEqual(expectation);
 
-// TODO: Remove post fixing the testHelpers.rndCollection.
-const randomCollection = () => rndValue([values, (x) => x])(rndDict());
-
 /* Spec */
 describe('Predicates', () => {
 	const truthies = [1, '2', true, [], {}];
 	const falsies = [0, '', false, undefined, null];
+	const sample = [0, 1, 'a', null];
 	const tAndFArray = secure(shuffle(truthies.concat(falsies)));
 	const tasks = [
 		{ name: 'commit', effort: 1 },
@@ -109,7 +115,8 @@ describe('Predicates', () => {
 				};
 				const needle = rndValue(haystack);
 				const extendedNeedle = extenders[inferType(needle)](needle);
-				const partialNeedle = randomValues(needle);
+				const partialNeedle = rndValues(needle,
+					rndBetween(0, length(needle)));
 
 				expect(find(haystack, isPart(extendedNeedle))).toEqual(needle);
 				expect(find(haystack, isPart(partialNeedle)))
@@ -135,7 +142,7 @@ describe('Predicates', () => {
 					3, 3, ['object']
 				);
 				const expectation = rndValue(haystack);
-				const needle = randomValues(expectation);
+				const needle = rndValues(expectation);
 
 				expect(find(haystack, doesContain(needle)))
 					.toEqual(expectation);
@@ -145,8 +152,7 @@ describe('Predicates', () => {
 
 	describe('truthy tests for truthy values', () => {
 		test('example', () => {
-			// TODO: Replace with collections.filter post publishing.
-			expect([0, 1, 'a', null].filter(truthy)).toEqual([1, 'a']);
+			expect(filter(sample, truthy)).toEqual([1, 'a']);
 		});
 
 		test('randomized test', () => {
@@ -164,8 +170,7 @@ describe('Predicates', () => {
 
 	describe('falsy tests for falsy values', () => {
 		test('example', () => {
-			// TODO: Replace with collections.filter post publishing.
-			expect([0, 1, 'a', null].filter(falsy)).toEqual([0, null]);
+			expect(filter(sample, falsy)).toEqual([0, null]);
 		});
 
 		test('randomized test', () => {
@@ -213,8 +218,7 @@ describe('Predicates', () => {
 	+ 'the collection', () => {
 		test('example', () => {
 			expect(['a', 'b', 'c', 'a'].filter(first)).toEqual(['a', 'b', 'c']);
-			// TODO: Use imported filter post publishing.
-			expect(tFilter({ a: 1, b: 2, c: 1, d: 2 }, first))
+			expect(filter({ a: 1, b: 2, c: 1, d: 2 }, first))
 				.toEqual({ a: 1, b: 2 });
 		});
 
@@ -225,12 +229,11 @@ describe('Predicates', () => {
 				const subset = rndValues(baseValues,
 					rndBetween(1, baseValues.length - 1));
 				const haystack = map(baseCollection, () => rndValue(subset));
-				// TODO: Remove clean post publishing.
-				const expectation = clean(filter(haystack, (val, i) =>
+				const expectation = filter(haystack, (val, i) =>
 					findIndex(haystack, (childValue) =>
-						childValue === val) === i));
+						childValue === val) === i);
 
-				expect(tFilter(haystack, first)).toEqual(expectation);
+				expect(filter(haystack, first)).toEqual(expectation);
 			});
 		});
 	});
@@ -241,20 +244,18 @@ describe('Predicates', () => {
 
 	describe('not returns the inverse of the given predicate', () => {
 		test('example', () => {
-			// TODO: Remove clean post publishing.
-			expect(clean(filter(numbers, not(odd)))).toEqual(evenNumbers);
+			expect(filter(numbers, not(odd))).toEqual(evenNumbers);
 			expect(find(numbers, not(number))).toEqual(undefined);
 		});
 
 		test('randomized test', () => {
 			retry(() => {
-				const iterable = randomCollection();
+				const iterable = rndCollection();
 				const selector = rndKey(iterable);
 				const needle = iterable[selector];
 				// eslint-disable-next-line no-shadow
 				const predicate = not(isEqual(needle));
-				// TODO: Remove clean post publishing.
-				const expectation = clean(omit(iterable, [selector]));
+				const expectation = omit(iterable, [selector]);
 
 				testIterator({ predicate, iterable, expectation });
 			});
@@ -271,7 +272,7 @@ describe('Predicates', () => {
 
 		test('randomized test', () => {
 			retry(() => {
-				const iterable = randomCollection();
+				const iterable = rndCollection();
 				const selector = rndKey(iterable);
 				const needle = iterable[selector];
 				// eslint-disable-next-line no-shadow
@@ -294,7 +295,7 @@ describe('Predicates', () => {
 
 		test('randomized test', () => {
 			retry(() => {
-				const iterable = randomCollection();
+				const iterable = rndCollection();
 				const selector = rndValues(keys(iterable), 2);
 				const needleOne = iterable[selector[0]];
 				const needleTwo = iterable[selector[1]];
@@ -408,10 +409,9 @@ describe('Predicates', () => {
 
 		test('randomized test', () => {
 			const iterable = rndCollection();
-			const needle = randomValues(iterable);
+			const needle = rndValues(iterable);
 
-			// TODO: Remove clean post publishing.
-			expect(clean(filter(iterable, isIn(needle)))).toEqual(needle);
+			expect(filter(iterable, isIn(needle))).toEqual(needle);
 		});
 	});
 
@@ -430,12 +430,11 @@ describe('Predicates', () => {
 		test('randomized test', () => {
 			retry(() => {
 				const haystack = rndCollection();
-				// TODO: Remove String function post publishing.
-				const needle = String(rndKey(haystack));
+				const needle = rndKey(haystack);
 				const expectation = haystack[needle];
 
 				expect(find(haystack, (dummy, val) =>
-					key(isEqual(needle))(dummy, String(val))))
+					key(isEqual(needle))(dummy, val)))
 					.toEqual(expectation);
 			});
 		});
