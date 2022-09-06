@@ -1,24 +1,34 @@
-/* Helpers */
-import { contains, filter, shares, values,
-	find, clone, shell,
-	clean, select, keys, equals,
-	secure, shuffle, omit, findIndex,
-	map,
-	length } from '@laufire/utils/collection';
-import { rndValue, rndValues, rndString } from '@laufire/utils/random';
-import { inferType } from '@laufire/utils/reflection';
-import { isolated, collection, extCollection, sortArray,
-	rndKey, rndCollection, retry, rndDict,
-	arrayOrObject, rndNested, rndArray } from '../test/helpers';
-import { filter as tFilter } from './collection';
-import { rndBetween } from './lib';
-
 /* Tested */
-import { isEqual, isSame, isPart, doesContain,
-	truthy, falsy, everything, nothing,
-	first, unique,
-	not, or, and, onProp,
-	predicate, isIn, value, key, is, isDefined, hasProp } from './predicates';
+import {
+	isEqual, isSame, isPart,
+	doesContain, truthy, falsy,
+	everything, nothing, first,
+	unique,	not, or,
+	and, onProp, predicate,
+	isIn, value, key,
+	is,	hasProp, isDefined,
+} from './predicates';
+import {
+	contains, filter, shares,
+	values,	find, clone,
+	shell, clean, select,
+	keys, equals,	secure,
+	shuffle, omit, findIndex,
+	map, length,
+} from '@laufire/utils/collection';
+import {
+	rndValue, rndValues, rndBetween,
+	rndString,
+} from '@laufire/utils/random';
+import { inferType } from '@laufire/utils/reflection';
+
+/* Helpers */
+import {
+	isolated, collection, extCollection,
+	sortArray, rndKey, rndCollection,
+	retry, rndDict,	arrayOrObject,
+	rndNested, rndArray,
+} from '../test/helpers';
 
 /* Configs */
 const numbers = [1, 2, 3, 4];
@@ -464,7 +474,7 @@ describe('Predicates', () => {
 				symbol,
 			};
 
-			expect(tFilter(data, isDefined)).toEqual({ symbol });
+			expect(filter(data, isDefined)).toEqual({ symbol });
 		});
 
 		test('randomized test', () => {
@@ -472,7 +482,7 @@ describe('Predicates', () => {
 				const haystack = rndNested(1);
 				const needle = clean(haystack);
 
-				expect(tFilter(haystack, isDefined)).toEqual(needle);
+				expect(filter(haystack, isDefined)).toEqual(needle);
 			});
 		});
 	});
@@ -486,9 +496,9 @@ describe('Predicates', () => {
 
 			const expected = [{ a: 1, b: 2 }];
 
-			expect(tFilter(haystack, hasProp('a'))).toEqual(expected);
-			expect(tFilter(haystack, hasProp('b'))).toEqual(haystack);
-			expect(tFilter(haystack, hasProp('c'))).toEqual([]);
+			expect(filter(haystack, hasProp('a'))).toEqual(expected);
+			expect(filter(haystack, hasProp('b'))).toEqual(haystack);
+			expect(filter(haystack, hasProp('c'))).toEqual([]);
 		});
 
 		test('randomized test', () => {
@@ -498,7 +508,7 @@ describe('Predicates', () => {
 				);
 				const needle = rndKey(rndValue(haystack));
 
-				map(tFilter(haystack, hasProp(needle)), (result) =>
+				map(filter(haystack, hasProp(needle)), (result) =>
 					expect(keys(result).includes(needle)).toBeDefined());
 			});
 		});
