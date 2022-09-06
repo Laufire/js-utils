@@ -1,24 +1,26 @@
-import {
-	map, contains, secure,
-	has, values, range, reduce,
-} from '@laufire/utils/collection';
-import {
-	rndBetween as tRndBetween, rndString as tRndString,
-} from '@laufire/utils/random';
-import { inferType } from '@laufire/utils/reflection';
-import { unique } from '@laufire/utils/predicates';
-import { sum } from '@laufire/utils/reducers';
-import
-{ expectEquals, retry, rndCollection, getRatios,
-	strSubSet, isAcceptable, testRatios, summarize, rndDict }
-	from '../test/helpers';
-
 /* Tested */
 import {
 	rndBetween, rndOfString, rndString,
 	rndValue, rndValues, rndValueWeighted,
 	stringSeeds,
 } from './random';
+import {
+	map, contains, secure,
+	has, range,	reduce,
+	filter, count,
+} from '@laufire/utils/collection';
+import {
+	rndBetween as tRndBetween, rndString as tRndString,
+	rndValues as tRndValues,
+} from '@laufire/utils/random';
+import { inferType } from '@laufire/utils/reflection';
+import { unique } from '@laufire/utils/predicates';
+import { sum } from '@laufire/utils/reducers';
+import {
+	expectEquals, retry, rndCollection,
+	getRatios,	strSubSet, isAcceptable,
+	testRatios, summarize, rndDict,
+}	from '../test/helpers';
 
 /* Tests */
 describe('rndBetween helps in generating random numbers', () => {
@@ -110,11 +112,11 @@ describe('rndString', () => {
 	test('returns a random string based on the given seed'
 	+ ' and count', () => {
 		const seed = 'abcd';
-		const count = 2;
+		const length = 2;
 
-		const result = rndString(count, seed);
+		const result = rndString(length, seed);
 
-		expect(result.length).toBe(count);
+		expect(result.length).toBe(length);
 		expect(strSubSet(seed, result)).toBe(true);
 	});
 
@@ -122,9 +124,9 @@ describe('rndString', () => {
 	+ ' given stringSeed', () => {
 		retry(() => {
 			const seed = rndValue(stringSeeds);
-			const count = tRndBetween(0, 9);
+			const length = tRndBetween(0, 9);
 
-			const result = rndString(count, seed);
+			const result = rndString(length, seed);
 
 			expect(strSubSet(seed, result)).toBe(true);
 		});
@@ -132,22 +134,22 @@ describe('rndString', () => {
 
 	test('count defaults to 8 and seed defaults to char', () => {
 		const { char: seed } = stringSeeds;
-		const count = 8;
+		const defaultLength = 8;
 
 		retry(() => {
 			const result = rndString();
 
-			expect(result.length).toBe(count);
+			expect(result.length).toBe(defaultLength);
 			expect(strSubSet(seed, result)).toBe(true);
 		});
 	});
 
 	test('ratio test', () => {
 		const seed = 'abc';
-		const count = 1;
+		const length = 1;
 		const retryCount = 50000;
 
-		const results = retry(() => rndString(count, seed), retryCount);
+		const results = retry(() => rndString(length, seed), retryCount);
 
 		testRatios(results, getRatios(seed.split('')));
 	});
@@ -171,9 +173,8 @@ describe('rndOfString returns a random sub-string of the given string.', () => {
 
 		test('randomized test', () => {
 			const length = tRndBetween(0, 3);
-			// TODO: Use imported function rndValues after publishing.
 			const seed = 'ab';
-			const seedArray = rndValues(seed.split(''), length);
+			const seedArray = tRndValues(seed.split(''), length);
 			const seedStr = seedArray.join('');
 			const possibleLengths = range(0, seedStr.length + 1);
 
@@ -191,9 +192,9 @@ describe('rndOfString returns a random sub-string of the given string.', () => {
 	describe('count is limited to the length of the source string', () => {
 		test('example', () => {
 			const string = 'abcd';
-			const count = 8;
+			const length = 8;
 
-			const result = rndOfString(string, count);
+			const result = rndOfString(string, length);
 
 			expect(result.length).toEqual(string.length);
 			expect(strSubSet(string, result)).toBe(true);
@@ -202,10 +203,9 @@ describe('rndOfString returns a random sub-string of the given string.', () => {
 		test('randomized test', () => {
 			retry(() => {
 				const string = tRndString();
-				const count = string.length;
-				const result = rndOfString(string, count);
+				const { length } = string;
+				const result = rndOfString(string, length);
 
-				// TODO: Use collection.count after publishing.
 				expect(result.length).toEqual(string.length);
 				expect(strSubSet(string, result)).toBe(true);
 			});
@@ -216,31 +216,30 @@ describe('rndOfString returns a random sub-string of the given string.', () => {
 	+ ' is longer than the given count', () => {
 		test('example', () => {
 			const string = 'abcd';
-			const count = 2;
+			const length = 2;
 
-			const result = rndOfString(string, count);
+			const result = rndOfString(string, length);
 
-			expectEquals(result.length, count);
+			expectEquals(result.length, length);
 			expectEquals(strSubSet(string, result), true);
 		});
 
 		test('randomized test', () => {
 			retry(() => {
 				const string = tRndString();
-				const count = tRndBetween(0, string.length - 1);
+				const length = tRndBetween(0, string.length - 1);
 
-				const result = rndOfString(string, count);
+				const result = rndOfString(string, length);
 
-				expectEquals(result.length, count);
+				expectEquals(result.length, length);
 				expectEquals(strSubSet(string, result), true);
 			});
 		});
 	});
 
 	test('ratio test', () => {
-		// TODO: Use imported function rndValues after publishing.
 		const seed = 'ab';
-		const seedArray = rndValues(seed.split(''), tRndBetween(0, 3));
+		const seedArray = tRndValues(seed.split(''), tRndBetween(0, 3));
 		const seedStr = seedArray.join('');
 
 		const results = retry(() => rndOfString(seedStr), retryCount);
@@ -304,19 +303,18 @@ describe('rndValues returns the given count of random a values'
 				c: 3,
 				d: 4,
 			};
-			const count = 2;
+			const length = 2;
 
-			const result = rndValues(iterable, count);
+			const result = rndValues(iterable, length);
 
 			expectEquals(contains(iterable, result), true);
-			expectEquals(values(result).length, count);
+			expectEquals(count(result), length);
 		});
 
 		test('randomized test', () => {
 			const verifiers = {
 				array: (iterable, result) => {
-					// TODO: Use library filter after publishing.
-					expect(result.filter(unique)).toEqual(result);
+					expect(filter(result, unique)).toEqual(result);
 					map(result, (value) => expect(has(iterable, value))
 						.toEqual(true));
 				},
@@ -327,12 +325,12 @@ describe('rndValues returns the given count of random a values'
 
 			retry(() => {
 				const rndColl = rndCollection();
-				const count = tRndBetween(0, values(rndColl).length - 1);
+				const length = tRndBetween(0, count(rndColl) - 1);
 				const rndCollType = inferType(rndColl);
 
-				const result = rndValues(rndColl, count);
+				const result = rndValues(rndColl, length);
 
-				expect(values(result).length).toEqual(count);
+				expect(count(result)).toEqual(length);
 				expect(rndCollType).toEqual(inferType(result));
 				verifiers[rndCollType](rndColl, result);
 			});
@@ -347,21 +345,20 @@ describe('rndValues returns the given count of random a values'
 				c: 3,
 				d: 4,
 			};
-			const count = 8;
+			const length = 8;
 
-			const result = rndValues(iterable, count);
+			const result = tRndValues(iterable, length);
 
-			expect(values(result).length).toEqual(values(iterable).length);
+			expect(count(result)).toEqual(count(iterable));
 		});
 
 		test('randomized test', () => {
 			retry(() => {
 				const rndColl = rndCollection();
-				const count = values(rndColl).length;
-				const result = rndValues(rndColl, count);
+				const length = count(rndColl);
+				const result = tRndValues(rndColl, length);
 
-				// TODO: Use collection.count after publishing.
-				expect(values(result).length).toEqual(values(rndColl).length);
+				expect(count(result)).toEqual(count(rndColl));
 			});
 		});
 	});
@@ -375,10 +372,10 @@ describe('rndValues returns the given count of random a values'
 				d: 4,
 			};
 
-			const result = rndValues(iterable);
+			const result = tRndValues(iterable);
 
-			expect(values(result).length)
-				.not.toBeGreaterThan(values(iterable).length);
+			expect(count(result))
+				.not.toBeGreaterThan(count(iterable));
 		});
 
 		test('randomized test', () => {
@@ -386,7 +383,7 @@ describe('rndValues returns the given count of random a values'
 			const rndColl = rndCollection(0, length);
 			const possibleLengths = range(0, rndColl.length + 1);
 
-			const results = retry(() => rndValues(rndColl), retryCount);
+			const results = retry(() => tRndValues(rndColl), retryCount);
 
 			const resultLengths = map(results, (result) => result.length);
 
@@ -397,7 +394,7 @@ describe('rndValues returns the given count of random a values'
 	test('ratio test', () => {
 		const rndColl = rndCollection(0, tRndBetween(0, 2));
 
-		const results = retry(() => rndValues(rndColl), retryCount);
+		const results = retry(() => tRndValues(rndColl), retryCount);
 
 		testRatios(results.flat(), getRatios(rndColl));
 	});
