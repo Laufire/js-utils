@@ -1,6 +1,9 @@
 /* Helpers */
 import { combine, filter, gather, map, values, reduce,
-	keys } from './collection';
+	keys,
+	shell,
+	findIndex,
+	merge } from './collection';
 import { unique } from './predicates';
 
 /* Exports */
@@ -44,10 +47,33 @@ const group = (collection, grouper) => reduce(
 	}, {}
 );
 
+const classify = (collection, classifiers) =>
+	reduce(
+		collection, (
+			acc, value, key
+		) => {
+			const collectionShell = shell(collection);
+			const classification = findIndex(classifiers,
+				(classifier) => classifier(
+					value, key, collection
+				));
+
+			collectionShell[key] = value;
+
+			acc[classification]
+				= merge(acc[classification]
+					|| shell(collection), collectionShell);
+
+			return acc;
+		},
+		shell(classifiers)
+	);
+
 export {
 	index,
 	summarize,
 	descend,
 	transpose,
 	group,
+	classify,
 };

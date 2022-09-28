@@ -6,9 +6,14 @@ import { rndBetween, rndValue }
 import {
 	rndNested, retry, similarCols, rndKeys, rndCollection, convertKey,
 } from '../test/helpers';
+import { rndValues } from './random';
+
 /* Tested */
-import { descend, index, summarize, transpose, group } from './crunch';
+import {
+	descend, index, summarize, transpose, group, classify,
+} from './crunch';
 import { isDefined } from '@laufire/utils/reflection';
+import { isEqual } from '@laufire/utils/predicates';
 
 /* Spec */
 describe('Crunch', () => {
@@ -321,6 +326,54 @@ describe('Crunch', () => {
 				map(expected, ([key, item]) => {
 					expect(grouped[key].includes(item)).toEqual(true);
 				});
+			});
+		});
+	});
+
+	describe('classifier', () => {
+		test('example', () => {
+			const classifiers = {
+				tierOne: ({ population }) => population > 1000000,
+				tierTwo: ({ population }) => population > 500000,
+				tierThree: ({ population }) => population > 100000,
+				tierFour: () => true,
+			};
+
+			const collection = [
+				{ city: 'chennai', population: 10000 },
+				{ city: 'madurai', population: 8000 },
+				{ city: 'coimbatore', population: 25000 },
+				{ city: 'trichy', population: 14000 },
+			];
+
+			const result = classify(collection, classifiers);
+
+			const expected = {
+				tierFour: collection,
+			};
+
+			expect(result).toEqual(expected);
+		});
+
+		test.skip('randomized test', () => {
+			retry(() => {
+				const collection = rndNested(
+					3, 3, ['symbol']
+				);
+
+				const predicate = rndValues(collection);
+
+				const genClassifiers = () => map(predicate,
+					isEqual);
+
+				const classifiers = genClassifiers();
+
+				const result = classify(collection, classifiers);
+
+				expect(shell(classifiers)).toEqual(shell(result));
+
+				map(result[0], (value) =>
+					expect(value).toEqual());
 			});
 		});
 	});
