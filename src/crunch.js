@@ -2,9 +2,8 @@
 import { combine, filter, gather, map, values, reduce,
 	keys,
 	shell,
-	findIndex,
-	merge } from './collection';
-import { unique } from './predicates';
+	findIndex } from './collection';
+import { isDefined, unique } from './predicates';
 
 /* Exports */
 const index = (collection, indexes) => {
@@ -52,21 +51,17 @@ const classify = (collection, classifiers) =>
 		collection, (
 			acc, value, key
 		) => {
-			const collectionShell = shell(collection);
-			const classification = findIndex(classifiers,
-				(classifier) => classifier(
+			const classification = findIndex(classifiers, (classifier) =>
+				classifier(
 					value, key, collection
 				));
 
-			collectionShell[key] = value;
-
-			acc[classification]
-				= merge(acc[classification]
-					|| shell(collection), collectionShell);
+			isDefined(classification)
+			&& (acc[classification][key] = value);
 
 			return acc;
 		},
-		shell(classifiers)
+		map(classifiers, () => shell(collection))
 	);
 
 export {

@@ -1,5 +1,6 @@
 /* Helpers */
-import { secure, values, keys, reduce, map, findKey, shell, merge }
+import { secure, values, keys, reduce, map, findKey, shell, merge,
+	contains, clean, has, filter }
 	from '@laufire/utils/collection';
 import { rndBetween, rndValue }
 	from '@laufire/utils/random';
@@ -7,13 +8,14 @@ import {
 	rndNested, retry, similarCols, rndKeys, rndCollection, convertKey,
 } from '../test/helpers';
 import { rndValues } from './random';
+import { isDefined } from '@laufire/utils/reflection';
+import { isEqual } from '@laufire/utils/predicates';
+import { map as cMap, some } from './collection';
 
 /* Tested */
 import {
 	descend, index, summarize, transpose, group, classify,
 } from './crunch';
-import { isDefined } from '@laufire/utils/reflection';
-import { isEqual } from '@laufire/utils/predicates';
 
 /* Spec */
 describe('Crunch', () => {
@@ -336,35 +338,41 @@ describe('Crunch', () => {
 				tierOne: ({ population }) => population > 1000000,
 				tierTwo: ({ population }) => population > 500000,
 				tierThree: ({ population }) => population > 100000,
-				tierFour: () => true,
+				// tierFour: () => true,
 			};
 
 			const collection = [
 				{ city: 'chennai', population: 10000 },
 				{ city: 'madurai', population: 8000 },
-				{ city: 'coimbatore', population: 25000 },
+				{ city: 'coimbatore', population: 600000 },
 				{ city: 'trichy', population: 14000 },
 			];
 
 			const result = classify(collection, classifiers);
 
 			const expected = {
-				tierFour: collection,
+				tierOne: [],
+				tierTwo: [{ city: 'coimbatore', population: 600000 }],
+				tierThree: [],
+				tierFour: [],
 			};
 
-			expect(result).toEqual(expected);
+			map(classifiers, (dummy, key) => {
+				expect(contains(clean(result[key]),
+					expected[key])).toEqual(true);
+			});
+
+			expect(shell(result)).toEqual(shell(classifiers));
 		});
 
-		test.skip('randomized test', () => {
+		test('randomized test', () => {
 			retry(() => {
 				const collection = rndNested(
 					3, 3, ['symbol']
 				);
 
-				const predicate = rndValues(collection);
-
-				const genClassifiers = () => map(predicate,
-					isEqual);
+				const genClassifiers = () =>
+					map(rndValues(collection), isEqual);
 
 				const classifiers = genClassifiers();
 
@@ -372,8 +380,14 @@ describe('Crunch', () => {
 
 				expect(shell(classifiers)).toEqual(shell(result));
 
-				map(result[0], (value) =>
-					expect(value).toEqual());
+				cMap(result, (value, key) =>
+					map(value, (item) => {
+						expect(shell(value)).toEqual(shell(collection));
+						expect(has(collection, item)).toEqual(true);
+
+						expect(some(values(filter(result, (dummy, k) =>
+							k !== key)), isEqual(item))).toEqual(false);
+					}));
 			});
 		});
 	});
