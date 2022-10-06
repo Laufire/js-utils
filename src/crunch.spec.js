@@ -1,6 +1,6 @@
 /* Helpers */
 import { secure, values, keys, reduce, map, findKey, shell, merge,
-	contains, clean, has, filter }
+	contains, clean, has, equals }
 	from '@laufire/utils/collection';
 import { rndBetween, rndValue }
 	from '@laufire/utils/random';
@@ -338,7 +338,6 @@ describe('Crunch', () => {
 				tierOne: ({ population }) => population > 1000000,
 				tierTwo: ({ population }) => population > 500000,
 				tierThree: ({ population }) => population > 100000,
-				// tierFour: () => true,
 			};
 
 			const collection = [
@@ -357,12 +356,13 @@ describe('Crunch', () => {
 				tierFour: [],
 			};
 
+			expect(shell(result)).toEqual(shell(classifiers));
+
 			map(classifiers, (dummy, key) => {
+				expect(shell(result[key])).toEqual(shell(collection));
 				expect(contains(clean(result[key]),
 					expected[key])).toEqual(true);
 			});
-
-			expect(shell(result)).toEqual(shell(classifiers));
 		});
 
 		test('randomized test', () => {
@@ -385,8 +385,8 @@ describe('Crunch', () => {
 						expect(shell(value)).toEqual(shell(collection));
 						expect(has(collection, item)).toEqual(true);
 
-						expect(some(values(filter(result, (dummy, k) =>
-							k !== key)), isEqual(item))).toEqual(false);
+						expect(some(result, (val, i) =>
+							!equals(i, key) && has(val, item))).toEqual(false);
 					}));
 			});
 		});
