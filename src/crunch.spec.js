@@ -1,17 +1,21 @@
 /* Tested */
-import { descend, index, summarize, transpose, group } from './crunch';
+import {
+	descend, index, summarize,
+	transpose, group, classify,
+} from './crunch';
 import {
 	secure, values, keys,
 	reduce, map, findKey,
-	shell, merge, filter,
+	shell, merge, filter, find, equals, findIndex,
 } from '@laufire/utils/collection';
-import { rndBetween, rndValue } from '@laufire/utils/random';
+import { rndBetween, rndValue, rndValues } from '@laufire/utils/random';
 import { isDefined } from '@laufire/utils/reflection';
 /* Helpers */
 import {
 	rndNested, retry, similarCols,
 	rndKeys, rndCollection,
 } from '../test/helpers';
+import { isProbable } from './prob';
 
 /* Spec */
 describe('Crunch', () => {
@@ -324,4 +328,199 @@ describe('Crunch', () => {
 			});
 		});
 	});
+
+	describe('classify classifies the given collection based on classifiers',
+		() => {
+			describe('example', () => {
+				test('object of object', () => {
+					const classifiers = {
+						DensePopulation: (city) => city.population > 5000,
+						SparsePopulation: (city) => city.population > 3000,
+						LowPopulation: () => true,
+					};
+
+					const populations = {
+						chennai: {
+							population: 7000,
+							state: 'TN',
+						},
+						bangalore: {
+							population: 3000,
+							state: 'Karnataka',
+						},
+						cochin: {
+							population: 5000,
+							state: 'Kerala',
+						},
+						madurai: {
+							population: 2000,
+							state: 'TN',
+						},
+					};
+
+					const result = {
+						DensePopulation: {
+							chennai: {
+								population: 7000,
+								state: 'TN',
+							},
+						},
+						SparsePopulation: {
+							cochin: {
+								population: 5000,
+								state: 'Kerala',
+							},
+						},
+						LowPopulation: {
+							bangalore: {
+								population: 3000,
+								state: 'Karnataka',
+							},
+							madurai: {
+								population: 2000,
+								state: 'TN',
+							},
+						},
+					};
+
+					expect(classify(populations, classifiers)).toEqual(result);
+				});
+				test('array of object', () => {
+					const classifiers = {
+						adult: (person) => person.age > 19,
+						teen: (person) => person.age > 12,
+						child: (person) => person.age > 4,
+						toddler: () => true,
+					};
+					const personOne = { name: 'a', age: 20 };
+					const personTwo = { name: 'b', age: 10 };
+					const personThree = { name: 'c', age: 2 };
+					const personFour = { name: 'd', age: 14 };
+					const people = [
+						personOne, personTwo, personThree, personFour,
+					];
+
+					const result = classify(people, classifiers);
+
+					expect(result.adult[0]).toEqual(personOne);
+					expect(result.child[1]).toEqual(personTwo);
+					expect(result.toddler[2]).toEqual(personThree);
+					expect(result.teen[3]).toEqual(personFour);
+				});
+			});
+			describe('randomized test', () => {
+				test('First randomized test', () => {
+					const collection = rndCollection();
+					const classifierBase = rndCollection();
+					const expectation = [];
+					const classifiers = map(classifierBase,
+						(val, classifierKey) =>
+							(value, key) => {
+								const returnVal = rndValue([true, false]);
+
+								returnVal && expectation
+									.push([classifierKey, key, value]);
+								return returnVal;
+							});
+
+					const result = classify(collection, classifiers);
+
+					expectation.map((val) => {
+						expect(result[val[0]][val[1]]).toEqual(val[2]);
+					});
+				});
+				test('Second randomized test', () => {
+					retry(() => {
+						const collection = rndCollection();
+						const classifiersBase = rndCollection();
+						const classifierKeys = keys(classifiersBase);
+
+						const randomSelection = reduce(
+							collection,
+							(
+								acc, item, key,
+							) => {
+								isProbable(0.8) && (acc[key] = item);
+								return acc;
+							},
+							shell(collection),
+						);
+
+						const baseCollection = values(map(randomSelection,
+							(value, key) =>
+								({
+									key: key,
+									value: value,
+									classifierKey: rndValue(classifierKeys),
+								})));
+
+						const classifiers = map(classifiersBase,
+							(val, classifierKey) => (value, key) =>
+								find(baseCollection, (item) => equals(item, {
+									key, value, classifierKey,
+								})));
+
+						const expected = map(classifiersBase,
+							() => shell(collection));
+
+						map(baseCollection, ({ key, value, classifierKey }) => {
+							expected[classifierKey][key] = value;
+						});
+
+						const result = classify(collection, classifiers);
+
+						expect(result).toEqual(expected);
+					});
+				});
+				test('Randomized test', () => {
+					retry(() => {
+						const collection = rndCollection();
+						const classifiersBase = rndCollection();
+						const classifierKeys = keys(classifiersBase);
+
+						const randomSelection = reduce(
+							collection,
+							(
+								acc, item, key,
+							) => {
+								isProbable(0.8) && (acc[key] = item);
+								return acc;
+							},
+							shell(collection),
+						);
+
+						const baseCollection = map(randomSelection,
+							(value, key) =>
+								({
+									key: key,
+									value: value,
+									rndClassifyKeys: rndValues(classifierKeys),
+								}));
+
+						const classifiers = map(classifiersBase,
+							(val, orgClassifierKey) => (orgValue, orgKey) =>
+								!!find(baseCollection, ({
+									key, value, rndClassifyKeys,
+								}) => (value === orgValue)
+								&& (key === orgKey)
+								&& rndClassifyKeys.includes(orgClassifierKey)));
+
+						const expected = map(classifiersBase,
+							() => shell(collection));
+
+						map(baseCollection, ({ key, value }) => {
+							const predicted = findIndex(classifiers,
+								(classifier) => classifier(value, key));
+
+							isDefined(predicted)
+								&& (expected[predicted][key] = value);
+						});
+
+						const result = classify(collection, classifiers);
+
+						expect(result).toEqual(expected);
+					});
+				});
+			});
+		});
 });
