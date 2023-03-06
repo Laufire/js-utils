@@ -1,7 +1,11 @@
 /* Helpers */
-import { combine, filter, gather, map, values, reduce,
-	keys } from './collection';
+import {
+	combine, filter, gather,
+	map, values, reduce,
+	keys, shell, findIndex,
+} from './collection';
 import { unique } from './predicates';
+import { isDefined } from './reflection';
 
 /* Exports */
 const index = (collection, indexes) => {
@@ -44,10 +48,27 @@ const group = (collection, grouper) => reduce(
 	}, {}
 );
 
+const classify = (collection, classifiers) => reduce(
+	collection,
+	(
+		acc, item, key, ...rest
+	) => {
+		const category = findIndex(classifiers,
+			(classifier) => classifier(
+				item, key, ...rest
+			));
+
+		isDefined(category) && (acc[category][key] = item);
+		return acc;
+	},
+	map(classifiers, () => shell(collection))
+);
+
 export {
 	index,
 	summarize,
 	descend,
 	transpose,
 	group,
+	classify,
 };
