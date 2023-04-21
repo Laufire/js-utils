@@ -329,6 +329,13 @@ describe('Crunch', () => {
 		});
 	});
 
+	// TODO: Give a separate example to show collection will be classified on the first satisfied classifier as priority.
+	// TODO: Keep classifiers in camel case.
+	// TODO: Instead of city and state in populations example, use country and continent.
+	// TODO: To avoid duplicates, assign the city properties to a constant and reuse. (similar to array of object example wrote below)
+	// TODO: Update "array of object" to "array of objects" in example test desc.
+	// TODO: Description can be written better for test.
+
 	describe('classify classifies the given collection based on classifiers',
 		() => {
 			describe('example', () => {
@@ -408,6 +415,11 @@ describe('Crunch', () => {
 					expect(result.teen[3]).toEqual(personFour);
 				});
 			});
+
+			// TODO: Try to avoid using push in code.
+			// TODO: Remove First randomized test, if not needed.
+			// TODO: In second randomized test, use rndValues with count as dynamic, instead of isProbable.
+
 			describe('randomized test', () => {
 				test('Randomized test', () => {
 					retry(() => {
