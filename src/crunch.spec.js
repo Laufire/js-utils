@@ -6,7 +6,7 @@ import {
 import {
 	secure, values, keys,
 	reduce, map, findKey,
-	shell, merge, filter, find, equals, findIndex,
+	shell, merge, filter, find, findIndex,
 } from '@laufire/utils/collection';
 import { rndBetween, rndValue, rndValues } from '@laufire/utils/random';
 import { isDefined } from '@laufire/utils/reflection';
@@ -409,69 +409,6 @@ describe('Crunch', () => {
 				});
 			});
 			describe('randomized test', () => {
-				test('First randomized test', () => {
-					const collection = rndCollection();
-					const classifierBase = rndCollection();
-					const expectation = [];
-					const classifiers = map(classifierBase,
-						(val, classifierKey) =>
-							(value, key) => {
-								const returnVal = rndValue([true, false]);
-
-								returnVal && expectation
-									.push([classifierKey, key, value]);
-								return returnVal;
-							});
-
-					const result = classify(collection, classifiers);
-
-					expectation.map((val) => {
-						expect(result[val[0]][val[1]]).toEqual(val[2]);
-					});
-				});
-				test('Second randomized test', () => {
-					retry(() => {
-						const collection = rndCollection();
-						const classifiersBase = rndCollection();
-						const classifierKeys = keys(classifiersBase);
-
-						const randomSelection = reduce(
-							collection,
-							(
-								acc, item, key,
-							) => {
-								isProbable(0.8) && (acc[key] = item);
-								return acc;
-							},
-							shell(collection),
-						);
-
-						const baseCollection = values(map(randomSelection,
-							(value, key) =>
-								({
-									key: key,
-									value: value,
-									classifierKey: rndValue(classifierKeys),
-								})));
-
-						const classifiers = map(classifiersBase,
-							(val, classifierKey) => (value, key) =>
-								find(baseCollection, (item) => equals(item, {
-									key, value, classifierKey,
-								})));
-
-						const expected = map(classifiersBase,
-							() => shell(collection));
-
-						map(baseCollection, ({ key, value, classifierKey }) => {
-							expected[classifierKey][key] = value;
-						});
-
-						const result = classify(collection, classifiers);
-
-						expect(result).toEqual(expected);
-					});
-				});
 				test('Randomized test', () => {
 					retry(() => {
 						const collection = rndCollection();
