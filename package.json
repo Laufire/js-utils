@@ -5,15 +5,14 @@
   "main": "./module/index.js",
   "scripts": {
     "copy": "cp ./package.json ./ReadMe.md ./LICENSE ./dist/",
-    "build": "rm -rf ./dist && babel -d ./dist ./src && npm run copy",
+    "build": "webpack && npm run copy",
     "dev": "npm run build && cd ./dist  && npm link && cd ..",
     "test": "jest --no-cache",
     "test-dev": "retryCount=10 npm run test -- --collectCoverage=false",
     "test-ci": "npm run test -- --coverage",
     "lint": "eslint .",
     "prepareDist": "npm run lint && npm test && npm run build",
-    "dist": "npm run prepareDist && cd dist && npm publish --ignore-scripts",
-    "build-prod": "webpack && npm run copy"
+    "dist": "npm run prepareDist && cd dist && npm publish --ignore-scripts"
   },
   "repository": {
     "type": "git",
