@@ -1,33 +1,12 @@
 /* eslint-disable id-length */
 const path = require('path');
-const { prepareEntry } = require('./lib/webpackManager');
+const { prepareEntry, mergeConfig } = require('./lib/webpackManager');
 const config = require('./lib/config');
-const nodeExternals = require('webpack-node-externals');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const { merge } = require('webpack-merge');
 
-const common = {
-	mode: 'production',
-	externals: [nodeExternals()],
-	module: {
-		rules: [
-			{
-				test: /\.js$/,
-				exclude: /node_modules/,
-				use: {
-					loader: 'babel-loader',
-				},
-			},
-		],
-	},
-	output: {
-		path: path.resolve(__dirname, 'dist/'),
-		libraryTarget: 'commonjs',
-	},
-};
-
+// Todo: Consider to use generator insted mergeConfig.
 module.exports = [
-	merge(common, {
+	mergeConfig({
 		entry: {
 			'lib/index.js': './src/lib/index.js',
 		},
@@ -36,7 +15,7 @@ module.exports = [
 			filename: '[name]',
 		},
 	}),
-	merge(common, {
+	mergeConfig({
 		entry: prepareEntry(config),
 		resolve: {
 			alias: {
