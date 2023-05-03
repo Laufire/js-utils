@@ -2,11 +2,11 @@
   "name": "@laufire/utils",
   "version": "3.0.0-0",
   "description": "A simple set of utility libraries to ease development.",
-  "main": "./index.js",
+  "main": "./module/index.js",
   "scripts": {
     "copy": "cp ./package.json ./ReadMe.md ./LICENSE ./dist/",
-    "build": "rm -rf ./dist && babel --ignore '**/*.spec.js' -d ./dist ./src && npm run copy",
-    "dev": "npm run build && cd ./dist && npm link && cd ..",
+    "build": "webpack && npm run copy",
+    "dev": "npm run build && cd ./dist  && npm link && cd ..",
     "test": "jest --no-cache",
     "test-dev": "retryCount=10 npm run test -- --collectCoverage=false",
     "test-ci": "npm run test -- --coverage",
@@ -39,10 +39,16 @@
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.6.3",
+    "babel-loader": "^9.1.2",
+    "clean-webpack-plugin": "^4.0.0",
     "eslint": "^5.16.0",
     "jest": "^26.6.3",
     "node-pre-gyp": "^0.13.0",
-    "regenerator-runtime": "^0.13.7"
+    "regenerator-runtime": "^0.13.7",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-merge": "^5.8.0",
+    "webpack-node-externals": "^3.0.0"
   },
   "optionalDependencies": {
     "fsevents": "^2.3.2"
@@ -68,5 +74,11 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.14.0"
+  },
+  "exports": {
+    ".": "./module/index.js",
+    "./*": "./module/*",
+    "./lib": null,
+    "./module": null
   }
 }
