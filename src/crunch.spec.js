@@ -330,69 +330,48 @@ describe('Crunch', () => {
 	});
 
 	// TODO: Give a separate example to show collection will be classified on the first satisfied classifier as priority.
-	// TODO: Keep classifiers in camel case.
-	// TODO: Instead of city and state in populations example, use country and continent.
-	// TODO: To avoid duplicates, assign the city properties to a constant and reuse. (similar to array of object example wrote below)
-	// TODO: Update "array of object" to "array of objects" in example test desc.
 	// TODO: Description can be written better for test.
 
 	describe('classify classifies the given collection based on classifiers',
 		() => {
 			describe('example', () => {
-				test('object of object', () => {
+				test('object of objects', () => {
 					const classifiers = {
-						DensePopulation: (city) => city.population > 5000,
-						SparsePopulation: (city) => city.population > 3000,
-						LowPopulation: () => true,
+						densePopulation: ({ population }) =>
+							population > 500000,
+						sparsePopulation: ({ population }) =>
+							population > 300000,
+						lowPopulation: () => true,
 					};
 
-					const populations = {
-						chennai: {
-							population: 7000,
-							state: 'TN',
-						},
-						bangalore: {
-							population: 3000,
-							state: 'Karnataka',
-						},
-						cochin: {
-							population: 5000,
-							state: 'Kerala',
-						},
-						madurai: {
-							population: 2000,
-							state: 'TN',
-						},
+					const asia = {
+						population: 700000,
+						country: 'india',
 					};
+					const africa = {
+						population: 200000,
+						country: 'algeria',
+					};
+					const europe = {
+						population: 300000,
+						country: 'albania',
+					};
+					const america = {
+						population: 500000,
+						country: 'mexico',
+					};
+
+					const populations = { asia, africa, europe, america };
 
 					const result = {
-						DensePopulation: {
-							chennai: {
-								population: 7000,
-								state: 'TN',
-							},
-						},
-						SparsePopulation: {
-							cochin: {
-								population: 5000,
-								state: 'Kerala',
-							},
-						},
-						LowPopulation: {
-							bangalore: {
-								population: 3000,
-								state: 'Karnataka',
-							},
-							madurai: {
-								population: 2000,
-								state: 'TN',
-							},
-						},
+						densePopulation: { asia },
+						sparsePopulation: {	america },
+						lowPopulation: { africa, europe },
 					};
 
 					expect(classify(populations, classifiers)).toEqual(result);
 				});
-				test('array of object', () => {
+				test('array of objects', () => {
 					const classifiers = {
 						adult: (person) => person.age > 19,
 						teen: (person) => person.age > 12,
@@ -416,9 +395,7 @@ describe('Crunch', () => {
 				});
 			});
 
-			// TODO: Try to avoid using push in code.
-			// TODO: Remove First randomized test, if not needed.
-			// TODO: In second randomized test, use rndValues with count as dynamic, instead of isProbable.
+			// TODO: use rndValues with count as dynamic, instead of isProbable.
 
 			describe('randomized test', () => {
 				test('Randomized test', () => {
