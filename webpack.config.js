@@ -4,9 +4,9 @@ const { prepareEntry, mergeConfig } = require('./lib/webpackManager');
 const config = require('./lib/config');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
-// Todo: Consider to use generator insted mergeConfig.
-module.exports = [
-	mergeConfig({
+const entries = [
+	{
+		name: 'lib',
 		entry: {
 			'lib/index.js': './src/lib/index.js',
 		},
@@ -14,8 +14,9 @@ module.exports = [
 		output: {
 			filename: '[name]',
 		},
-	}),
-	mergeConfig({
+	},
+	{
+		name: 'module',
 		entry: prepareEntry(config),
 		resolve: {
 			alias: {
@@ -25,5 +26,7 @@ module.exports = [
 		output: {
 			filename: 'module[name]',
 		},
-	}),
+	},
 ];
+
+module.exports = entries.map(mergeConfig);

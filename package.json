@@ -5,7 +5,9 @@
   "main": "./module/index.js",
   "scripts": {
     "copy": "cp ./package.json ./ReadMe.md ./LICENSE ./dist/",
-    "build": "webpack && npm run copy",
+    "build-lib": "webpack --config-name lib",
+    "build-module": "webpack --config-name module",
+    "build": "npm run build-lib && npm run build-module && npm run copy",
     "dev": "npm run build && cd ./dist  && npm link && cd ..",
     "test": "jest --no-cache",
     "test-dev": "retryCount=10 npm run test -- --collectCoverage=false",
