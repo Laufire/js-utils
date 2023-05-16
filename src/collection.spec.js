@@ -2156,27 +2156,30 @@ describe('Collection', () => {
 		});
 
 		describe('randomized tests', () => {
-			const rndParts = tMap(tRange(0, 2), () => rndString());
-			const path = rndParts.join('/');
-			const leaf = rndValue([Symbol('leaf'), undefined]);
+			retry(() => {
+				const rndParts = tMap(tRange(0, rndBetween(0, 10)),
+					() => rndString());
+				const path = rndParts.join('/');
+				const leaf = rndValue([Symbol('leaf'), undefined]);
 
-			const structure = scaffold(path, leaf);
+				const structure = scaffold(path, leaf);
 
-			test('structure test', () => {
-				const reducer = (acc, value) => {
-					expect(isObject(acc)).toBeTruthy();
-					expect(keys(acc).length).toEqual(1);
+				test('structure test', () => {
+					const reducer = (acc, value) => {
+						expect(isObject(acc)).toBeTruthy();
+						expect(keys(acc).length).toEqual(1);
 
-					return acc[value];
-				};
+						return acc[value];
+					};
 
-				tReduce(
-					rndParts, reducer, structure
-				);
-			});
+					tReduce(
+						rndParts, reducer, structure
+					);
+				});
 
-			test('leaf test', () => {
-				expect(tResult(structure, path)).toEqual(leaf || {});
+				test('leaf test', () => {
+					expect(tResult(structure, path)).toEqual(leaf || {});
+				});
 			});
 		});
 	});
