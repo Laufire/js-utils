@@ -2107,58 +2107,52 @@ describe('Collection', () => {
 		});
 	});
 
-	describe('scaffold creates a nested structure'
+	describe('scaffold creates a structure'
 	+ ' based on the given path', () => {
-		test('leaf defaults to an empty object',
-			() => {
-				const path = '/a/b/c';
+		describe('example', () => {
+			test('leaf defaults to an empty object',
+				() => {
+					const path = '/a/b/c';
+					const expected = {
+						a: {
+							b: {
+								c: {},
+							},
+						},
+					};
+
+					expect(scaffold(path)).toEqual(expected);
+				});
+
+			test('only provided one leaf will have'
+			+ ' only one descendent', () => {
+				const path = '/a/';
+				const leaf = Symbol('leaf');
+				const expected = {
+					a: leaf,
+				};
+
+				expect(scaffold(path, leaf)).toEqual(expected);
+			});
+
+			test('any provided leaf will be the last descendent', () => {
+				const path = '/a/b';
+				const leaf = Symbol('leaf');
 				const expected = {
 					a: {
-						b: {
-							c: {},
-						},
+						b: leaf,
 					},
 				};
 
-				const res = scaffold(path);
-
-				expect(res).toEqual(expected);
+				expect(scaffold(path, leaf)).toEqual(expected);
 			});
 
-		test('only provided one leaf will have'
-		+ ' only one descendent', () => {
-			const path = '/a/';
-			const leaf = Symbol('leaf');
-			const expected = {
-				a: leaf,
-			};
+			test('no structure will be built when the path is root', () => {
+				const path = '/';
+				const leaf = Symbol('leaf');
 
-			const res = scaffold(path, leaf);
-
-			expect(res).toEqual(expected);
-		});
-
-		test('any provided leaf will be the last descendent', () => {
-			const path = '/a/b';
-			const leaf = Symbol('leaf');
-			const expected = {
-				a: {
-					b: leaf,
-				},
-			};
-
-			const res = scaffold(path, leaf);
-
-			expect(res).toEqual(expected);
-		});
-
-		test('no structure will be built when the path is root', () => {
-			const path = '/';
-			const leaf = Symbol('leaf');
-
-			const res = scaffold(path, leaf);
-
-			expect(res).toEqual(leaf);
+				expect(scaffold(path, leaf)).toEqual(leaf);
+			});
 		});
 
 		describe('randomized test', () => {
@@ -2182,9 +2176,7 @@ describe('Collection', () => {
 			});
 
 			test('leaf test', () => {
-				const expectedLeaf = tResult(res, path);
-
-				expect(expectedLeaf).toEqual(leaf || {});
+				expect(tResult(res, path)).toEqual(leaf || {});
 			});
 		});
 	});
