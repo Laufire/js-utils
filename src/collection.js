@@ -597,12 +597,22 @@ const every = (collection, predicate) =>
 
 const reverse = (collection) => sort(collection, sReverse);
 
+const reducer = (acc, c) => ({ [c]: acc });
+
+const scaffold = (path, data = {}) => reduce(
+	sort(map(parts(resolve('/', path)), unescape), reverse), reducer, data
+);
+
 export {
-	keys, values, entries, fromEntries, each, map, filter, reduce,
-	nReduce, traverse, walk, has, hasKey, clean, sanitize, omit, select,
-	result, flip, flipMany, translate, shell, assign, clone, squash,
-	combine, merge, overlay, compose, fill, patch, diff, secure, equals,
-	contains, gather, pick, toArray, toDict, adopt, find, findLast,
-	lFind, findKey, findIndex, findLastKey, lFindKey, range, hasSame,
-	shares, shuffle, sort, length, count, flatMap, some, every, reverse,
+	keys, values, entries, fromEntries,
+	each, map, filter, reduce, nReduce,
+	traverse, walk, has, hasKey,
+	clean, sanitize, omit, select, result,
+	flip, flipMany, translate,
+	shell, assign, clone, squash, combine, merge, overlay, compose, fill,
+	patch, diff, secure, equals, contains,
+	gather, pick, toArray, toDict, adopt,
+	find, findLast, lFind, findKey, findIndex, findLastKey, lFindKey,
+	range, hasSame, shares, shuffle, sort, length, count, flatMap,
+	scaffold, every, reverse, some,
 };
