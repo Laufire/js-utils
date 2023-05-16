@@ -600,7 +600,7 @@ const reverse = (collection) => sort(collection, sReverse);
 const reducer = (acc, c) => ({ [c]: acc });
 
 const scaffold = (path, data = {}) => reduce(
-	sort(map(parts(resolve('/', path)), unescape), reverse), reducer, data
+	sort(map(parts(resolve('/', path)), unescape), sReverse), reducer, data
 );
 
 export {

@@ -7,7 +7,7 @@
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
 import { isDefined, inferType, isIterable,
-	isDict, isArray } from '@laufire/utils/reflection';
+	isDict, isArray, isObject } from '@laufire/utils/reflection';
 import { ascending, descending,
 	reverse as sReverse } from '@laufire/utils/sorters';
 import { sum, product } from '@laufire/utils/reducers';
@@ -17,7 +17,8 @@ import { select as tSelect, map as tMap, keys as tKeys,
 	clean as tClean, fromEntries as tFromEntries,
 	pick as tPick, clone as tClone, merge as tMerge,
 	shell as tShell, equals as tEquals,
-	shuffle as tShuffle } from '@laufire/utils/collection';
+	shuffle as tShuffle, result as tResult,
+	range as tRange } from '@laufire/utils/collection';
 import { isEqual } from '@laufire/utils/predicates';
 import { rndKey, array, object, expectEquals,
 	rndDict, rndNested, extended, isolated, toObject,
@@ -28,12 +29,13 @@ import { rndKey, array, object, expectEquals,
 /* Tested */
 import {
 	adopt, shares, clean, clone, compose, combine, contains, toDict, diff,
-	each, entries, equals, find, findKey, fill, filter, flip, flipMany,
-	fromEntries, gather, has, hasSame, map, merge, overlay, patch, pick,
-	omit, range, reduce, result, sanitize, secure, select, shell, shuffle,
-	sort, squash, hasKey, translate, traverse, walk, values, keys,
-	length, toArray, nReduce, findIndex, findLast, lFind, findLastKey,
-	lFindKey, count, flatMap, some, every, reverse,
+	each, entries, equals, find, findKey, fill, filter, flip,
+	flipMany, fromEntries, gather, has, hasSame, map, merge, overlay,
+	patch, pick, omit, range, reduce, result,
+	sanitize, secure, select, shell, shuffle, sort, squash, hasKey,
+	translate, traverse, walk, values, keys, length, toArray, nReduce,
+	findIndex, findLast, lFind, findLastKey, lFindKey, count, flatMap,
+	scaffold, some, every, reverse,
 } from './collection';
 
 const mockObj = (objKeys, value) =>
@@ -2101,6 +2103,88 @@ describe('Collection', () => {
 				const expected = reversers[inferType(collection)](collection);
 
 				expect(reverse(collection)).toEqual(expected);
+			});
+		});
+	});
+
+	describe('scaffold creates a nested structure'
+	+ ' based on the given path', () => {
+		test('leaf defaults to an empty object',
+			() => {
+				const path = '/a/b/c';
+				const expected = {
+					a: {
+						b: {
+							c: {},
+						},
+					},
+				};
+
+				const res = scaffold(path);
+
+				expect(res).toEqual(expected);
+			});
+
+		test('only provided one leaf will have'
+		+ ' only one descendent', () => {
+			const path = '/a/';
+			const leaf = Symbol('leaf');
+			const expected = {
+				a: leaf,
+			};
+
+			const res = scaffold(path, leaf);
+
+			expect(res).toEqual(expected);
+		});
+
+		test('any provided leaf will be the last descendent', () => {
+			const path = '/a/b';
+			const leaf = Symbol('leaf');
+			const expected = {
+				a: {
+					b: leaf,
+				},
+			};
+
+			const res = scaffold(path, leaf);
+
+			expect(res).toEqual(expected);
+		});
+
+		test('no structure will be built when the path is root', () => {
+			const path = '/';
+			const leaf = Symbol('leaf');
+
+			const res = scaffold(path, leaf);
+
+			expect(res).toEqual(leaf);
+		});
+
+		describe('randomized test', () => {
+			const rndArray = tMap(tRange(0, 2), () => rndString());
+			const path = rndArray.join('/');
+			const leaf = rndValue([Symbol('leaf'), undefined]);
+
+			const res = scaffold(path, leaf);
+
+			test('structure test', () => {
+				const reducer = (acc, value) => {
+					expect(isObject(acc)).toBeTruthy();
+					expect(keys(acc).length).toEqual(1);
+
+					return acc[value];
+				};
+
+				tReduce(
+					rndArray, reducer, res
+				);
+			});
+
+			test('leaf test', () => {
+				const expectedLeaf = tResult(res, path);
+
+				expect(expectedLeaf).toEqual(leaf || {});
 			});
 		});
 	});
