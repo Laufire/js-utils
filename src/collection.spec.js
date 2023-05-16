@@ -2155,12 +2155,12 @@ describe('Collection', () => {
 			});
 		});
 
-		describe('randomized test', () => {
-			const rndArray = tMap(tRange(0, 2), () => rndString());
-			const path = rndArray.join('/');
+		describe('randomized tests', () => {
+			const rndParts = tMap(tRange(0, 2), () => rndString());
+			const path = rndParts.join('/');
 			const leaf = rndValue([Symbol('leaf'), undefined]);
 
-			const res = scaffold(path, leaf);
+			const structure = scaffold(path, leaf);
 
 			test('structure test', () => {
 				const reducer = (acc, value) => {
@@ -2171,12 +2171,12 @@ describe('Collection', () => {
 				};
 
 				tReduce(
-					rndArray, reducer, res
+					rndParts, reducer, structure
 				);
 			});
 
 			test('leaf test', () => {
-				expect(tResult(res, path)).toEqual(leaf || {});
+				expect(tResult(structure, path)).toEqual(leaf || {});
 			});
 		});
 	});
