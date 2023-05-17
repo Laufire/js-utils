@@ -361,13 +361,13 @@ describe('Collection', () => {
 				const collection = rndCollection();
 				const initial = Symbol('initial');
 				const collectionKeys = tKeys(collection);
-				const accumlators = [initial,
+				const accumulators = [initial,
 					...tMap(collectionKeys, Symbol)];
-				const expectation = accumlators[accumlators.length - 1];
+				const expectation = accumulators[accumulators.length - 1];
 
 				const predicate = jest.fn().mockImplementation((
 					dummy, dummyOne, key
-				) => accumlators[collectionKeys.findIndex((cKey) =>
+				) => accumulators[collectionKeys.findIndex((cKey) =>
 					String(cKey) === String(key)) + 1]);
 
 				const received = reduce(
@@ -378,7 +378,7 @@ describe('Collection', () => {
 
 				tMap(collectionKeys, (key, i) =>
 					expect(predicate.mock.calls[i]).toEqual([
-						accumlators[i],
+						accumulators[i],
 						collection[key],
 						// TODO: Remove converters post publishing.
 						converters[inferType(collection)](key),
