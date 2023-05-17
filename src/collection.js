@@ -605,6 +605,20 @@ const scaffold = (path, data = {}) => {
 	);
 };
 
+const reduceSync = async (
+	collection, cb, initial
+) => {
+	let acc = initial;
+
+	for(const key of keys(collection)) {
+		// eslint-disable-next-line no-await-in-loop
+		acc = await cb(
+			acc, collection[key], key, collection
+		);
+	}
+	return acc;
+};
+
 export {
 	keys, values, entries, fromEntries,
 	each, map, filter, reduce, nReduce,
@@ -616,5 +630,5 @@ export {
 	gather, pick, toArray, toDict, adopt,
 	find, findLast, lFind, findKey, findIndex, findLastKey, lFindKey,
 	range, hasSame, shares, shuffle, sort, length, count, flatMap,
-	scaffold, every, reverse, some,
+	scaffold, every, reverse, some, reduceSync,
 };
