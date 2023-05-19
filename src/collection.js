@@ -606,16 +606,22 @@ const scaffold = (path, data = {}) => {
 };
 
 const reduceSync = async (
-	collection, cb, initial
+	collection, reducer, initial
 ) => {
 	let acc = initial;
 
-	for(const key of keys(collection)) {
+	const indexes = libKeys(collection);
+	const indexLength = indexes.length;
+
+	for(let i = 0; i < indexLength; i++) {
+		const index = indexes[i];
+
 		// eslint-disable-next-line no-await-in-loop
-		acc = await cb(
-			acc, collection[key], key, collection
+		acc = await reducer(
+			acc, collection[index], index, collection
 		);
 	}
+
 	return acc;
 };
 
