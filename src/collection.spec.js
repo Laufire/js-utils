@@ -35,7 +35,7 @@ import {
 	sanitize, secure, select, shell, shuffle, sort, squash, hasKey,
 	translate, traverse, walk, values, keys, length, toArray, nReduce,
 	findIndex, findLast, lFind, findLastKey, lFindKey, count, flatMap,
-	scaffold, some, every, reverse,
+	scaffold, some, every, reverse, reduceSync,
 } from './collection';
 
 const mockObj = (objKeys, value) =>
@@ -154,7 +154,7 @@ describe('Collection', () => {
 		});
 	};
 
-	const extractedReduce = async (fnName) => {
+	const extractedReduce = async (fnName, cbType) => {
 		const collection = rndCollection();
 		const initial = Symbol('initial');
 		const collectionKeys = tKeys(collection);
@@ -162,19 +162,34 @@ describe('Collection', () => {
 			...tMap(collectionKeys, Symbol)];
 		const expectation = accumulators[accumulators.length - 1];
 
-		const predicate = jest.fn().mockImplementation((
+		const reducer = (
 			dummy, dummyOne, key
 		) => accumulators[collectionKeys.findIndex((cKey) =>
-			String(cKey) === String(key)) + 1]);
+			String(cKey) === String(key)) + 1];
 
+		const asyncReducer = (
+			dummy, dummyOne, key
+		) => {
+			const acc = new Promise((resolve) => {
+				resolve(accumulators[collectionKeys.findIndex((cKey) =>
+					String(cKey) === String(key)) + 1]);
+			});
+
+			return acc;
+		};
+
+		const cb = {
+			sync: reducer,
+			async: asyncReducer,
+		};
 		const received = await fnName(
-			collection, predicate, initial
+			collection, jest.fn().mockImplementation(cb[cbType]), initial
 		);
 
 		expect(received).toEqual(expectation);
 
 		tMap(collectionKeys, (key, i) =>
-			expect(predicate.mock.calls[i]).toEqual([
+			expect(reducer.mock.calls[i]).toEqual([
 				accumulators[i],
 				collection[key],
 				// TODO: Remove converters post publishing.
@@ -387,7 +402,7 @@ describe('Collection', () => {
 
 		test('randomized test', () => {
 			retry(() => {
-				extractedReduce(reduce);
+				extractedReduce(reduce, 'sync');
 			});
 		});
 	});
@@ -2184,6 +2199,14 @@ describe('Collection', () => {
 				test('leaf test', () => {
 					expect(tResult(structure, path)).toEqual(leaf || {});
 				});
+			});
+		});
+	});
+
+	describe('reduceSync reduces the given collection async.', () => {
+		test('randomized test', () => {
+			retry(() => {
+				extractedReduce(reduceSync, 'async');
 			});
 		});
 	});
