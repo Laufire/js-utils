@@ -154,6 +154,35 @@ describe('Collection', () => {
 		});
 	};
 
+	const extractedReduce = async (fnName) => {
+		const collection = rndCollection();
+		const initial = Symbol('initial');
+		const collectionKeys = tKeys(collection);
+		const accumulators = [initial,
+			...tMap(collectionKeys, Symbol)];
+		const expectation = accumulators[accumulators.length - 1];
+
+		const predicate = jest.fn().mockImplementation((
+			dummy, dummyOne, key
+		) => accumulators[collectionKeys.findIndex((cKey) =>
+			String(cKey) === String(key)) + 1]);
+
+		const received = await fnName(
+			collection, predicate, initial
+		);
+
+		expect(received).toEqual(expectation);
+
+		tMap(collectionKeys, (key, i) =>
+			expect(predicate.mock.calls[i]).toEqual([
+				accumulators[i],
+				collection[key],
+				// TODO: Remove converters post publishing.
+				converters[inferType(collection)](key),
+				collection,
+			]));
+	};
+
 	/* Tests */
 	describe('map transforms the given iterable using'
 	+ ' the given callback', () => {
@@ -358,32 +387,7 @@ describe('Collection', () => {
 
 		test('randomized test', () => {
 			retry(() => {
-				const collection = rndCollection();
-				const initial = Symbol('initial');
-				const collectionKeys = tKeys(collection);
-				const accumulators = [initial,
-					...tMap(collectionKeys, Symbol)];
-				const expectation = accumulators[accumulators.length - 1];
-
-				const predicate = jest.fn().mockImplementation((
-					dummy, dummyOne, key
-				) => accumulators[collectionKeys.findIndex((cKey) =>
-					String(cKey) === String(key)) + 1]);
-
-				const received = reduce(
-					collection, predicate, initial
-				);
-
-				expect(received).toEqual(expectation);
-
-				tMap(collectionKeys, (key, i) =>
-					expect(predicate.mock.calls[i]).toEqual([
-						accumulators[i],
-						collection[key],
-						// TODO: Remove converters post publishing.
-						converters[inferType(collection)](key),
-						collection,
-					]));
+				extractedReduce(reduce);
 			});
 		});
 	});
