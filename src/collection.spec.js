@@ -154,43 +154,46 @@ describe('Collection', () => {
 		});
 	};
 
-	const extractedReduce = async (fnName, cbType) => {
+	const testReduceSync = async (fn, cbType) => {
 		const collection = rndCollection();
 		const initial = Symbol('initial');
 		const collectionKeys = tKeys(collection);
-		const accumulators = [initial,
+		const accumulator = [initial,
 			...tMap(collectionKeys, Symbol)];
-		const expectation = accumulators[accumulators.length - 1];
+		const expectation = accumulator[accumulator.length - 1];
 
 		const reducer = (
 			dummy, dummyOne, key
-		) => accumulators[collectionKeys.findIndex((cKey) =>
+		) => accumulator[collectionKeys.findIndex((cKey) =>
 			String(cKey) === String(key)) + 1];
 
 		const asyncReducer = (
 			dummy, dummyOne, key
 		) => {
 			const acc = new Promise((resolve) => {
-				resolve(accumulators[collectionKeys.findIndex((cKey) =>
+				resolve(accumulator[collectionKeys.findIndex((cKey) =>
 					String(cKey) === String(key)) + 1]);
 			});
 
 			return acc;
 		};
 
-		const cb = {
+		const cbTypes = {
 			sync: reducer,
 			async: asyncReducer,
 		};
-		const received = await fnName(
-			collection, jest.fn().mockImplementation(cb[cbType]), initial
+
+		const cb = jest.fn().mockImplementation(cbTypes[cbType]);
+
+		const received = await fn(
+			collection, cb, initial
 		);
 
 		expect(received).toEqual(expectation);
 
 		tMap(collectionKeys, (key, i) =>
-			expect(reducer.mock.calls[i]).toEqual([
-				accumulators[i],
+			expect(cb.mock.calls[i]).toEqual([
+				accumulator[i],
 				collection[key],
 				// TODO: Remove converters post publishing.
 				converters[inferType(collection)](key),
@@ -402,7 +405,7 @@ describe('Collection', () => {
 
 		test('randomized test', () => {
 			retry(() => {
-				extractedReduce(reduce, 'sync');
+				testReduceSync(reduce, 'sync');
 			});
 		});
 	});
@@ -2203,11 +2206,12 @@ describe('Collection', () => {
 		});
 	});
 
-	describe('reduceSync reduces the given collection async.', () => {
-		test('randomized test', () => {
-			retry(() => {
-				extractedReduce(reduceSync, 'async');
-			});
+	// TODO: Make retry work with async/await functions.
+	describe.only('reduceSync reduces the given collection async.', () => {
+		test('randomized test', async () => {
+			await Promise.all(retry(async () => {
+				await testReduceSync(reduceSync, 'async');
+			}));
 		});
 	});
 });
