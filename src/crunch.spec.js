@@ -288,7 +288,8 @@ describe('Crunch', () => {
 		});
 	});
 
-	describe('groups the given collection according to given grouper', () => {
+	describe('group groups the given collection'
+	+ ' according to given grouper', () => {
 		test('example', () => {
 			const taskOne = { task: 'bugFix', priority: 1 };
 			const taskTwo = { task: 'feature', priority: 2 };
@@ -324,7 +325,7 @@ describe('Crunch', () => {
 
 				map(data, expect(mockGrouper).toHaveBeenCalledWith);
 				map(expected, ([key, item]) => {
-					expect(grouped[key].includes(item)).toEqual(true);
+					expect(grouped[key].includes(item)).toBeTruthy();
 				});
 			});
 		});
