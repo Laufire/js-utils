@@ -2233,12 +2233,9 @@ describe('Collection', () => {
 	describe('pipe', () => {
 		test('examples', async () => {
 			const addOne = (num) => num + 1;
-
 			const addTwo = (num) => num + 2;
-
 			const pipes = [addOne, addTwo];
 			const data = 1;
-
 			const received = await pipe(pipes, data);
 
 			expect(received).toEqual(4);
