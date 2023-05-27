@@ -2213,7 +2213,7 @@ describe('Collection', () => {
 	});
 
 	// TODO: Make retry work with async/await functions.
-	describe.only('reduceSync reduces the given collection async.', () => {
+	describe('reduceSync reduces the given collection async.', () => {
 		test('example', async () => {
 			expect(await reduceSync(
 				simpleObj, asyncConverter(sum), 0

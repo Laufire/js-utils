@@ -625,6 +625,10 @@ const reduceSync = async (
 	return acc;
 };
 
+const pipe = (pipes, data) => reduceSync(
+	pipes, (acc, c) => c(acc), data,
+);
+
 export {
 	keys, values, entries, fromEntries,
 	each, map, filter, reduce, nReduce,
@@ -636,5 +640,5 @@ export {
 	gather, pick, toArray, toDict, adopt,
 	find, findLast, lFind, findKey, findIndex, findLastKey, lFindKey,
 	range, hasSame, shares, shuffle, sort, length, count, flatMap,
-	scaffold, every, reverse, some, reduceSync,
+	scaffold, every, reverse, some, reduceSync, pipe,
 };
