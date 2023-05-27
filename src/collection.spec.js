@@ -201,6 +201,12 @@ describe('Collection', () => {
 			]));
 	};
 
+	const asyncConverter = (fn) => async (...props) => {
+		const res = await fn(...props);
+
+		return res;
+	};
+
 	/* Tests */
 	describe('map transforms the given iterable using'
 	+ ' the given callback', () => {
@@ -2208,6 +2214,15 @@ describe('Collection', () => {
 
 	// TODO: Make retry work with async/await functions.
 	describe.only('reduceSync reduces the given collection async.', () => {
+		test('example', async () => {
+			expect(await reduceSync(
+				simpleObj, asyncConverter(sum), 0
+			)).toEqual(3);
+			expect(await reduceSync(
+				simpleArray, asyncConverter(product), 1
+			)).toEqual(2);
+		});
+
 		test('randomized test', async () => {
 			await Promise.all(retry(async () => {
 				await testReduceSync(reduceSync, 'async');
