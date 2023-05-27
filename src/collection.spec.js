@@ -35,7 +35,7 @@ import {
 	sanitize, secure, select, shell, shuffle, sort, squash, hasKey,
 	translate, traverse, walk, values, keys, length, toArray, nReduce,
 	findIndex, findLast, lFind, findLastKey, lFindKey, count, flatMap,
-	scaffold, some, every, reverse, reduceSync,
+	scaffold, some, every, reverse, reduceSync, pipe,
 } from './collection';
 
 const mockObj = (objKeys, value) =>
@@ -2227,6 +2227,21 @@ describe('Collection', () => {
 			await Promise.all(retry(async () => {
 				await testReduceSync(reduceSync, 'async');
 			}));
+		});
+	});
+
+	describe('pipe', () => {
+		test('examples', async () => {
+			const addOne = (num) => num + 1;
+
+			const addTwo = (num) => num + 2;
+
+			const pipes = [addOne, addTwo];
+			const data = 1;
+
+			const received = await pipe(pipes, data);
+
+			expect(received).toEqual(4);
 		});
 	});
 });
