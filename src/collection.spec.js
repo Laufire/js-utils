@@ -2240,5 +2240,27 @@ describe('Collection', () => {
 
 			expect(received).toEqual(4);
 		});
+
+		/*
+		Behavior:
+			First function toHaveBeenCalledWith data.
+			Each function toHaveBeenCalledWith return value of previous function.
+			Last function's return will be output.
+		*/
+		test('randomized test', async () => {
+			const collection = await map(rndRange(),
+				(value) => jest.fn((acc) => acc + value));
+			const data = 1;
+			const res = await pipe(collection, data);
+
+			map(collection, (fn, key) => {
+				key === 0
+					? expect(fn.mock.results[0].value).toEqual(data)
+					: expect(fn.mock.calls[0][0])
+						.toEqual(collection[key - 1].mock.results[0].value);
+			});
+			expect(collection[collection.length - 1].mock.results[0].value)
+				.toEqual(res);
+		});
 	});
 });
