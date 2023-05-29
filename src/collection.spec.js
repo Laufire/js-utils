@@ -37,6 +37,7 @@ import {
 	findIndex, findLast, lFind, findLastKey, lFindKey, count, flatMap,
 	scaffold, some, every, reverse, reduceSync, pipe,
 } from './collection';
+import { identity } from '@laufire/utils/fn';
 
 const mockObj = (objKeys, value) =>
 	fromEntries(map(objKeys, (key) => [key, isDefined(value) ? value : key]));
@@ -2230,37 +2231,30 @@ describe('Collection', () => {
 		});
 	});
 
-	describe('pipe', () => {
+	describe('pipe pipes the given data to the given list of pipes', () => {
 		test('examples', async () => {
+			const data = 1;
 			const addOne = (num) => num + 1;
 			const addTwo = (num) => num + 2;
 			const pipes = [addOne, addTwo];
-			const data = 1;
+
 			const received = await pipe(pipes, data);
 
 			expect(received).toEqual(4);
 		});
 
-		/*
-		Behavior:
-			First function toHaveBeenCalledWith data.
-			Each function toHaveBeenCalledWith return value of previous function.
-			Last function's return will be output.
-		*/
 		test('randomized test', async () => {
-			const collection = await map(rndRange(),
-				(value) => jest.fn((acc) => acc + value));
-			const data = 1;
-			const res = await pipe(collection, data);
+			const data = Symbol('data');
+			const pipes = map(rndRange(), () => jest.fn(identity));
+			const [first, ...rest] = pipes;
+			const last = pipes[length(pipes) - 1];
 
-			map(collection, (fn, key) => {
-				key === 0
-					? expect(fn.mock.results[0].value).toEqual(data)
-					: expect(fn.mock.calls[0][0])
-						.toEqual(collection[key - 1].mock.results[0].value);
-			});
-			expect(collection[collection.length - 1].mock.results[0].value)
-				.toEqual(res);
+			const received = await pipe(pipes, data);
+
+			expect(first).toHaveBeenCalledWith(data);
+			map(rest, (fn, key) => expect(fn).toHaveBeenCalledWith(pipes[key]
+				.mock.results[0].value));
+			expect(received).toEqual(last.mock.results[0].value);
 		});
 	});
 });
