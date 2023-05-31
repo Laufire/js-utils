@@ -598,10 +598,10 @@ const every = (collection, predicate) =>
 const reverse = (collection) => sort(collection, sReverse);
 
 const scaffold = (path, data = {}) => {
-	const reducer = (acc, c) => ({ [c]: acc });
+	const reducer = (acc, c) => ({ [unescape(c)]: acc });
 
 	return reduce(
-		sort(map(parts(resolve('/', path)), unescape), sReverse), reducer, data
+		sort(parts(resolve('/', path)), sReverse), reducer, data
 	);
 };
 
