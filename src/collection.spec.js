@@ -2154,7 +2154,7 @@ describe('Collection', () => {
 				});
 
 			test('only provided one leaf will have'
-			+ ' only one descendent', () => {
+				+ ' only one descendent', () => {
 				const path = '/a/';
 				const leaf = Symbol('leaf');
 				const expected = {
@@ -2181,6 +2181,16 @@ describe('Collection', () => {
 				const leaf = Symbol('leaf');
 
 				expect(scaffold(path, leaf)).toEqual(leaf);
+			});
+
+			test('escape char', () => {
+				const path = '/a\\/b';
+				const leaf = Symbol('leaf');
+				const expected = {
+					'a/b': leaf,
+				};
+
+				expect(scaffold(path, leaf)).toEqual(expected);
 			});
 		});
 
