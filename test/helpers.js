@@ -1,3 +1,4 @@
+/* eslint-disable no-magic-numbers */
 import {
 	clone, secure, map, reduce, shuffle,
 	keys, filter, range, toDict, fromEntries, shell, has, values,
@@ -256,6 +257,19 @@ const reversers = {
 		);
 	},
 };
+const navMarkers = ['.', '/'];
+const escapeChar = '\\';
+const specialChars = [...navMarkers, escapeChar];
+const escapedChars = map(specialChars, (char) => `\\${ char }`);
+const labelChars = [
+	...'abcdefghijklmnopqrstuvwxyz'.split(''),
+	...escapedChars,
+];
+
+const rndChars = (coll) =>
+	shuffle(rndValues(coll, rndBetween(1, 8)));
+
+const rndLabel = () => rndChars(labelChars).join('');
 
 export {
 	contracted, array, object, cloned,
@@ -266,5 +280,7 @@ export {
 	sortArray, strSubSet, retry, isAcceptable, expectEquals,
 	allTypes, emptyTypes, rnd, similarCols, iterableTypes,
 	till, findLastIndex, summarize, testRatios, getRatios,
-	arrayOrObject, reversers,
+	arrayOrObject, navMarkers, escapeChar, specialChars,
+	escapedChars, labelChars, rndChars, rndLabel as label,
+	reversers,
 };

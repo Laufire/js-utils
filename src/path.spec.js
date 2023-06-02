@@ -2,11 +2,10 @@
 import {
 	find, findKey, map,
 	pick, range, reduce,
-	filter, shuffle, sort,
+	filter, sort,
 } from '@laufire/utils/collection';
 import {
 	rndValue, rndBetween, rndValueWeighted,
-	rndValues,
 } from '@laufire/utils/random';
 import { sum } from '@laufire/utils/reducers';
 import { isProbable } from '@laufire/utils/prob';
@@ -15,6 +14,12 @@ import {
 	retry, findLastIndex, summarize,
 	testRatios,
 	rndRange,
+	label,
+	rndChars,
+	labelChars,
+	specialChars,
+	escapedChars,
+	escapeChar,
 } from '../test/helpers';
 
 /* Tested */
@@ -27,22 +32,10 @@ import {
 const higherLimit = 8;
 const lowerLimit = 0;
 
-const navMarkers = ['.', '/'];
-const escapeChar = '\\';
-const specialChars = [...navMarkers, escapeChar];
-const escapedChars = map(specialChars, (char) => `\\${ char }`);
-const labelChars = [
-	...'abcdefghijklmnopqrstuvwxyz'.split(''),
-	...escapedChars,
-];
-
-const rndChars = (collection) =>
-	shuffle(rndValues(collection, rndBetween(1, 8)));
-
 const partGenerators = {
 	relative: () => '.'.repeat(rndBetween(1, 5)),
 	empty: () => '',
-	label: () => rndChars(labelChars).join(''),
+	label: label,
 };
 
 const randomParts = () => map(rndRange(lowerLimit, higherLimit), () =>
