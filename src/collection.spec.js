@@ -24,7 +24,7 @@ import { rndKey, array, object, expectEquals,
 	rndDict, rndNested, extended, isolated, toObject,
 	rndKeys, rndRange, rnd, similarCols,
 	iterableTypes, allTypes, retry, rndCollection, converters, till,
-	isAcceptable, reversers } from '../test/helpers';
+	isAcceptable, reversers, label } from '../test/helpers';
 
 /* Tested */
 import {
@@ -38,6 +38,7 @@ import {
 	scaffold, some, every, reverse, reduceSync, pipe,
 } from './collection';
 import { identity } from '@laufire/utils/fn';
+import { unescape } from './path';
 
 const mockObj = (objKeys, value) =>
 	fromEntries(map(objKeys, (key) => [key, isDefined(value) ? value : key]));
@@ -171,8 +172,8 @@ describe('Collection', () => {
 		const asyncReducer = (
 			dummy, dummyOne, key
 		) => {
-			const acc = new Promise((resolve) => {
-				resolve(accumulator[collectionKeys.findIndex((cKey) =>
+			const acc = new Promise((res) => {
+				res(accumulator[collectionKeys.findIndex((cKey) =>
 					String(cKey) === String(key)) + 1]);
 			});
 
@@ -2183,8 +2184,8 @@ describe('Collection', () => {
 				expect(scaffold(path, leaf)).toEqual(leaf);
 			});
 
-			test('escape char', () => {
-				const path = '/a\\/b';
+			test('scaffold path supports escape characters', () => {
+				const path = 'a\\/b';
 				const leaf = Symbol('leaf');
 				const expected = {
 					'a/b': leaf,
@@ -2196,8 +2197,7 @@ describe('Collection', () => {
 
 		describe('randomized tests', () => {
 			retry(() => {
-				const rndParts = tMap(tRange(0, rndBetween(0, 10)),
-					() => rndString());
+				const rndParts = tMap(tRange(0, rndBetween(0, 10)), label);
 				const path = rndParts.join('/');
 				const leaf = rndValue([Symbol('leaf'), undefined]);
 
@@ -2208,7 +2208,7 @@ describe('Collection', () => {
 						expect(isObject(acc)).toBeTruthy();
 						expect(keys(acc).length).toEqual(1);
 
-						return acc[value];
+						return acc[unescape(value)];
 					};
 
 					tReduce(
