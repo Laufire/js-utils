@@ -1,3 +1,4 @@
+/* eslint-disable require-await */
 // NOTE: The reason for importing the modules, the old-school way
 // - is to ensure that, the downstream dependencies aren't affected.
 // NOTE: Immutability is tested implicitly, by preventing
@@ -35,7 +36,7 @@ import {
 	sanitize, secure, select, shell, shuffle, sort, squash, hasKey,
 	translate, traverse, walk, values, keys, length, toArray, nReduce,
 	findIndex, findLast, lFind, findLastKey, lFindKey, count, flatMap,
-	scaffold, some, every, reverse, reduceSync, pipe,
+	scaffold, some, every, reverse, reduceSync, pipe, mapAsync,
 } from './collection';
 import { identity } from '@laufire/utils/fn';
 import { unescape } from './path';
@@ -209,6 +210,26 @@ describe('Collection', () => {
 		return res;
 	};
 
+	const testMapAsync = (fn, cbType) => {
+		const collection = rndCollection();
+		const expectation = symbolize(collection);
+		const data = [
+			[collection, expectation],
+		];
+
+		const syncCb = (dummy, key) => expectation[key];
+		const asyncCb = async (dummy, key) =>
+			Promise.resolve(expectation[key]);
+
+		const cbTypes = {
+			sync: syncCb,
+			async: asyncCb,
+		};
+		const processor = cbTypes[cbType];
+
+		testIterator({ fn, processor, data });
+	};
+
 	/* Tests */
 	describe('map transforms the given iterable using'
 	+ ' the given callback', () => {
@@ -228,15 +249,7 @@ describe('Collection', () => {
 
 		test('randomized test', () => {
 			retry(() => {
-				const fn = map;
-				const collection = rndCollection();
-				const expectation = symbolize(collection);
-				const processor = (dummy, key) => expectation[key];
-				const data = [
-					[collection, expectation],
-				];
-
-				testIterator({ fn, processor, data });
+				testMapAsync(map, 'sync');
 			});
 		});
 	});
@@ -2265,6 +2278,23 @@ describe('Collection', () => {
 			map(rest, (fn, key) => expect(fn).toHaveBeenCalledWith(pipes[key]
 				.mock.results[0].value));
 			expect(received).toEqual(last.mock.results[0].value);
+		});
+	});
+
+	describe('mapAsync maps the given collection async.', () => {
+		test('examples', async () => {
+			expect(await mapAsync(simpleObj, asyncConverter(stitch))).toEqual({
+				a: 'a1',
+				b: 'b2',
+			});
+			expect(await mapAsync(simpleArray, asyncConverter(stitch)))
+				.toEqual(['01', '12']);
+		});
+
+		test('randomized test', () => {
+			retry(async () => {
+				testMapAsync(mapAsync, 'async');
+			});
 		});
 	});
 });
