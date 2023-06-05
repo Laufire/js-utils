@@ -629,6 +629,20 @@ const pipe = (pipes, data) => reduceSync(
 	pipes, (acc, c) => c(acc), data,
 );
 
+const mapAsync = async (collection, cb) => {
+	const collectionKeys = keys(collection);
+	const ret = shell(collection);
+	const res = await Promise.all(values(map(collection, cb)));
+	let index = 0;
+	const collectionLength = length(collectionKeys);
+
+	for(let i = 0; i < collectionLength; i++) {
+		ret[collectionKeys[i]] = res[index];
+		index++;
+	}
+	return ret;
+};
+
 export {
 	keys, values, entries, fromEntries,
 	each, map, filter, reduce, nReduce,
@@ -640,5 +654,5 @@ export {
 	gather, pick, toArray, toDict, adopt,
 	find, findLast, lFind, findKey, findIndex, findLastKey, lFindKey,
 	range, hasSame, shares, shuffle, sort, length, count, flatMap,
-	scaffold, every, reverse, some, reduceSync, pipe,
+	scaffold, every, reverse, some, reduceSync, pipe, mapAsync,
 };
