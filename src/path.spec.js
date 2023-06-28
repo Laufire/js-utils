@@ -241,6 +241,10 @@ describe('path', () => {
 					input: 'a/b',
 					expectation: ['.', 'a', 'b'],
 				},
+				{
+					input: 'a\\/b',
+					expectation: ['.', 'a\\/b'],
+				},
 			];
 
 			testCases(parts, cases);
@@ -288,23 +292,23 @@ describe('path', () => {
 		test('example', () => {
 			const cases = [
 				{
-					input: '/a/b/',
+					input: ['/a/b/'],
 					expectation: '/a/b/',
 				},
 				{
-					input: '/a/.../',
+					input: ['/a/.../'],
 					expectation: undefined,
 				},
 				{
-					input: './a//b/../',
+					input: ['./a//b/../'],
 					expectation: './a//',
 				},
 				{
-					input: './a/.../b/',
+					input: ['./a/.../b/'],
 					expectation: '../b/',
 				},
 				{
-					input: '/.a/b./',
+					input: ['/.a/b./'],
 					expectation: '/.a/b./',
 				},
 			];
