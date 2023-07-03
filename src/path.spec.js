@@ -1,7 +1,4 @@
-import {
-	fix, parts, pathType,
-	resolve, escape, unescape,
-} from './path';
+/* Helpers */
 import {
 	find, findKey, map,
 	pick, range, reduce,
@@ -19,6 +16,12 @@ import {
 	testRatios,
 	rndRange,
 } from '../test/helpers';
+
+/* Tested */
+import {
+	fix, parts, pathType,
+	resolve, escape, unescape,
+} from './path';
 
 /* Config */
 const higherLimit = 8;

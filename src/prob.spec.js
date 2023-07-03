@@ -1,4 +1,4 @@
-import { isProbable, possibilities } from './prob';
+/* Helpers */
 import {
 	range, map, reduce,
 	find,
@@ -8,6 +8,9 @@ import {
 	retry, isAcceptable, expectEquals,
 	rndCollection, rndArray,
 } from '../test/helpers';
+
+/* Tested */
+import { isProbable, possibilities } from './prob';
 
 test('isProbable returns true based on given probability', () => {
 	const retryCount = 50000;
