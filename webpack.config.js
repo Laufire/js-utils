@@ -1,7 +1,7 @@
 /* eslint-disable id-length */
 const path = require('path');
-const { prepareEntry, mergeConfig } = require('./lib/webpackManager');
-const config = require('./lib/config');
+const { prepareEntry, mergeConfig } = require('./build/webpackManager');
+const config = require('./build/config');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const entries = [
