@@ -1,8 +1,10 @@
-import { getDR, vary } from './number';
-
+/* Helpers */
 import { rndBetween } from '@laufire/utils/random';
 import { range } from '@laufire/utils/collection';
 import { fixNumber, getRatios, retry, testRatios } from '../test/helpers';
+
+/* Tested */
+import { getDR, vary } from './number';
 
 describe('vary', () => {
 	test('example', () => {
