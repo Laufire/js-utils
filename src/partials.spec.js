@@ -1,5 +1,8 @@
+/* Helpers */
 import { rndString } from '@laufire/utils/random';
 import { rndNumber } from '../test/helpers';
+
+/* Tested */
 import { partial, translate } from './partials';
 
 test('translate returns a partial to access values of collections', () => {

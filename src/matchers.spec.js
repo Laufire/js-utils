@@ -1,4 +1,7 @@
+/* Helpers */
 import { rndBetween } from '@laufire/utils/random';
+
+/* Tested */
 import { isAcceptable } from './matchers';
 
 describe('isAcceptable checks whether the result is close'
