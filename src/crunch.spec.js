@@ -1,8 +1,4 @@
-/* Tested */
-import {
-	descend, index, summarize,
-	transpose, group, classify,
-} from './crunch';
+/* Helpers */
 import {
 	secure, values, keys,
 	reduce, map, findKey,
@@ -10,12 +6,17 @@ import {
 } from '@laufire/utils/collection';
 import { rndBetween, rndValue, rndValues } from '@laufire/utils/random';
 import { isDefined } from '@laufire/utils/reflection';
-/* Helpers */
+import { isProbable } from './prob';
 import {
 	rndNested, retry, similarCols,
 	rndKeys, rndCollection,
 } from '../test/helpers';
-import { isProbable } from './prob';
+
+/* Tested */
+import {
+	descend, index, summarize,
+	transpose, group, classify,
+} from './crunch';
 
 /* Spec */
 describe('Crunch', () => {

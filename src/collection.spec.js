@@ -4,11 +4,6 @@
 //	- mutations the mock objects.
 
 /* Helpers */
-import { rndKey, array, object, expectEquals,
-	rndDict, rndNested, extended, isolated, toObject,
-	rndKeys, rndRange, rnd, similarCols,
-	iterableTypes, allTypes, retry, rndCollection, converters, till,
-	isAcceptable } from '../test/helpers';
 import { rndBetween, rndString, rndValue, rndValues }
 	from '@laufire/utils/random';
 import { isDefined, inferType, isIterable,
@@ -23,6 +18,11 @@ import { select as tSelect, map as tMap, keys as tKeys,
 	shell as tShell, equals as tEquals,
 	shuffle as tShuffle } from '@laufire/utils/collection';
 import { isEqual } from '@laufire/utils/predicates';
+import { rndKey, array, object, expectEquals,
+	rndDict, rndNested, extended, isolated, toObject,
+	rndKeys, rndRange, rnd, similarCols,
+	iterableTypes, allTypes, retry, rndCollection, converters, till,
+	isAcceptable } from '../test/helpers';
 
 /* Tested */
 import {

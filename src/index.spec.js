@@ -1,4 +1,7 @@
+/* Helpers */
 import { traverse } from '@laufire/utils/collection';
+
+/* Tested */
 import * as laufire from '.';
 
 const isGetter = (obj, prop) =>
