@@ -8,6 +8,7 @@ const entries = [
 	{
 		name: 'lib',
 		entry: {
+			// TODO: Reference commonchunks.
 			'lib/index.js': './src/lib/index.js',
 		},
 		plugins: [new CleanWebpackPlugin()],
