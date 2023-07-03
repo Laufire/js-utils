@@ -1,13 +1,4 @@
-/* Tested */
-import {
-	isEqual, isSame, isPart,
-	doesContain,	truthy, falsy,
-	everything, nothing,	first,
-	unique,	not, or,
-	and, onProp,	predicate,
-	isIn, value, key,
-	is,
-} from './predicates';
+/* Helpers */
 import {
 	contains, filter, shares,
 	values,	find, clone,
@@ -18,14 +9,23 @@ import {
 } from '@laufire/utils/collection';
 import { rndValue, rndValues, rndBetween } from '@laufire/utils/random';
 import { inferType } from '@laufire/utils/reflection';
-
-/* Helpers */
 import {
 	isolated, collection, extCollection,
 	sortArray, rndKey, rndCollection,
 	retry, rndDict,	arrayOrObject,
 	rndNested, rndArray,
 } from '../test/helpers';
+
+/* Tested */
+import {
+	isEqual, isSame, isPart,
+	doesContain,	truthy, falsy,
+	everything, nothing,	first,
+	unique,	not, or,
+	and, onProp,	predicate,
+	isIn, value, key,
+	is,
+} from './predicates';
 
 /* Configs */
 const numbers = [1, 2, 3, 4];
