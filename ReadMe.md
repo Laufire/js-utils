@@ -51,6 +51,8 @@
 
 	* Support at least the last four LTS vesrions of Node JS.
 
+	* Use module alias instead of relative path.
+
 ## Later
 
 * Test for and improve performance.
