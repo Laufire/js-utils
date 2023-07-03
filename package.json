@@ -42,7 +42,6 @@
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.6.3",
     "babel-loader": "^9.1.2",
-    "clean-webpack-plugin": "^4.0.0",
     "eslint": "^5.16.0",
     "jest": "^26.6.3",
     "node-pre-gyp": "^0.13.0",

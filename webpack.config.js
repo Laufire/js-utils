@@ -1,8 +1,6 @@
-/* eslint-disable id-length */
 const path = require('path');
 const { prepareEntry, mergeConfig } = require('./build/webpackManager');
 const config = require('./build/config');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const entries = [
 	{
@@ -11,9 +9,9 @@ const entries = [
 			// TODO: Reference commonchunks.
 			'lib/index.js': './src/lib/index.js',
 		},
-		plugins: [new CleanWebpackPlugin()],
 		output: {
 			filename: '[name]',
+			clean: true,
 		},
 	},
 	{
