@@ -1,3 +1,4 @@
+/* Helpers */
 import { map, values } from '@laufire/utils/collection';
 import { array, object, expectEquals, simpleTypes, allTypes, emptyTypes }
 	from '../test/helpers';

@@ -1,9 +1,4 @@
-/* Tested */
-import {
-	rndBetween, rndOfString, rndString,
-	rndValue, rndValues, rndValueWeighted,
-	stringSeeds,
-} from './random';
+/* Helpers */
 import {
 	map, contains, secure,
 	has, range,	reduce,
@@ -21,6 +16,13 @@ import {
 	getRatios,	strSubSet, isAcceptable,
 	testRatios, summarize, rndDict,
 }	from '../test/helpers';
+
+/* Tested */
+import {
+	rndBetween, rndOfString, rndString,
+	rndValue, rndValues, rndValueWeighted,
+	stringSeeds,
+} from './random';
 
 /* Tests */
 describe('rndBetween helps in generating random numbers', () => {
