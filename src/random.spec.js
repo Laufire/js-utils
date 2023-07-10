@@ -13,7 +13,7 @@ import { unique } from '@laufire/utils/predicates';
 import { sum } from '@laufire/utils/reducers';
 import {
 	expectEquals, retry, rndCollection,
-	getRatios,	strSubSet, isAcceptable,
+	getRatios, strSubSet, isAcceptable,
 	testRatios, summarize, rndDict,
 }	from '../test/helpers';
 
