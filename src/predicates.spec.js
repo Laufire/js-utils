@@ -22,10 +22,10 @@ import {
 /* Tested */
 import {
 	isEqual, isSame, isPart,
-	doesContain,	truthy, falsy,
-	everything, nothing,	first,
+	doesContain, truthy, falsy,
+	everything, nothing, first,
 	unique,	not, or,
-	and, onProp,	predicate,
+	and, onProp, predicate,
 	isIn, value, key,
 	is,
 	hasProp,
@@ -52,7 +52,7 @@ const testIterator = ({ predicate, iterable, expectation }) =>
 describe('Predicates', () => {
 	const truthies = [1, '2', true, [], {}];
 	const falsies = [0, '', false, undefined, null];
-	const sample = [0, 1, 'a', null];
+	const mixed = [0, 1, 'a', null];
 	const tAndFArray = secure(shuffle(truthies.concat(falsies)));
 	const tasks = [
 		{ name: 'commit', effort: 1 },
@@ -158,7 +158,7 @@ describe('Predicates', () => {
 
 	describe('truthy tests for truthy values', () => {
 		test('example', () => {
-			expect(filter(sample, truthy)).toEqual([1, 'a']);
+			expect(filter(mixed, truthy)).toEqual([1, 'a']);
 		});
 
 		test('randomized test', () => {
@@ -176,7 +176,7 @@ describe('Predicates', () => {
 
 	describe('falsy tests for falsy values', () => {
 		test('example', () => {
-			expect(filter(sample, falsy)).toEqual([0, null]);
+			expect(filter(mixed, falsy)).toEqual([0, null]);
 		});
 
 		test('randomized test', () => {
@@ -384,9 +384,10 @@ describe('Predicates', () => {
 
 		test('detailed example', () => {
 			const mockCollection = { ...extCollection, isolated };
+			const props = [rndKey(isolated)];
 
 			expect(filter(mockCollection, predicate(
-				shares, isolated, [rndKey(isolated)]
+				shares, isolated, props
 			))).toEqual({ isolated });
 		});
 
@@ -396,8 +397,10 @@ describe('Predicates', () => {
 					3, 3, ['nested', 'object', 'array']
 				);
 				const needle = rndValue(haystack);
+				const props = [rndKey(needle)];
+
 				const predicateFn = predicate(
-					shares, needle, [rndKey(needle)]
+					shares, needle, props
 				);
 
 				expect(find(haystack, predicateFn)).toEqual(needle);
