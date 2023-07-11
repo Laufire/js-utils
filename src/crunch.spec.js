@@ -1,6 +1,8 @@
 /* Helpers */
-import { secure, values, keys, reduce, map, findKey, shell, merge,
-	contains, clean, has, equals }
+import {
+	secure, values, keys, reduce, map, findKey,
+	shell, merge, contains, clean, has, equals, filter,
+}
 	from '@laufire/utils/collection';
 import { rndBetween, rndValue }
 	from '@laufire/utils/random';
@@ -10,7 +12,7 @@ import {
 import { rndValues } from './random';
 import { isDefined } from '@laufire/utils/reflection';
 import { isEqual } from '@laufire/utils/predicates';
-import { map as cMap, some } from './collection';
+import { map as tMap, some } from './collection';
 
 /* Tested */
 import {
@@ -334,26 +336,32 @@ describe('Crunch', () => {
 
 	describe('classifier', () => {
 		test('example', () => {
-			const classifiers = {
-				tierOne: ({ population }) => population > 1000000,
-				tierTwo: ({ population }) => population > 500000,
-				tierThree: ({ population }) => population > 100000,
-			};
-
 			const collection = [
-				{ city: 'chennai', population: 10000 },
-				{ city: 'madurai', population: 8000 },
-				{ city: 'coimbatore', population: 600000 },
-				{ city: 'trichy', population: 14000 },
+				{ city: 'chennai', population: 6560242 },
+				{ city: 'viluppuram', population: 95107 },
+				{ city: 'rameswaram', population: 37968 },
+				{ city: 'trichy', population: 866354 },
 			];
+
+			const classifiers = {
+				tierOne: ({ population }) => population > 100000,
+				tierTwo: ({ population }) => population > 50000,
+				tierThree: ({ population }) => population > 20000,
+			};
 
 			const result = classify(collection, classifiers);
 
 			const expected = {
-				tierOne: [],
-				tierTwo: [{ city: 'coimbatore', population: 600000 }],
-				tierThree: [],
-				tierFour: [],
+				tierOne: [
+					{ city: 'chennai', population: 6560242 },
+					{ city: 'trichy', population: 866354 },
+				],
+				tierTwo: [
+					{ city: 'viluppuram', population: 95107 },
+				],
+				tierThree: [
+					{ city: 'rameswaram', population: 37968 },
+				],
 			};
 
 			expect(shell(result)).toEqual(shell(classifiers));
@@ -370,9 +378,13 @@ describe('Crunch', () => {
 				const collection = rndNested(
 					3, 3, ['symbol']
 				);
+				const randomCollection = rndValues(collection);
+
+				const unResult = filter(collection, (value) =>
+					!has(randomCollection, value));
 
 				const genClassifiers = () =>
-					map(rndValues(collection), isEqual);
+					map(randomCollection, isEqual);
 
 				const classifiers = genClassifiers();
 
@@ -380,14 +392,19 @@ describe('Crunch', () => {
 
 				expect(shell(classifiers)).toEqual(shell(result));
 
-				cMap(result, (value, key) =>
-					map(value, (item) => {
-						expect(shell(value)).toEqual(shell(collection));
-						expect(has(collection, item)).toEqual(true);
+				map(unResult, (value) =>
 
-						expect(some(result, (val, i) =>
-							!equals(i, key) && has(val, item))).toEqual(false);
-					}));
+					tMap(result, (child, childKey) =>
+
+						map(child, (item) => {
+							expect(shell(child)).toEqual(shell(collection));
+							expect(has(collection, item)).toEqual(true);
+							expect(equals(value, item)).toEqual(false);
+
+							expect(some(result, (grandChild, grandKey) =>
+								!equals(grandKey, childKey)
+								&& has(grandChild, item))).toEqual(false);
+						})));
 			});
 		});
 	});
