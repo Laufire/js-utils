@@ -1755,6 +1755,18 @@ describe('Collection', () => {
 			return [resultingRange, start, end, step];
 		};
 
+		test('example', () => {
+			expect(range(0, 9)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+			expect(range(
+				0, 9, 2
+			)).toEqual([0, 2, 4, 6, 8]);
+			expect(range(
+				0, 1, 0.5
+			)).toEqual([0, 0.5]);
+			expect(range(-10, -5)).toEqual([-10, -9, -8, -7, -6]);
+			expect(range(10, 0)).toEqual([]);
+		});
+
 		test('range returns an array of numbers with the given start, end'
 	+ ' and step values', () => {
 			testRange(...buildRange(
