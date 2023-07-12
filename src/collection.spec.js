@@ -1623,8 +1623,7 @@ describe('Collection', () => {
 							collections, (
 								expectedChild, child, childKey
 							) => {
-								expectedChild[childKey]
-										= child[selectorKey];
+								expectedChild[childKey]	= child[selectorKey];
 								return expectedChild;
 							}, tShell(collections)
 						);
