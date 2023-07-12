@@ -175,7 +175,7 @@ describe('rndOfString returns a random sub-string of the given string.', () => {
 
 		test('randomized test', () => {
 			const length = tRndBetween(0, 3);
-			const seed = 'ab';
+			const seed = rndString(2);
 			const seedArray = tRndValues(seed.split(''), length);
 			const seedStr = seedArray.join('');
 			const possibleLengths = range(0, seedStr.length + 1);
@@ -240,7 +240,7 @@ describe('rndOfString returns a random sub-string of the given string.', () => {
 	});
 
 	test('ratio test', () => {
-		const seed = 'ab';
+		const seed = rndString(2);
 		const seedArray = tRndValues(seed.split(''), tRndBetween(0, 3));
 		const seedStr = seedArray.join('');
 
