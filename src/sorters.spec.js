@@ -1,6 +1,8 @@
 /* Helpers */
 import {
-	clone, keys, map, merge, secure, shuffle, sort,
+	clone, keys, map,
+	merge, secure, shuffle,
+	sort,
 } from '@laufire/utils/collection';
 import { rndValue } from '@laufire/utils/random';
 import { inferType } from '@laufire/utils/reflection';
@@ -10,8 +12,10 @@ import {
 } from '../test/helpers';
 
 /* Tested */
-import { ascending, compile, descending, existing,
-	onProp, reverse } from './sorters';
+import {
+	ascending, compile, descending,
+	existing,	onProp, reverse,
+} from './sorters';
 
 /* Spec */
 describe('Sorters', () => {
