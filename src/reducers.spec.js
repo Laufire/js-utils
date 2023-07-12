@@ -1,17 +1,20 @@
 /* Helpers */
 import {
-	map, merge, reduce, secure, shell, values,
+	map, merge, reduce,
+	secure, shell, values,
 } from '@laufire/utils/collection';
 import { rndBetween, rndValue } from '@laufire/utils/random';
 import {
 	fixNumber, rndNested, rndCollection,
-	retry, summarize, rndArray, rndDict, rndRange,
+	retry, summarize, rndArray,
+	rndDict, rndRange,
 } from '../test/helpers';
 
 /* Tested */
 import {
-	avg, count, flat, len, max,
-	min, product, reducer, sum,
+	avg, count, flat,
+	len, max,	min,
+	product, reducer, sum,
 } from './reducers';
 
 /* Spec */
