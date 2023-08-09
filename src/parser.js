@@ -1,9 +1,11 @@
 import { map, merge, reduce } from './collection';
 
-const tag = (collection, tags) =>
+const tag = (
+	collection, tags, tagProp = 'tags'
+) =>
 	map(collection, (item) =>
 		merge(reduce(
-			item.tags, (acc, cur) => merge(acc, tags[cur]), {}
+			item[tagProp] || [], (acc, cur) => merge(acc, tags[cur]), {}
 		),
 		item));
 
