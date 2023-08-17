@@ -1,6 +1,5 @@
 import { tag } from './parser';
 import {
-	expectEquals,
 	retry,
 	rndCollection,
 	rndNested,
@@ -9,10 +8,11 @@ import {
 import { defined } from './fn';
 import {
 	clone,
+	filter,
+	find,
 	keys,
 	length,
 	map,
-	merge,
 	reduce,
 	secure,
 	shell,
@@ -23,6 +23,7 @@ import { isProbable } from './prob';
 import { inferType } from './reflection';
 import { rndValues, rndValue } from './random';
 import { rndBetween } from './lib';
+import { unique } from './predicates';
 
 describe('Tag each item in the collection with relevant attributes', () => {
 	describe('Examples', () => {
@@ -242,12 +243,19 @@ describe('Tag each item in the collection with relevant attributes', () => {
 					unify,
 					shell(entity)
 				);
+				const uniqKeys = filter([
+					...keys(entity),
+					...keys(propsFromTags),
+				], unique);
 
-				expectEquals(keys(item), keys(merge(propsFromTags, entity)));
+				const unexpectedKey = find(uniqKeys, (value) =>
+					!keys(item).includes(value));
 
-				map(item, (dummy, k) => {
-					expect(item[k])
-						.toEqual(defined(entity[k], propsFromTags[k]));
+				expect(unexpectedKey).toBe(undefined);
+
+				map(item, (dummy, prop) => {
+					expect(item[prop])
+						.toEqual(defined(entity[prop], propsFromTags[prop]));
 				});
 			});
 		});
