@@ -1,7 +1,7 @@
 import { range } from './collection';
 
 const tile = (array, length) => {
-	const arrayLen = array.length ;
+	const { length: arrayLen } = array ;
 	const start = 0;
 	const repeat = arrayLen && Math.ceil(length / arrayLen);
 

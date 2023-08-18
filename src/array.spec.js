@@ -1,29 +1,51 @@
-import { expectEquals } from '../test/helpers';
+import {
+	expectEquals,
+	retry,
+	rndArray,
+	rndNested,
+	rndNumber,
+} from '../test/helpers';
 import { tile } from './array';
+import { map } from './collection';
 
-describe('Tile', () => {
-	test('Example', () => {
-		const array = ['Naruto', 'Hinata'];
-		const length = 4;
-		const expected = ['Naruto', 'Hinata', 'Naruto', 'Hinata'];
-		const result = tile(array, length);
+describe('Tile tiles elements of the input array to get '
++ 'an array of the desired length.', () => {
+	describe('Example', () => {
+		test('', () => {
+			const array = ['Lion', 'Tiger'];
+			const length = 4;
+			const expected = ['Lion', 'Tiger', 'Lion', 'Tiger'];
+			const result = tile(array, length);
 
-		expectEquals(result, expected);
+			expectEquals(result, expected);
+		});
+
+		test('Tile returns an empty array when '
+		+ 'the input array is empty', () => {
+			const array = [];
+			const length = 4;
+			const expected = [];
+			const result = tile(array, length);
+
+			expectEquals(result, expected);
+		});
 	});
-	test('Tile returns an empty array when the input array is empty', () => {
-		const array = [];
-		const length = 4;
-		const expected = [];
-		const result = tile(array, length);
 
-		expectEquals(result, expected);
-	});
-	test('Tiles an array with multiple data types ', () => {
-		const array = [{ key: 2 }, 1, '2', [3]];
-		const length = 6;
-		const expected = [{ key: 2 }, 1, '2', [3], { key: 2 }, 1];
-		const result = tile(array, length);
+	test('Randomized Test', () => {
+		retry(() => {
+			const array = map(rndArray(0), () => rndNested(0, 0));
+			const collectionLength = array.length;
+			const rndLength = rndNumber();
 
-		expect(result).toEqual(expected);
+			const result = tile(array, rndLength);
+
+			expectEquals(result.length, collectionLength && rndLength);
+
+			map(result, (value, key) => {
+				const index = key % collectionLength;
+
+				expectEquals(value, array[index]);
+			});
+		});
 	});
 });
