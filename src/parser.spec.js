@@ -8,7 +8,6 @@ import {
 import { defined } from './fn';
 import {
 	clone,
-	filter,
 	find,
 	keys,
 	length,
@@ -23,7 +22,7 @@ import { isProbable } from './prob';
 import { inferType } from './reflection';
 import { rndValues, rndValue } from './random';
 import { rndBetween } from './lib';
-import { unique } from './predicates';
+import { isIn, not } from './predicates';
 
 describe('Tag each item in the collection with relevant attributes', () => {
 	describe('Examples', () => {
@@ -186,7 +185,11 @@ describe('Tag each item in the collection with relevant attributes', () => {
 
 	test('Randomized test', () => {
 		retry(() => {
-			const rndCollections = clone(similarCols());
+			const rndCollections = clone(map(similarCols(), (item) =>
+				map(item, () => rndNested(
+					0, 0, ['allButUndefined']
+				))));
+
 			const childType = inferType(rndValue(rndCollections));
 			const genProp = {
 				array: () => rndBetween(reduce(map(rndCollections, length),
@@ -229,33 +232,38 @@ describe('Tag each item in the collection with relevant attributes', () => {
 			expect(keys(collection)).toEqual(keys(result));
 
 			const unify = (acc, cur) => {
-				map(tags[cur] || [], (value, label) => {
+				map(defined(tags[cur], []), (value, label) => {
 					acc[label] = value;
 				});
+
 				return acc;
 			};
 
 			map(result, (item, key) => {
 				const entity = collection[key];
+				const itemKeys = keys(item);
 
 				const propsFromTags = reduce(
-					entity[tagProp] || [],
+					defined(entity[tagProp], []),
 					unify,
 					shell(entity)
 				);
-				const uniqKeys = filter([
+
+				const enhancedEntity = [
 					...keys(entity),
 					...keys(propsFromTags),
-				], unique);
+				];
 
-				const unexpectedKey = find(uniqKeys, (value) =>
-					!keys(item).includes(value));
+				const unexpectedKey = find(enhancedEntity, (value) =>
+					not(isIn)(itemKeys, value));
 
 				expect(unexpectedKey).toBe(undefined);
 
-				map(item, (dummy, prop) => {
-					expect(item[prop])
-						.toEqual(defined(entity[prop], propsFromTags[prop]));
+				map(item, (prop, propKey) => {
+					const expectedProp = defined(entity[propKey],
+						propsFromTags[propKey]);
+
+					expect(prop).toEqual(expectedProp);
 				});
 			});
 		});
