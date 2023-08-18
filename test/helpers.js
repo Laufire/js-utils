@@ -123,10 +123,17 @@ const itrGenerators = {
 	collection: () => rndCollection(),
 };
 
+const allButUndefined = () =>
+	filter(allTypes(), (type) => not(isEqual())(type, undefined));
+
 const nonItrGenerators = {
 	any: () => rndValue(allTypes()),
 	symbol: () => Symbol(rndString()),
 	undefined: () => undefined,
+	allButUndefined: () => rndValue(allButUndefined()),
+	simpleTypes: () => rndValue(simpleTypes()),
+	complexTypes: () => rndValue(complexTypes()),
+
 };
 
 const valueGenerators = {
