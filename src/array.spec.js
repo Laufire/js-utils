@@ -1,3 +1,4 @@
+import { map } from '@laufire/utils/collection';
 import {
 	expectEquals,
 	retry,
@@ -6,7 +7,6 @@ import {
 	rndNumber,
 } from '../test/helpers';
 import { tile } from './array';
-import { map } from './collection';
 
 describe('Tile tiles elements of the input array to get '
 + 'an array of the desired length.', () => {

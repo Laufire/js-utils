@@ -5,7 +5,6 @@ import {
 	rndNested,
 	similarCols,
 } from '../test/helpers';
-import { defined } from './fn';
 import {
 	clone,
 	find,
@@ -16,13 +15,13 @@ import {
 	secure,
 	shell,
 	shuffle,
-} from './collection';
-import { max } from './reducers';
+} from '@laufire/utils/collection';
+import { inferType } from '@laufire/utils/reflection';
+import { rndBetween, rndValue, rndValues } from '@laufire/utils/random';
+import { max } from '@laufire/utils/reducers';
+import { defined } from '@laufire/utils/fn';
+import { isIn, not } from '@laufire/utils/predicates';
 import { isProbable } from './prob';
-import { inferType } from './reflection';
-import { rndValues, rndValue } from './random';
-import { rndBetween } from './lib';
-import { isIn, not } from './predicates';
 
 describe('Tag each item in the collection with relevant attributes', () => {
 	describe('Examples', () => {

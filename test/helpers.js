@@ -6,7 +6,7 @@ import {
 } from '@laufire/utils/collection';
 import { rndValue, rndBetween, rndString, rndValues }
 	from '@laufire/utils/random';
-import { inferType } from '@laufire/utils/reflection';
+import { inferType, isDefined } from '@laufire/utils/reflection';
 import { not, isEqual } from '@laufire/utils/predicates';
 import TestConfig from './config';
 
@@ -123,8 +123,7 @@ const itrGenerators = {
 	collection: () => rndCollection(),
 };
 
-const allButUndefined = () =>
-	filter(allTypes(), (type) => not(isEqual())(type, undefined));
+const allButUndefined = () => filter(allTypes(), isDefined);
 
 const nonItrGenerators = {
 	any: () => rndValue(allTypes()),
@@ -133,7 +132,6 @@ const nonItrGenerators = {
 	allButUndefined: () => rndValue(allButUndefined()),
 	simpleTypes: () => rndValue(simpleTypes()),
 	complexTypes: () => rndValue(complexTypes()),
-
 };
 
 const valueGenerators = {
