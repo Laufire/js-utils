@@ -44,10 +44,11 @@ describe('rndBetween helps in generating random numbers', () => {
 			() => {
 				const from = -10;
 				const to = 10;
+				const result = rndBetween(from, to);
 
-				retry(() => isBetween(
-					rndBetween(from, to), from, to
-				));
+				isBetween(
+					result, from, to
+				);
 			});
 
 		test('rndBetween returns a rndNumber for the given precision',
@@ -55,10 +56,15 @@ describe('rndBetween helps in generating random numbers', () => {
 				const from = 1;
 				const to = 10;
 				const precision = 2;
-
-				retry(() => hasPrecision(rndBetween(
+				const result = rndBetween(
 					from, to, precision
-				), precision));
+				);
+
+				isBetween(
+					result, from, to
+				);
+
+				hasPrecision(result, precision);
 			});
 
 		test('rndBetween defaults to 0 for from, 10 for to and 0 for precision',
@@ -66,15 +72,12 @@ describe('rndBetween helps in generating random numbers', () => {
 				const from = 0;
 				const to = 10;
 				const precision = 0;
+				const result = rndBetween();
 
-				retry(() => {
-					const result = rndBetween();
-
-					isBetween(
-						result, from, to
-					);
-					hasPrecision(result, precision);
-				});
+				isBetween(
+					result, from, to
+				);
+				hasPrecision(result, precision);
 			});
 	});
 
