@@ -3,7 +3,7 @@
  *
  */
 
-import { hasSame } from './collection';
+import { hasSame, reduceSync } from './collection';
 import { isFunction, isDefined } from './reflection';
 
 const cache = (fn, qualifier = hasSame) => {
@@ -17,6 +17,10 @@ const cache = (fn, qualifier = hasSame) => {
 			? result
 			: (prevArgs = args, result = fn(...args)));
 };
+
+const pipe = (pipes) => (data) => reduceSync(
+	pipes, (acc, c) => c(acc), data,
+);
 
 const value = (x) => (isFunction(x) ? x() : x);
 
@@ -35,4 +39,5 @@ export {
 	self,
 	identity,
 	nothing,
+	pipe,
 };

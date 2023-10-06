@@ -1,10 +1,12 @@
 /* Helpers */
 import { equals, clone } from '@laufire/utils/collection';
 import { isDefined } from '@laufire/utils/reflection';
-import { array, retry, rndArray, rndKey } from '../test/helpers';
+import { array, retry, rndArray, rndKey, rndRange } from '../test/helpers';
 
 /* Tested */
-import { cache, value, defined, self, identity, nothing } from './fn';
+import { cache, value, defined, self,
+	identity, nothing, pipe } from './fn';
+import { map, length } from './collection';
 
 describe('cache caches the given function based on parameters'
 + ' till the next call with a new set of args', () => {
@@ -42,6 +44,35 @@ describe('cache caches the given function based on parameters'
 
 		testCache(undefined, 3);
 		testCache(equals, 2);
+	});
+});
+
+describe('pipe pipes the given data to the given list of pipes', () => {
+	test('examples', async () => {
+		const data = 1;
+		const addOne = (num) => num + 1;
+		const addTwo = (num) => num + 2;
+		const pipes = [addOne, addTwo];
+
+		const buildPipe = pipe(pipes);
+		const received = await buildPipe(data);
+
+		expect(received).toEqual(4);
+	});
+
+	test('randomized test', async () => {
+		const data = Symbol('data');
+		const pipes = map(rndRange(), () => jest.fn(identity));
+		const [first, ...rest] = pipes;
+		const last = pipes[length(pipes) - 1];
+
+		const buildPipe = pipe(pipes);
+		const received = await buildPipe(data);
+
+		expect(first).toHaveBeenCalledWith(data);
+		map(rest, (fn, key) => expect(fn).toHaveBeenCalledWith(pipes[key]
+			.mock.results[0].value));
+		expect(received).toEqual(last.mock.results[0].value);
 	});
 });
 
