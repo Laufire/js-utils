@@ -4,7 +4,7 @@ import { isDefined } from '@laufire/utils/reflection';
 import { array, retry, rndArray, rndKey } from '../test/helpers';
 
 /* Tested */
-import { cache, value, defined, self, identity, nothing } from './fn';
+import { cache, value, defined, self, identity, nothing, tryCatch } from './fn';
 
 describe('cache caches the given function based on parameters'
 + ' till the next call with a new set of args', () => {
@@ -87,4 +87,54 @@ test('identity is an alias of self', () => {
 
 test('nothing returns undefined', () => {
 	expect(nothing()).toEqual(undefined);
+});
+
+describe('tryCatch helps in calling exception throwing functions.', () => {
+	const success = Symbol('success');
+	const error = new Error('Test Error');
+
+	const workingFn = () => success;
+	const workingAsyncFn = () => Promise.resolve(success);
+	const errorFn = () => {
+		throw error;
+	};
+	const errorAsyncFn = () => Promise.reject(error);
+
+	test('tryCatch returns function result as { data }.', async () => {
+		const result = await tryCatch(workingFn);
+
+		expect(result.data).toEqual(success);
+		expect(result.error).toEqual(undefined);
+	});
+
+	test('tryCatch returns any error as { error }.', async () => {
+		const result = await tryCatch(errorFn);
+
+		expect(result.error).toBe(error);
+		expect(result.data).toEqual(undefined);
+	});
+
+	test('tryCatch returns async function result as { data }.',
+		async () => {
+			const result = await tryCatch(workingAsyncFn);
+
+			expect(result.data).toEqual(success);
+			expect(result.error).toEqual(undefined);
+		});
+
+	test('tryCatch returns any async function error as { error }.',
+		async () => {
+			const result = await tryCatch(errorAsyncFn);
+
+			expect(result.error).toBe(error);
+			expect(result.data).toEqual(undefined);
+		});
+
+	test('tryCatch along with anonymous functions could be'
+	+ ' used to pass parameters.', async () => {
+		const someParameter = Symbol('someParameter');
+		const result = await tryCatch(() => identity(someParameter));
+
+		expect(result.data).toEqual(someParameter);
+	});
 });
