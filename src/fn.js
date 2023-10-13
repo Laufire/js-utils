@@ -28,6 +28,15 @@ const identity = self;
 
 const nothing = () => undefined;
 
+const tryCatch = async (fn) => {
+	try {
+		return { data: await fn() };
+	}
+	catch (error) {
+		return { error };
+	}
+};
+
 export {
 	cache,
 	value,
@@ -35,4 +44,5 @@ export {
 	self,
 	identity,
 	nothing,
+	tryCatch,
 };
