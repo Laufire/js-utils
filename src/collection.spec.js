@@ -115,8 +115,8 @@ describe('Collection', () => {
 	};
 
 	const testIterator = ({ fn, processor, data }) => {
-		tEntries(data).map(([dummy, [collection, expectation]]) =>
-			expect(fn(collection, processor)).toEqual(expectation));
+		tEntries(data).map(async ([dummy, [collection, expectation]]) =>
+			expect(await fn(collection, processor)).toEqual(expectation));
 		testForArguments(fn, data);
 	};
 
