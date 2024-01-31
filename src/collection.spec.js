@@ -1342,22 +1342,24 @@ describe('Collection', () => {
 	+ ' or escaped path', () => {
 		test('example', () => {
 			const { single, parent } = complexObject;
+			const pathAndResults = {
+				'/': complexObject,
+				'./': complexObject,
+				'single': single,
+				'/single': single,
+				'parent/child': parent.child,
+				'parent/\\/unescaped\\/child': parent['/unescaped/child'],
+				'parent/escaped\\\\\\/child': parent['escaped\\/child'],
+				'array/1': 2,
+				'': complexObject,
+				'non-existent': undefined,
+				'non-existent/child': undefined,
+			};
 
-			expect(result(complexObject, '/')).toEqual(complexObject);
-			expect(result(complexObject, './')).toEqual(complexObject);
-			expect(result(complexObject, 'single')).toEqual(single);
-			expect(result(complexObject, '/single')).toEqual(single);
-			expect(result(complexObject, 'parent/child'))
-				.toEqual(parent.child);
-			expect(result(complexObject, 'parent/\\/unescaped\\/child'))
-				.toEqual(parent['/unescaped/child']);
-			expect(result(complexObject, 'parent/escaped\\\\\\/child'))
-				.toEqual(parent['escaped\\/child']);
-			expect(result(complexObject, 'array/1')).toEqual(2);
-			expect(result(complexObject, '')).toEqual(complexObject);
-			expect(result(complexObject, 'non-existent')).toEqual(undefined);
-			expect(result(complexObject, 'non-existent/child'))
-				.toEqual(undefined);
+			map(pathAndResults, (expected, path) => {
+				expect(result(complexObject, path)).toEqual(expected);
+			});
+
 			expect(result({ '': 1 }, '//')).toEqual(1);
 		});
 
