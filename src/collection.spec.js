@@ -122,9 +122,12 @@ describe('Collection', () => {
 			));
 	};
 
-	const testIterator = ({ fn, processor, data }) => {
-		tEntries(data).map(([dummy, [collection, expectation]]) =>
-			expect(fn(collection, processor)).toEqual(expectation));
+	const testIterator = async ({ fn, processor, data }) => {
+		tEntries(data).map(async ([dummy, [collection, expectation]]) => {
+			const returned = await fn(collection, processor);
+
+			expect(returned).toEqual(expectation);
+		});
 		testForArguments(fn, data);
 	};
 
@@ -2296,7 +2299,7 @@ describe('Collection', () => {
 		});
 	});
 
-	describe.only('mapAsync maps the given collection async.', () => {
+	describe('mapAsync maps the given collection async.', () => {
 		test('examples', async () => {
 			expect(await mapAsync(simpleObj, asyncConverter(stitch))).toEqual({
 				a: 'a1',
