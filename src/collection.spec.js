@@ -6,26 +6,34 @@
 
 /* Helpers */
 import { rndBetween, rndString, rndValue, rndValues }
-	from '@laufire/utils/random';
-import { isDefined, inferType, isIterable,
-	isDict, isArray, isObject } from '@laufire/utils/reflection';
-import { ascending, descending,
-	reverse as sReverse } from '@laufire/utils/sorters';
+from '@laufire/utils/random';
+import {
+	isDefined, inferType, isIterable,
+	isDict, isArray, isObject,
+} from '@laufire/utils/reflection';
+import {
+	ascending, descending,
+	reverse as sReverse,
+} from '@laufire/utils/sorters';
 import { sum, product } from '@laufire/utils/reducers';
-import { select as tSelect, map as tMap, keys as tKeys,
+import {
+	select as tSelect, map as tMap, keys as tKeys,
 	values as tValues, secure as tSecure, entries as tEntries,
 	toDict as tToDict, filter as tFilter, reduce as tReduce,
 	clean as tClean, fromEntries as tFromEntries,
 	pick as tPick, clone as tClone, merge as tMerge,
 	shell as tShell, equals as tEquals,
 	shuffle as tShuffle, result as tResult,
-	range as tRange } from '@laufire/utils/collection';
+	range as tRange,
+} from '@laufire/utils/collection';
 import { isEqual } from '@laufire/utils/predicates';
-import { rndKey, array, object, expectEquals,
+import {
+	rndKey, array, object, expectEquals,
 	rndDict, rndNested, extended, isolated, toObject,
 	rndKeys, rndRange, rnd, similarCols,
 	iterableTypes, allTypes, retry, rndCollection, converters, till,
-	isAcceptable, reversers, label } from '../test/helpers';
+	isAcceptable, reversers, label,
+} from '../test/helpers';
 
 /* Tested */
 import {
@@ -46,7 +54,7 @@ const mockObj = (objKeys, value) =>
 
 /* Spec */
 describe('Collection', () => {
-/* Mocks and Stubs */
+	/* Mocks and Stubs */
 	const simpleObj = secure({
 		a: 1,
 		b: 2,
@@ -102,7 +110,7 @@ describe('Collection', () => {
 	const stitch = (val, key) => String(key) + String(val);
 	const reverseArray = (input) => sort(input, sReverse);
 	const testForArguments = (fn, collection) => {
-	// TODO: Use imported nothing after publishing.
+		// TODO: Use imported nothing after publishing.
 		const mockPredicate = jest.fn(() => false);
 
 		fn(collection, mockPredicate);
@@ -142,11 +150,11 @@ describe('Collection', () => {
 
 	const testMerge = (merged, ...collections) => {
 		tMap(merged, (value, key) => {
-		// TODO: Use library filter.
+			// TODO: Use library filter.
 			const getChildren = () =>
 				tMap(collections.filter((collection) =>
 					isIterable(collection)
-						&& collection.hasOwnProperty(key)), (child) =>
+					&& collection.hasOwnProperty(key)), (child) =>
 					child[key]);
 
 			const expected = getChildren();
@@ -232,10 +240,10 @@ describe('Collection', () => {
 
 	/* Tests */
 	describe('map transforms the given iterable using'
-	+ ' the given callback', () => {
+		+ ' the given callback', () => {
 		describe('examples', () => {
 			test('map works with all the properties of the object'
-		+ ' and builds a new object', () => {
+					+ ' and builds a new object', () => {
 				expect(map(simpleObj, stitch)).toEqual({
 					a: 'a1',
 					b: 'b2',
@@ -255,7 +263,7 @@ describe('Collection', () => {
 	});
 
 	describe('filter filters the given iterable using'
-	+ ' the given callback', () => {
+		+ ' the given callback', () => {
 		test('example', () => {
 			expect(filter(simpleObj, isEqual(1))).toEqual({
 				a: 1,
@@ -283,7 +291,7 @@ describe('Collection', () => {
 	});
 
 	describe('find finds the first element from the collection chose'
-	+ ' by the predicate', () => {
+		+ ' by the predicate', () => {
 		test('example', () => {
 			expect(find(simpleObj, isEqual(2))).toBe(2);
 			expect(find(simpleObj, isEqual(3))).toBeUndefined();
@@ -317,7 +325,7 @@ describe('Collection', () => {
 	});
 
 	describe('findLast finds the last element from the collection chose'
-	+ ' by the predicate', () => {
+		+ ' by the predicate', () => {
 		test('example', () => {
 			const iterable = [999, 12, 8, 130, 44];
 
@@ -352,7 +360,7 @@ describe('Collection', () => {
 	});
 
 	describe('findKey finds the key of first element from the collection chose'
-	+ ' by the predicate', () => {
+		+ ' by the predicate', () => {
 		test('example', () => {
 			expect(findKey(simpleObj, isEqual(2))).toBe('b');
 			expect(findKey(simpleObj, isEqual(3))).toBeUndefined();
@@ -381,7 +389,7 @@ describe('Collection', () => {
 	});
 
 	describe('findLastKey find the key of last element from the'
-	+ ' collection chose by predicate', () => {
+		+ ' collection chose by predicate', () => {
 		test('example', () => {
 			const iterable = [999, 12, 8, 44, 130, 44];
 
@@ -473,7 +481,7 @@ describe('Collection', () => {
 	});
 
 	describe('shell returns an empty container of the same type'
-	+ ' as the given iterable', () => {
+		+ ' as the given iterable', () => {
 		test('example', () => {
 			expect(shell(simpleObj)).toEqual({});
 			expect(shell(simpleArray)).toEqual([]);
@@ -507,7 +515,7 @@ describe('Collection', () => {
 	});
 
 	describe('sanitize removes undefined props recursively from the'
-	+ 'given iterable', () => {
+		+ 'given iterable', () => {
 		test('example', () => {
 			const sanitized = sanitize(complexObject);
 
@@ -535,7 +543,7 @@ describe('Collection', () => {
 	});
 
 	describe('traverse recursively traverses through a given object and'
-	+ ' builds a new object from its primitives', () => {
+		+ ' builds a new object from its primitives', () => {
 		test('example', () => {
 			expect(traverse(nestedObj, stitch)).toEqual({
 				a: 'a1',
@@ -589,7 +597,7 @@ describe('Collection', () => {
 	});
 
 	describe('hasKey tells whether the given iterable has'
-	+ ' the given key', () => {
+		+ ' the given key', () => {
 		test('example', () => {
 			const cart = {
 				item: 'apple',
@@ -610,14 +618,14 @@ describe('Collection', () => {
 
 			tMap(types, (type) => {
 				has(iterables, type)
-					&& expect(hasKey(type, rndKey(type))).toEqual(true);
+						&& expect(hasKey(type, rndKey(type))).toEqual(true);
 				expect(hasKey(type, rndString())).toEqual(false);
 			});
 		});
 	});
 
 	describe('walk recursively walks through a given object and'
-	+ ' returns the reduced value', () => {
+		+ ' returns the reduced value', () => {
 		test('example', () => {
 			const dirStructure = {
 				a: 1,
@@ -626,16 +634,20 @@ describe('Collection', () => {
 			const report = {
 				type: 'dir', size: 3, children: {
 					a: { type: 'file', size: 1 },
-					b: { type: 'dir', size: 2, children: {
-						c: { type: 'file', size: 2 },
-					}},
+					b: {
+						type: 'dir', size: 2, children: {
+							c: { type: 'file', size: 2 },
+						},
+					},
 				},
 			};
 			const walker = (digest, value) => (!isDefined(digest)
 				? { type: 'file', size: value }
-				: { type: 'dir', size: tReduce(
-					digest, (acc, { size }) => acc + size, 0
-				), children: digest });
+				: {
+					type: 'dir', size: tReduce(
+						digest, (acc, { size }) => acc + size, 0
+					), children: digest,
+				});
 
 			expect(walk(dirStructure, walker)).toEqual(report);
 		});
@@ -698,7 +710,7 @@ describe('Collection', () => {
 	});
 
 	describe('squash squashes objects and object lists'
-	+ ' to a single object', () => {
+		+ ' to a single object', () => {
 		test('example', () => {
 			const squashed = squash(
 				{ a: 1 }, [{ b: 2 }], { c: 3 }
@@ -870,13 +882,13 @@ describe('Collection', () => {
 			expect(overlaid.complexArray === topLevel.complexArray)
 				.toEqual(true);
 			expect(overlaid.complexArray.innerArray
-		=== topLevel.complexArray.innerArray).toEqual(true);
+				=== topLevel.complexArray.innerArray).toEqual(true);
 		});
 
 		test('randomized test', () => {
 			const testOverlay = (overlaid, ...collections) => {
 				tMap(overlaid, (value, key) => {
-				// TODO: Use library filter.
+					// TODO: Use library filter.
 					const getChildren = () =>
 						tMap(collections.filter((collection) =>
 							isIterable(collection)
@@ -982,10 +994,10 @@ describe('Collection', () => {
 			};
 
 			const getChildren = (collections, key) =>
-			// TODO: Use library filter.
+				// TODO: Use library filter.
 				tMap(collections.filter((collection) =>
 					isIterable(collection)
-							&& collection.hasOwnProperty(key)), (child) =>
+					&& collection.hasOwnProperty(key)), (child) =>
 					child[key]);
 
 			const testCombine = (combined, ...collections) =>
@@ -1011,7 +1023,7 @@ describe('Collection', () => {
 	});
 
 	describe('fill fills the missing properties of the given base'
-	+ ' from those of the extensions', () => {
+		+ ' from those of the extensions', () => {
 		test('example', () => {
 			const inputs = [
 				{
@@ -1162,9 +1174,9 @@ describe('Collection', () => {
 	});
 
 	describe('flipMany builds an one-to-one inverted mapping of'
-	+ ' a many to one object', () => {
+		+ ' a many to one object', () => {
 		test('example', () => {
-		// TODO: Decide whether the values could be objects.
+			// TODO: Decide whether the values could be objects.
 			const oneToMany = {
 				a: [1, 2],
 			};
@@ -1192,14 +1204,14 @@ describe('Collection', () => {
 	});
 
 	describe('translate gives the translation of the source based'
-	+ ' on a translation map', () => {
+		+ ' on a translation map', () => {
 		test('example', () => {
 			const sourceObject = { a: 1, b: { c: 2 }, d: 3 };
 			const selectorObject = { x: 'a', y: '/b/c', z: { w: 'd' }};
 			const expectedObject = { x: 1, y: 2, z: { w: 3 }};
 			const sourceArray = ['a', 'b', ['c'], 'd'];
 			const selectorArray = ['1', '2/0', ['3']];
-			const	expectedArray = ['b', 'c', ['d']];
+			const expectedArray = ['b', 'c', ['d']];
 
 			expect(translate(sourceObject, selectorObject))
 				.toEqual(expectedObject);
@@ -1241,7 +1253,7 @@ describe('Collection', () => {
 	});
 
 	describe('entries builds an array of key value pairs'
-	+ ' from given collection', () => {
+		+ ' from given collection', () => {
 		test('example', () => {
 			expect(entries(simpleArray)).toEqual([[0, 1], [1, 2]]);
 			expect(entries(simpleObj)).toEqual([['a', 1], ['b', 2]]);
@@ -1262,11 +1274,11 @@ describe('Collection', () => {
 	describe('select helps building sub-objects with selectors', () => {
 		describe('examples', () => {
 			test('select returns a sub-object of the given object,'
-	+ ' with the given array of properties', () => {
+				+ ' with the given array of properties', () => {
 				expect(select(simpleObj, ['a'])).toEqual({ a: 1 });
 			});
 			test('select returns a sub-object of the given object,'
-	+ ' with the properties in the given selector object', () => {
+				+ ' with the properties in the given selector object', () => {
 				expect(select(simpleObj, {
 					'some-thing': 'a',
 					'some value': 'keyNotInSource',
@@ -1274,14 +1286,14 @@ describe('Collection', () => {
 			});
 
 			test('select returns a sub-array of the given array,'
-	+ ' with the given array of properties', () => {
+				+ ' with the given array of properties', () => {
 				expect(select(simpleArray, [0])).toEqual([1]);
 			});
 		});
 
 		describe('randomized tests', () => {
 			test('select returns a sub-collection of the given collection,'
-		+ 'with the given selector collection', () => {
+				+ 'with the given selector collection', () => {
 				retry(() => {
 					const collection = rndCollection();
 					// eslint-disable-next-line max-len
@@ -1302,25 +1314,26 @@ describe('Collection', () => {
 	describe('omit helps building sub-objects through omitters', () => {
 		describe('examples', () => {
 			test('omit returns a sub-object of the given object,'
-	+ ' without the given array of properties', () => {
+				+ ' without the given array of properties', () => {
 				expect(omit(simpleObj, ['a'])).toEqual({ b: 2 });
 			});
 
 			test('omit returns a sub-object of the given object,'
-	+ ' without the properties in the given selector object', () => {
+				+ ' without the properties in the given selector object',
+			() => {
 				expect(omit(simpleObj, { 'some-thing': 'a' }))
 					.toEqual({ b: 2 });
 			});
 
 			test('omit returns a sub-array of the given array,'
-	+ ' without the given array of properties', () => {
+				+ ' without the given array of properties', () => {
 				expect(clean(omit(simpleArray, [0]))).toEqual([2]);
 			});
 		});
 
 		describe('randomized tests', () => {
 			test('omit returns a sub-collection of the given collection,'
-		+ ' without the given collection of properties', () => {
+				+ ' without the given collection of properties', () => {
 				retry(() => {
 					const collection = rndCollection();
 					// eslint-disable-next-line max-len
@@ -1339,7 +1352,7 @@ describe('Collection', () => {
 	});
 
 	describe('result returns the value for the given simple path'
-	+ ' or escaped path', () => {
+		+ ' or escaped path', () => {
 		test('example', () => {
 			const { single, parent } = complexObject;
 
@@ -1390,8 +1403,8 @@ describe('Collection', () => {
 	});
 
 	describe('compose returns an object from a list of objects,'
-	+ ' with only keys from the first object and the values from'
-	+ ' the objects , with a ascending priority', () => {
+		+ ' with only keys from the first object and the values from'
+		+ ' the objects , with a ascending priority', () => {
 		test('example', () => {
 			expect(compose(
 				{ a: 1, b: 2, c: 3 },
@@ -1417,7 +1430,7 @@ describe('Collection', () => {
 	});
 
 	describe('patch creates a new variation of a baseObject based on'
-	+ ' the given extension, while preserving them both', () => {
+		+ ' the given extension, while preserving them both', () => {
 		test('example', () => {
 			const extensionObj = { b: 3 };
 
@@ -1449,7 +1462,7 @@ describe('Collection', () => {
 	});
 
 	describe('diff returns the difference between a baseObject'
-	+ ' and a comparedObject', () => {
+		+ ' and a comparedObject', () => {
 		test('example', () => {
 			const difference = diff(baseObject, comparedObject);
 
@@ -1530,7 +1543,7 @@ describe('Collection', () => {
 	});
 
 	describe('secure prevents further modifications to'
-	+ ' the given iterable', () => {
+		+ ' the given iterable', () => {
 		const newValue = Symbol('value');
 
 		test('example', () => {
@@ -1539,17 +1552,17 @@ describe('Collection', () => {
 
 			const actions = {
 				objectMutation: () => {
-					frozenObject.parent.child = newValue ;
+					frozenObject.parent.child = newValue;
 				},
 				objectExtension: () => {
-					frozenObject.parent.newChild = newValue ;
+					frozenObject.parent.newChild = newValue;
 				},
 				objectDeletion: () => delete frozenObject.parent.child,
 				arrayMutation: () => {
-					frozenArray[0] = newValue ;
+					frozenArray[0] = newValue;
 				},
 				arrayExtension: () => {
-					frozenArray.push(newValue) ;
+					frozenArray.push(newValue);
 				},
 				arrayDeletion: () => frozenArray.pop(),
 			};
@@ -1582,7 +1595,7 @@ describe('Collection', () => {
 	});
 
 	describe('contains tests whether the base object contains'
-	+ ' the compared object', () => {
+		+ ' the compared object', () => {
 		test('example', () => {
 			expect(contains(1, 1)).toBe(true);
 			expect(contains(1, 0)).toBe(false);
@@ -1603,7 +1616,7 @@ describe('Collection', () => {
 	});
 
 	describe('equals tests the value equality of primitives and'
-	+ ' complex objects', () => {
+		+ ' complex objects', () => {
 		test('example', () => {
 			expect(equals(1, 1)).toBe(true);
 			expect(equals(1, 0)).toBe(false);
@@ -1624,7 +1637,7 @@ describe('Collection', () => {
 	});
 
 	describe('hasSame tests the given collections for having'
-	+ ' the same children', () => {
+		+ ' the same children', () => {
 		test('example', () => {
 			expect(hasSame(complexArray, [...complexArray])).toBe(true);
 			expect(hasSame(complexObject, { ...complexObject })).toBe(true);
@@ -1646,7 +1659,7 @@ describe('Collection', () => {
 	});
 
 	describe('gather gathers the given props from the children'
-	+ ' of the given iterable, as an iterable', () => {
+		+ ' of the given iterable, as an iterable', () => {
 		test('example', () => {
 			const arrayOfObjects = [
 				{ a: 1, b: 2 },
@@ -1658,7 +1671,7 @@ describe('Collection', () => {
 				a: [1, 2, undefined],
 				b: [2, 1, undefined],
 				c: [undefined, undefined, 3],
-			// NOTE: Arrays do hold references to undefined values, to preserve indices.
+				// NOTE: Arrays do hold references to undefined values, to preserve indices.
 			};
 
 			expect(gather(arrayOfObjects, ['a', 'b', 'c']))
@@ -1679,7 +1692,7 @@ describe('Collection', () => {
 							collections, (
 								expectedChild, child, childKey
 							) => {
-								expectedChild[childKey]	= child[selectorKey];
+								expectedChild[childKey] = child[selectorKey];
 
 								return expectedChild;
 							}, tShell(collections)
@@ -1694,7 +1707,7 @@ describe('Collection', () => {
 	});
 
 	describe('pick picks the given prop from the children,'
-	+ ' of the given iterable as an iterable', () => {
+		+ ' of the given iterable as an iterable', () => {
 		test('example', () => {
 			const arrayOfObjects = secure([
 				{ a: 1 },
@@ -1732,7 +1745,7 @@ describe('Collection', () => {
 			retry(() => {
 				const randomArray = rndRange();
 				const expectedArray = tReduce(
-				// eslint-disable-next-line no-return-assign
+					// eslint-disable-next-line no-return-assign
 					randomArray, (
 						acc, value, key
 						// eslint-disable-next-line no-sequences
@@ -1803,7 +1816,7 @@ describe('Collection', () => {
 		};
 
 		test('range returns an array of numbers with the given start, end'
-	+ ' and step values', () => {
+			+ ' and step values', () => {
 			testRange(...buildRange(
 				[5, 9], [5, 9], [1, 3]
 			));
@@ -1835,7 +1848,7 @@ describe('Collection', () => {
 			});
 
 			test('start to end direction and step direction '
-		+ 'are different', () => {
+				+ 'are different', () => {
 				const start = rndBetween(-10, 10);
 				const step = rndBetween(-5, 5);
 				const end = start - (step * rndBetween(1, 10));
@@ -1860,7 +1873,7 @@ describe('Collection', () => {
 	describe('shares', () => {
 		describe('examples', () => {
 			test('shares tests whether the given objects share the same value'
-	+ ' on given properties', () => {
+				+ ' on given properties', () => {
 				expect(shares(
 					simpleObj, nestedObj, ['a']
 				)).toBe(true);
@@ -1876,7 +1889,7 @@ describe('Collection', () => {
 
 		describe('randomized test', () => {
 			test('shares tests whether the given objects share the same value'
-		+ ' on given properties', () => {
+				+ ' on given properties', () => {
 				retry(() => {
 					const collection = rndCollection();
 					const properties = rndKeys(collection);
@@ -1980,7 +1993,7 @@ describe('Collection', () => {
 				const randomKeys = rndKeys(collection);
 
 				tMap(collection, (dummy, key) =>
-				// TODO: Remove converters after publishing.
+					// TODO: Remove converters after publishing.
 					!randomKeys.includes(converters[inferType(collection)](key))
 					&& delete collection[key]);
 				tSecure(collection);
@@ -2057,15 +2070,17 @@ describe('Collection', () => {
 			retry(() => {
 				const data = rndNested(rndBetween(0, 5));
 				const buildExpectation = (input, parentPath = '') =>
-					({ ...reduce(
-						isIterable(input) ? input : {}, (
-							acc, child, key
-						) => ({
-							...acc,
-							[`${ parentPath }/${ key }/`]: child,
-							...isIterable(child) && buildExpectation(child, `${ parentPath }/${ key }`),
-						}), {}
-					), '/': input });
+					({
+						...reduce(
+							isIterable(input) ? input : {}, (
+								acc, child, key
+							) => ({
+								...acc,
+								[`${ parentPath }/${ key }/`]: child,
+								...isIterable(child) && buildExpectation(child, `${ parentPath }/${ key }`),
+							}), {}
+						), '/': input,
+					});
 				const expected = buildExpectation(data);
 
 				const flattened = flatMap(data);
@@ -2151,7 +2166,7 @@ describe('Collection', () => {
 	});
 
 	describe('scaffold creates a structure'
-	+ ' based on the given path', () => {
+		+ ' based on the given path', () => {
 		describe('example', () => {
 			test('leaf defaults to an empty object',
 				() => {
@@ -2168,7 +2183,7 @@ describe('Collection', () => {
 				});
 
 			test('only provided one leaf will have'
-				+ ' only one descendent', () => {
+					+ ' only one descendent', () => {
 				const path = '/a/';
 				const leaf = Symbol('leaf');
 				const expected = {
@@ -2281,7 +2296,7 @@ describe('Collection', () => {
 		});
 	});
 
-	describe('mapAsync maps the given collection async.', () => {
+	describe.only('mapAsync maps the given collection async.', () => {
 		test('examples', async () => {
 			expect(await mapAsync(simpleObj, asyncConverter(stitch))).toEqual({
 				a: 'a1',

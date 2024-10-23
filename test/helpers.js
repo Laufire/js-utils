@@ -5,7 +5,7 @@ import {
 	omit, merge,
 } from '@laufire/utils/collection';
 import { rndValue, rndBetween, rndString, rndValues }
-	from '@laufire/utils/random';
+from '@laufire/utils/random';
 import { inferType, isDefined } from '@laufire/utils/reflection';
 import { not, isEqual } from '@laufire/utils/predicates';
 import TestConfig from './config';
@@ -72,13 +72,13 @@ const rndCollection = (minCount = defaults.minCount,
 
 const findLastIndex = (arr, predicate) =>
 	arr.findIndex((item, i) => predicate(item)
-							&& arr.slice(i + 1)
-								.findIndex(predicate) === -1);
+		&& arr.slice(i + 1)
+			.findIndex(predicate) === -1);
 
 const till = (arr, predicate) =>
 	secure(arr.slice(0, findLastIndex(arr, predicate) + 1));
 
-const fn = function () {};
+const fn = function () { };
 
 const Constructor = fn;
 
@@ -211,7 +211,7 @@ const similarCols = (minCount = defaults.minCount,
 		// eslint-disable-next-line no-return-assign
 		rndColl, (
 			acc, dummy, key
-		// eslint-disable-next-line no-sequences
+			// eslint-disable-next-line no-sequences
 		) => (acc[key] = Symbol(key), acc), shell(rndColl)
 	);
 
