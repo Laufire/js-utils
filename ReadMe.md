@@ -11,13 +11,15 @@
 	* overlay - uses extension arrays, as they are, allowing for greater control.
 	* combine - adds the extension arrays to the source arrays, thus makes array lengths the sum of the two.
 
-* Randomized tests are expected to have an accuracy above second standard deviation, to allow for faster testing cycles.
+* Randomized tests are expected to have an accuracy above second standard deviation (not third), to allow for faster testing cycles.
 
 ## HowTo
 
 * When immutability is required for functions like collection.merge and collection.combine, pass an empty base object. Ex: *merge({}, someObj)*
 
 ## ToDo
+
+* Fix the following bug: collection.flatMap doesn't escape keys. This leads to keys with path syntax override the actual path.
 
 * Consider passing nested paths to the callbacks of collection.traverse and collection.walk.
 
@@ -45,11 +47,9 @@
 
 * Pre-release
 
-	* Audit the packages.
-
 	* Update the packages.
 
-	* Support at least the last four LTS vesrions of Node JS.
+	* Support at least the last four LTS versions of Node JS.
 
 	* Use module alias instead of relative path.
 
