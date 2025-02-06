@@ -81,5 +81,12 @@
     "./*": "./module/*",
     "./lib": null,
     "./module": null
+  },
+  "pnpm": {
+    "overrides": {
+      "tar@<6.2.1": ">=6.2.1",
+      "braces@<3.0.3": ">=3.0.3",
+      "micromatch@<4.0.8": ">=4.0.8"
+    }
   }
 }
